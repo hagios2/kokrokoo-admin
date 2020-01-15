@@ -1,0 +1,27 @@
+
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Raleway:300,400,600");
+
+// Variables
+@import "variables";
+
+// Bootstrap
+//@import '~bootstrap/scss/bootstrap';
+@import "./css/bootstrap/dist/css/bootstrap.min.css";
+@import "~font-awesome";
+@import "~nprogress/nprogress.css";
+@import "./css/iCheck/skins/flat/green.css";
+@import "./css/bootstrap_progressbar/bootstrap-progressbar-3.3.4.css";
+@import "~jqvmap/dist/jqvmap.min.css";
+@import "./css/bootstrap-daterangepicker/daterangepicker.css";
+@import "./css/datatables.net-bs/css/dataTables.bootstrap.min.css";
+@import "./css/datatables.net-buttons-bs/css/buttons.bootstrap.min.css";
+@import "./css/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css";
+@import "./css/datatables.net-responsive-bs/css/responsive.bootstrap.min.css";
+@import "./css/datatables.net-scroller-bs/css/scroller.bootstrap.min.css";
+@import "/custom.css";
+@import "./css/custome/custom.css";
+.navbar-laravel {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
