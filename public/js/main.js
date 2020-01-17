@@ -60,7 +60,7 @@ $(document).ready(function () {
             formData.append('id', user_id);
             axios.post('/admin/user-account/accept', formData).then(function (res) {
                 if (res.data === 'success') {
-                    window.location.replace("http://localhost:8000/admin/users");
+                    window.location.replace("http://admin.kokrokooad.com/admin/users");
                 } else {
                     swal("Error!", "We encounter an error processing request.Try again later!", "error");
 
@@ -104,7 +104,7 @@ $(document).ready(function () {
 
             axios.post('/admin/user-account/unblock', formData).then(function (res) {
                 if (res.data === 'success') {
-                    window.location.replace("http://localhost:8000/admin/users");
+                    window.location.replace("http://admin.kokrokooad.com/admin/users");
                 } else {
                     swal("Error!", "We encounter an error processing request.Try again later!", "error");
 
@@ -182,7 +182,7 @@ $(document).ready(function () {
 
             axios.post('/admin/user-account/block', formData).then(function (res) {
                 if (res.data === 'success') {
-                    window.location.replace("http://localhost:8000/admin/users");
+                    window.location.replace("http://admin.kokrokooad.com/admin/users");
                 } else {
                     swal("Error!", "We encounter an error processing request.Try again later!", "error");
 
