@@ -46,6 +46,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/admin-account/profile', 'ProfileController@show')->name('profile');
     Route::post('/admin-account/profile/edit', 'AdminProfileController@update')->name('profile.edit');
     Route::post('/admin-account/profile/password-reset', 'AdminProfileController@updatePassword')->name('password.reset');
+    Route::get('download-sub/{id}', 'SubscriptionController@downloadFile')->name('download.sub');
+
 
 });
 

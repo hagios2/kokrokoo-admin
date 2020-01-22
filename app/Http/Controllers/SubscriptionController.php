@@ -114,6 +114,38 @@ class SubscriptionController extends Controller
          return response()->download($file, $f_name, $headers);
     }
 
+
+    public function downloadFile($id)
+    {
+        $f_name = null;
+        $f_type = null;
+        $file_name = null;
+
+        if (Auth::guard()->check()) {
+            $file_name = ScheduledAd::select('file_name', 'file_type')->whereMedia_house_id(auth()->user()->client_id)->whereSubscription_id($id)->get();
+        } elseif (Auth::guard('admin')->check()) {
+            $file_name = ScheduledAd::select('file_name', 'file_type')->whereMedia_house_id(Auth::guard('admin')->user()->media_house_id)->whereSubscription_id($id)->get();
+        }
+
+        foreach ($file_name as $file) {
+            $f_name = $file->file_name;
+            $f_type = $file->file_type;
+        }
+        $ext = explode('/', $f_type);
+
+        //  $file_path = public_path() . "/storage/" . $f_name;
+        $headers = [
+            'Content-Type' => 'application/' . $ext[0]
+        ];
+
+        // $file = storage_path('app') . $f_name;
+        // $file = env('SUB_FILES_URL').$f_name;
+        $file = '/var/www/html/uploads/subscription-files/'.$f_name;
+
+
+        return response()->download($file, $f_name, $headers);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
