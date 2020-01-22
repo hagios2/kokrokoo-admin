@@ -28,7 +28,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/subscriptions', 'SubscriptionController@index')->name('all.subs');
     Route::get('/subscriptions/filter', 'FilterSubscriptionController@filter')->name('subs.filter');
     Route::get('/filter', 'FilterSubscriptionController@test')->name('filtered.subs');
-    Route::get('/subscriptions/{id}', 'SubscriptionController@show')->name('subs.show');
+
+    Route::get('/view-subscription/{id}', 'SubscriptionController@show')->name('subs.show');
+
     Route::get('/subscriptions/view/file/{id}/{m_id}', 'SubscriptionController@download')->name('file.view');
     Route::get('/ratecards', 'RateCardsController@index')->name('rate.cards');
     Route::get('/ratecard/{id}', 'RateCardsController@show')->name('card.show');

@@ -30,10 +30,17 @@ class SubscriptionController extends Controller
 
             return datatables()->of($schedAds)
                 ->addColumn('action', function($row){
+//                    $btn = '<div class="btn-group btn-group-sm"> ';
+//                    $btn =$btn.  '<a href="/admin/subscriptions/'.$row->subscription_id.'" data-toggle="tooltip"     data-id="'.$row->subscription_id.'" data-original-title="view" class="edit btn btn-success btn-sm view-sub"><i class="fa fa-eye"></i></a>';
+//                    //$btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"><i class="fa fa-unlock"></i> </button>';
+//                   // $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
+//                    $btn = $btn . '</div';
+//                    return $btn;
+
                     $btn = '<div class="btn-group btn-group-sm"> ';
-                    $btn =$btn.  '<a href="/admin/subscriptions/'.$row->subscription_id.'" data-toggle="tooltip"     data-id="'.$row->subscription_id.'" data-original-title="view" class="edit btn btn-success btn-sm view-sub"><i class="fa fa-eye"></i></a>';
+                    $btn =$btn.  '<a href="/admin/view-subscription/'.$row->subscription_id.'" data-toggle="tooltip"     data-id="'.$row->subscription_id.'" data-original-title="view" class="edit btn btn-success "><i class="fa fa-eye"></i></a>';
                     //$btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"><i class="fa fa-unlock"></i> </button>';
-                   // $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
+                    // $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
                     $btn = $btn . '</div';
                     return $btn;
                 })
@@ -73,11 +80,13 @@ class SubscriptionController extends Controller
      */
     public function show($id)
     {
-        $client  = ScheduledAd::select('file_name','file_path','file_type')->where('subscription_id','=',$id)->get();
-        $file_name  = $client[0]->file_name;
-        $ext = explode('.',$file_name);
+//        $client  = ScheduledAd::select('file_name','file_path','file_type')->where('subscription_id','=',$id)->get();
+//        $file_name  = $client[0]->file_name;
+//        $ext = explode('.',$file_name);
+        $sub = ScheduledAd::select('subscription_id','file_name','file_path','file_size','file_type','status','client_id')->where('subscription_id',$id)->get();
+        return view('admin.subscriptions.viewSubDetails')->with('sub',$sub);
 
-        return view('admin.partials.view_sub_details')->with(['file_name'=>$file_name,'ext'=>$ext[1]]);
+      //  return view('admin.partials.view_sub_details')->with(['file_name'=>$file_name,'ext'=>$ext[1]]);
     }
 
     public function download($id ,$m_id){
