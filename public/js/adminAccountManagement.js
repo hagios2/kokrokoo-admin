@@ -40,7 +40,7 @@ $(document).ready(function () {
 
             axios.post('/admin/admin-account/unblock', formData).then(function (res) {
                 if (res.data === 'success') {
-                    window.location.replace("http://localhost:8000/admin/manage/admins");
+                    window.location.replace("http://admin.kokrokooad.com/admin/manage/admins");
                 } else {
                     swal("Error!", "We encounter an error processing request.Try again later!", "error");
 
@@ -118,7 +118,7 @@ $(document).ready(function () {
 
             axios.post('/admin/admin-account/block', formData).then(function (res) {
                 if (res.data === 'success') {
-                    window.location.replace("http://localhost:8000/admin/manage/admins");
+                    window.location.replace("http://admin.kokrokooad.com/admin/manage/admins");
                 } else {
                     swal("Error!", "We encounter an error processing request.Try again later!", "error");
 
