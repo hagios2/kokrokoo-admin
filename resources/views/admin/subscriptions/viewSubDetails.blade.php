@@ -71,27 +71,27 @@
 
                               </div>
                         </div>
-                              @if($subs->status === 'pending')
-                                    <form method="post" action="{{route('admin.accept.subs')}}">
-                                          @csrf
-                                          <input type="hidden" value="{{$subs->subscription_id}}" name="sub_id">
-                                          <input type="hidden" value="{{$subs->client_id}}" name="user_id">
+{{--                              @if($subs->status === 'pending')--}}
+{{--                                    <form method="post" action="{{route('admin.accept.subs')}}">--}}
+{{--                                          @csrf--}}
+{{--                                          <input type="hidden" value="{{$subs->subscription_id}}" name="sub_id">--}}
+{{--                                          <input type="hidden" value="{{$subs->client_id}}" name="user_id">--}}
 
-                                          <button type="submit" role="button" class="btn btn-secondary" style="margin-left: 15px;">Approve</button>
-                                    </form>
-                                          <form method="post" action="{{route('admin.reject.subs')}}">
-                                                @csrf
-                                                <input type="hidden" value="{{$subs->subscription_id}}" name="sub_id">
-                                                <input type="hidden" value="{{$subs->client_id}}" name="user_id">
-                                                <button type="submit" class="btn btn-danger">Reject</button>
-                                          </form>
+{{--                                          <button type="submit" role="button" class="btn btn-secondary" style="margin-left: 15px;">Approve</button>--}}
+{{--                                    </form>--}}
+{{--                                          <form method="post" action="{{route('admin.reject.subs')}}">--}}
+{{--                                                @csrf--}}
+{{--                                                <input type="hidden" value="{{$subs->subscription_id}}" name="sub_id">--}}
+{{--                                                <input type="hidden" value="{{$subs->client_id}}" name="user_id">--}}
+{{--                                                <button type="submit" class="btn btn-danger">Reject</button>--}}
+{{--                                          </form>--}}
 
-                              @endif
+{{--                              @endif--}}
 
-                        <div class="btn-group float-right">
-                              <a href="download-sub/{{$subs->subscription_id}}"  role="button" class="btn btn-secondary"> Download <i class="fa fa-download" ></i> </a>
-                              <a href="{{route('all.subs')}}" class="btn btn-secondary">Back</a>
-                        </div>
+{{--                        <div class="btn-group float-right">--}}
+{{--                              <a href="download-sub/{{$subs->subscription_id}}"  role="button" class="btn btn-secondary"> Download <i class="fa fa-download" ></i> </a>--}}
+{{--                              <a href="{{route('all.subs')}}" class="btn btn-secondary">Back</a>--}}
+{{--                        </div>--}}
 
 
                         </div>
