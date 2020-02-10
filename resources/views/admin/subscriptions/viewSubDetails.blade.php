@@ -88,10 +88,10 @@
 
 {{--                              @endif--}}
 
-{{--                        <div class="btn-group float-right">--}}
+                        <div class="btn-group float-right">
 {{--                              <a href="download-sub/{{$subs->subscription_id}}"  role="button" class="btn btn-secondary"> Download <i class="fa fa-download" ></i> </a>--}}
-{{--                              <a href="{{route('all.subs')}}" class="btn btn-secondary">Back</a>--}}
-{{--                        </div>--}}
+                              <a href="{{route('all.subs')}}" class="btn btn-secondary">Back</a>
+                        </div>
 
 
                         </div>
