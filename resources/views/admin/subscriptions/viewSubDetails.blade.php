@@ -53,7 +53,7 @@
                                           @endif
 
                                           @if($subs->file_type === 'jpeg' || $subs->file_type == 'jpg' || $subs->file_type == 'png')
-                                          <img src="{{"http://uploads.kokrokooad.com/subscription-files/".$subs->file_name}}"  alt="image">
+                                          <img src="{{$subs->file_path.$subs->file_name}}"  alt="image">
                                                 @endif
 
                                                 @if($subs->file_type === 'mp4' || $subs->file_type === 'avi' || $subs->file_type === 'wma')
