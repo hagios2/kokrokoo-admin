@@ -9,7 +9,7 @@
                 <div class="col-md-offset-9">
                     <input type="text" class="form-control pull-right" placeholder="search" id="search" style="border-radius: 15px;margin-bottom: -10px;">
                 </div>
-                <table id="laravel_datatable" class="table table-striped table-bordered table-responsive">
+                <table id="laravel_datatable" class="table table-striped table-bordered table-responsive" style="font-size: 10px;">
                     <thead>
                     <tr>
                         <th>ID</th>

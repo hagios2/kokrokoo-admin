@@ -30,7 +30,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/filter', 'FilterSubscriptionController@test')->name('filtered.subs');
 
     Route::get('/view-subscription/{id}', 'SubscriptionController@show')->name('subs.show');
-
+    Route::get('view-ratecard-api/{id}/{media_type}', 'RateCardsController@show')->name('view.rate.card');
     Route::get('/subscriptions/view/file/{id}/{m_id}', 'SubscriptionController@download')->name('file.view');
     Route::get('/ratecards', 'RateCardsController@index')->name('rate.cards');
     Route::get('/ratecard/{id}', 'RateCardsController@show')->name('card.show');
@@ -39,19 +39,16 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/manage/admins', 'AdminController@index')->name('admin.index');
     Route::post('/admin-account/block', 'AdminAccountController@blockUser')->name('block.admin');
     Route::post('/admin-account/unblock', 'AdminAccountController@unblockUser')->name('unblock.admin');
-//    Route::get('/audit/trail', 'AuditTrailController@index')->name('audit.trail');
+    //    Route::get('/audit/trail', 'AuditTrailController@index')->name('audit.trail');
     Route::get('/audits', 'AuditController@index')->name('audits');
-    Route::get('/audit','AuditController@index')->name('audit');
+    Route::get('/audit', 'AuditController@index')->name('audit');
     Route::get('/transactions', 'TransactionsController@transactions')->name('transactions');
     Route::get('/admin-account/profile', 'ProfileController@show')->name('profile');
     Route::post('/admin-account/profile/edit', 'AdminProfileController@update')->name('profile.edit');
     Route::post('/admin-account/profile/password-reset', 'AdminProfileController@updatePassword')->name('password.reset');
     Route::get('download-sub/{id}', 'SubscriptionController@downloadFile')->name('download.sub');
-
-
 });
 
 Route::prefix('admin/auth')->group(function () {
     Auth::routes();
 });
-

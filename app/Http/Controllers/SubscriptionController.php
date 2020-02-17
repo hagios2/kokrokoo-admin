@@ -38,7 +38,7 @@ class SubscriptionController extends Controller
 //                    return $btn;
 
                     $btn = '<div class="btn-group btn-group-sm"> ';
-                    $btn =$btn.  '<a href="/admin/view-subscription/'.$row->subscription_id.'" data-toggle="tooltip"     data-id="'.$row->subscription_id.'" data-original-title="view" class="edit btn btn-success "><i class="fa fa-eye"></i></a>';
+                    $btn =$btn.  '<a href="/admin/view-subscription/'.$row->subscription_id.'" data-toggle="tooltip" role="button"     data-id="'.$row->subscription_id.'" data-original-title="view" class="edit btn btn-success btn-sm "><i class="fa fa-eye"></i></a>';
                     //$btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"><i class="fa fa-unlock"></i> </button>';
                     // $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
                     $btn = $btn . '</div';

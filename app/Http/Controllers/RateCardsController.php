@@ -18,17 +18,17 @@ class RateCardsController extends Controller
      */
     public function index()
     {
-        if(request()->ajax()) {
+        if (request()->ajax()) {
             $rate_cards  =  DB::table('rate_cards')
-                ->join('rate_card_titles', 'rate_cards.rate_card_title_id','=','rate_card_titles.rate_card_title_id')
-                ->join('users', 'rate_cards.media_house_id','=','users.client_id')
-                ->select('rate_cards.*','rate_card_titles.rate_card_title', 'users.media_house')
+                ->join('rate_card_titles', 'rate_cards.rate_card_title_id', '=', 'rate_card_titles.rate_card_title_id')
+                ->join('users', 'rate_cards.media_house_id', '=', 'users.client_id')
+                ->select('rate_cards.*', 'rate_card_titles.rate_card_title', 'users.media_house', 'users.media')
                 ->get();
             return datatables()->of($rate_cards)
-                ->addColumn('action', function($row){
+                ->addColumn('action', function ($row) {
 
-                    $btn =  '<a href="ratecard/'.$row->rate_card_id.'" data-toggle="tooltip"     data-id="'.$row->rate_card_id.'" 
-                    data-original-title="view" class="edit btn btn-success btn-sm view-sub"><i class="fa fa-eye"></i></a>';
+                    $btn =  '<button  data-toggle="tooltip"   data-id="' . $row->rate_card_title_id . '"  data-media="' . $row->media . '"
+                    data-original-title="view" class="edit btn btn-success btn-sm view-sub viewRateCard"><i class="fa fa-eye"></i></button>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -65,25 +65,46 @@ class RateCardsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, $media_type)
     {
-        $client  = RateCard::select('media_house_id','rate_card_title_id','segments','weekend_segments')->where('rate_card_id','=',$id)->get();
-        $media_id  = $client[0]->media_house_id;
-        $segmentData = $client[0]->segments;
-        $wSegmentData = $client[0]->weekend_segments;
-        $rate_card_title_id = $client[0]->rate_card_title_id;
 
-        $username = User::select('name')->where('client_id','=',$media_id)->get();
-        $media_house = User::select('media_house','media')->where('client_id','=', $media_id)->get();
-        $rate_card = RateCardTitle::select('rate_card_title')->where('rate_card_title_id','=', $rate_card_title_id)->get();
-         $d = $segmentData;
-         $wd = $wSegmentData;
+        if ($media_type != 'Print') {
+            $rate_cards  = DB::table('rate_card_titles')
+                ->join('rate_cards', 'rate_card_titles.rate_card_title_id', '=', 'rate_cards.rate_card_title_id')
+                ->select('rate_card_titles.rate_card_title', 'rate_cards.*')
+                ->where('rate_card_titles.rate_card_title_id', '=', $id)->get();
+            if (!empty($rate_cards)) {
+                $segments = $rate_cards[0]->segments;
+                $w_segments = json_decode($rate_cards[0]->weekend_segments);
+                $days_of_week = json_decode($rate_cards[0]->days_of_week);
+                $days_of_weekends = $rate_cards[0]->days_of_weekend;
 
-       //  dd($wd);
+                return response()->json(['rate_card' => $rate_cards, 'rate_card_title' => $rate_cards[0]->rate_card_title, 'segments' => $segments, 'days_of_week' => $days_of_week, 'days_of_weekends' => $days_of_weekends, 'w_segments' => $w_segments]);
+            } else {
 
-        return view('admin.rateCards.rate_card_details')->with(['username'=>$username,'rate_card_id'=> $id,'media_house_id'=>$media_id,
-            'media_house'=>$media_house,'rate_card'=> $rate_card,'d'=> $d,'wd'=>$wd]);
+                return response()->json(['response' => 'no records']);
+            }
+        } else {
+
+            $rate_cards = PrintRateCard::whereMedia_house_id(auth()->user()->client_id)->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
+            $print_segments = json_decode($rate_cards[0]->rate_card_data);
+            $rate_cards_title = RateCardTitles::select('rate_card_title')->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
+            if (!empty($rate_cards)) {
+                return response()->json(['rate_card' => $print_segments, 'rate_card_title' => $rate_cards_title]);
+            } else {
+
+                return response()->json(['response' => 'no records']);
+            }
+        }
     }
+
+
+
+
+
+
+
+
 
     /**
      * Show the form for editing the specified resource.

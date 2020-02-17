@@ -25,10 +25,10 @@ require("./vendors/jqvmap/dist/jquery.vmap.js");
 require("./vendors/jqvmap/dist/maps/jquery.vmap.world.js");
 require("./vendors/jqvmap/examples/js/jquery.vmap.sampledata.js");
 //require("./vendors/moment/min/moment.min.js");
-require('sweetalert');
+//require('sweetalert');
 require("./custome/custom");
 //require("./custome_scripts/users");
-require("./main");
+//require("./main");
 
 
 
@@ -41,7 +41,14 @@ window.Vue = require('vue');
  */
 
 Vue.component('example-component', require('./components/ExampleComponent.vue'));
+Vue.component('view-rate-card', require('./components/rateCards/viewRateCard'));
+Vue.component('view-single-rate-card', require('./components/rateCards/vueSingleRateCard'));
+Vue.component('testa', require('./components/test'));
+
+
+
 
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+
 });
