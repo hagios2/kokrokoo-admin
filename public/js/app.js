@@ -1206,7 +1206,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(68)
+var listToStyles = __webpack_require__(69)
 
 /*
 type StyleObject = {
@@ -1419,7 +1419,7 @@ function applyToTag (styleElement, obj) {
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(15);
-module.exports = __webpack_require__(79);
+module.exports = __webpack_require__(80);
 
 
 /***/ }),
@@ -1448,18 +1448,18 @@ __webpack_require__(50);
 __webpack_require__(51);
 __webpack_require__(52);
 __webpack_require__(53);
-__webpack_require__(101);
 __webpack_require__(54);
 __webpack_require__(55);
 __webpack_require__(56);
+__webpack_require__(57);
 //require("./vendors/moment/min/moment.min.js");
 //require('sweetalert');
-__webpack_require__(100);
+__webpack_require__(58);
 //require("./custome_scripts/users");
 //require("./main");
 
 
-window.Vue = __webpack_require__(58);
+window.Vue = __webpack_require__(59);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -1467,10 +1467,10 @@ window.Vue = __webpack_require__(58);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example-component', __webpack_require__(62));
-Vue.component('view-rate-card', __webpack_require__(65));
-Vue.component('view-single-rate-card', __webpack_require__(71));
-Vue.component('testa', __webpack_require__(74));
+Vue.component('example-component', __webpack_require__(63));
+Vue.component('view-rate-card', __webpack_require__(66));
+Vue.component('view-single-rate-card', __webpack_require__(72));
+Vue.component('testa', __webpack_require__(75));
 
 var app = new Vue({
   el: '#app'
@@ -32915,6 +32915,4278 @@ ____________________________________________________
 
 /***/ }),
 /* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/** 
+ * @overview datejs
+ * @version 1.0.0-rc3
+ * @author Gregory Wild-Smith <gregory@wild-smith.com>
+ * @copyright 2014 Gregory Wild-Smith
+ * @license MIT
+ * @homepage https://github.com/abritinthebay/datejs
+ */(function () {
+	var $D = Date;
+	var lang = Date.CultureStrings ? Date.CultureStrings.lang : null;
+	var loggedKeys = {}; // for debug purposes.
+	var getText = {
+		getFromKey: function getFromKey(key, countryCode) {
+			var output;
+			if (Date.CultureStrings && Date.CultureStrings[countryCode] && Date.CultureStrings[countryCode][key]) {
+				output = Date.CultureStrings[countryCode][key];
+			} else {
+				output = getText.buildFromDefault(key);
+			}
+			if (key.charAt(0) === "/") {
+				// Assume it's a regex
+				output = getText.buildFromRegex(key, countryCode);
+			}
+			return output;
+		},
+		getFromObjectValues: function getFromObjectValues(obj, countryCode) {
+			var key,
+			    output = {};
+			for (key in obj) {
+				if (obj.hasOwnProperty(key)) {
+					output[key] = getText.getFromKey(obj[key], countryCode);
+				}
+			}
+			return output;
+		},
+		getFromObjectKeys: function getFromObjectKeys(obj, countryCode) {
+			var key,
+			    output = {};
+			for (key in obj) {
+				if (obj.hasOwnProperty(key)) {
+					output[getText.getFromKey(key, countryCode)] = obj[key];
+				}
+			}
+			return output;
+		},
+		getFromArray: function getFromArray(arr, countryCode) {
+			var output = [];
+			for (var i = 0; i < arr.length; i++) {
+				if (i in arr) {
+					output[i] = getText.getFromKey(arr[i], countryCode);
+				}
+			}
+			return output;
+		},
+		buildFromDefault: function buildFromDefault(key) {
+			var output, length, split, last;
+			switch (key) {
+				case "name":
+					output = "en-US";
+					break;
+				case "englishName":
+					output = "English (United States)";
+					break;
+				case "nativeName":
+					output = "English (United States)";
+					break;
+				case "twoDigitYearMax":
+					output = 2049;
+					break;
+				case "firstDayOfWeek":
+					output = 0;
+					break;
+				default:
+					output = key;
+					split = key.split("_");
+					length = split.length;
+					if (length > 1 && key.charAt(0) !== "/") {
+						// if the key isn't a regex and it has a split.
+						last = split[length - 1].toLowerCase();
+						if (last === "initial" || last === "abbr") {
+							output = split[0];
+						}
+					}
+					break;
+			}
+			return output;
+		},
+		buildFromRegex: function buildFromRegex(key, countryCode) {
+			var output;
+			if (Date.CultureStrings && Date.CultureStrings[countryCode] && Date.CultureStrings[countryCode][key]) {
+				output = new RegExp(Date.CultureStrings[countryCode][key], "i");
+			} else {
+				output = new RegExp(key.replace(new RegExp("/", "g"), ""), "i");
+			}
+			return output;
+		}
+	};
+
+	var shallowMerge = function shallowMerge(obj1, obj2) {
+		for (var attrname in obj2) {
+			if (obj2.hasOwnProperty(attrname)) {
+				obj1[attrname] = obj2[attrname];
+			}
+		}
+	};
+
+	var _2 = function _2(key, language) {
+		var countryCode = language ? language : lang;
+		loggedKeys[key] = key;
+		if ((typeof key === "undefined" ? "undefined" : _typeof(key)) === "object") {
+			if (key instanceof Array) {
+				return getText.getFromArray(key, countryCode);
+			} else {
+				return getText.getFromObjectKeys(key, countryCode);
+			}
+		} else {
+			return getText.getFromKey(key, countryCode);
+		}
+	};
+
+	var loadI18nScript = function loadI18nScript(code) {
+		// paatterned after jQuery's getScript.
+		var url = Date.Config.i18n + code + ".js";
+		var head = document.getElementsByTagName("head")[0] || document.documentElement;
+		var script = document.createElement("script");
+		script.src = url;
+
+		var completed = false;
+		var events = {
+			done: function done() {} // placeholder function
+		};
+		// Attach handlers for all browsers
+		script.onload = script.onreadystatechange = function () {
+			if (!completed && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
+				events.done();
+				head.removeChild(script);
+			}
+		};
+
+		setTimeout(function () {
+			head.insertBefore(script, head.firstChild);
+		}, 0); // allows return to execute first
+
+		return {
+			done: function done(cb) {
+				events.done = function () {
+					if (cb) {
+						setTimeout(cb, 0);
+					}
+				};
+			}
+		};
+	};
+
+	var buildInfo = {
+		buildFromMethodHash: function buildFromMethodHash(obj) {
+			var key;
+			for (key in obj) {
+				if (obj.hasOwnProperty(key)) {
+					obj[key] = buildInfo[obj[key]]();
+				}
+			}
+			return obj;
+		},
+		timeZoneDST: function timeZoneDST() {
+			var DST = {
+				"CHADT": "+1345",
+				"NZDT": "+1300",
+				"AEDT": "+1100",
+				"ACDT": "+1030",
+				"AZST": "+0500",
+				"IRDT": "+0430",
+				"EEST": "+0300",
+				"CEST": "+0200",
+				"BST": "+0100",
+				"PMDT": "-0200",
+				"ADT": "-0300",
+				"NDT": "-0230",
+				"EDT": "-0400",
+				"CDT": "-0500",
+				"MDT": "-0600",
+				"PDT": "-0700",
+				"AKDT": "-0800",
+				"HADT": "-0900"
+			};
+			return _2(DST);
+		},
+		timeZoneStandard: function timeZoneStandard() {
+			var standard = {
+				"LINT": "+1400",
+				"TOT": "+1300",
+				"CHAST": "+1245",
+				"NZST": "+1200",
+				"NFT": "+1130",
+				"SBT": "+1100",
+				"AEST": "+1000",
+				"ACST": "+0930",
+				"JST": "+0900",
+				"CWST": "+0845",
+				"CT": "+0800",
+				"ICT": "+0700",
+				"MMT": "+0630",
+				"BST": "+0600",
+				"NPT": "+0545",
+				"IST": "+0530",
+				"PKT": "+0500",
+				"AFT": "+0430",
+				"MSK": "+0400",
+				"IRST": "+0330",
+				"FET": "+0300",
+				"EET": "+0200",
+				"CET": "+0100",
+				"GMT": "+0000",
+				"UTC": "+0000",
+				"CVT": "-0100",
+				"GST": "-0200",
+				"BRT": "-0300",
+				"NST": "-0330",
+				"AST": "-0400",
+				"EST": "-0500",
+				"CST": "-0600",
+				"MST": "-0700",
+				"PST": "-0800",
+				"AKST": "-0900",
+				"MIT": "-0930",
+				"HST": "-1000",
+				"SST": "-1100",
+				"BIT": "-1200"
+			};
+			return _2(standard);
+		},
+		timeZones: function timeZones(data) {
+			var zone;
+			data.timezones = [];
+			for (zone in data.abbreviatedTimeZoneStandard) {
+				if (data.abbreviatedTimeZoneStandard.hasOwnProperty(zone)) {
+					data.timezones.push({ name: zone, offset: data.abbreviatedTimeZoneStandard[zone] });
+				}
+			}
+			for (zone in data.abbreviatedTimeZoneDST) {
+				if (data.abbreviatedTimeZoneDST.hasOwnProperty(zone)) {
+					data.timezones.push({ name: zone, offset: data.abbreviatedTimeZoneDST[zone], dst: true });
+				}
+			}
+			return data.timezones;
+		},
+		days: function days() {
+			return _2(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]);
+		},
+		dayAbbr: function dayAbbr() {
+			return _2(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
+		},
+		dayShortNames: function dayShortNames() {
+			return _2(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
+		},
+		dayFirstLetters: function dayFirstLetters() {
+			return _2(["S_Sun_Initial", "M_Mon_Initial", "T_Tues_Initial", "W_Wed_Initial", "T_Thu_Initial", "F_Fri_Initial", "S_Sat_Initial"]);
+		},
+		months: function months() {
+			return _2(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]);
+		},
+		monthAbbr: function monthAbbr() {
+			return _2(["Jan_Abbr", "Feb_Abbr", "Mar_Abbr", "Apr_Abbr", "May_Abbr", "Jun_Abbr", "Jul_Abbr", "Aug_Abbr", "Sep_Abbr", "Oct_Abbr", "Nov_Abbr", "Dec_Abbr"]);
+		},
+		formatPatterns: function formatPatterns() {
+			return getText.getFromObjectValues({
+				shortDate: "M/d/yyyy",
+				longDate: "dddd, MMMM dd, yyyy",
+				shortTime: "h:mm tt",
+				longTime: "h:mm:ss tt",
+				fullDateTime: "dddd, MMMM dd, yyyy h:mm:ss tt",
+				sortableDateTime: "yyyy-MM-ddTHH:mm:ss",
+				universalSortableDateTime: "yyyy-MM-dd HH:mm:ssZ",
+				rfc1123: "ddd, dd MMM yyyy HH:mm:ss",
+				monthDay: "MMMM dd",
+				yearMonth: "MMMM, yyyy"
+			}, Date.i18n.currentLanguage());
+		},
+		regex: function regex() {
+			return getText.getFromObjectValues({
+				inTheMorning: "/( in the )(morn(ing)?)\\b/",
+				thisMorning: "/(this )(morn(ing)?)\\b/",
+				amThisMorning: "/(\b\\d(am)? )(this )(morn(ing)?)/",
+				inTheEvening: "/( in the )(even(ing)?)\\b/",
+				thisEvening: "/(this )(even(ing)?)\\b/",
+				pmThisEvening: "/(\b\\d(pm)? )(this )(even(ing)?)/",
+				jan: "/jan(uary)?/",
+				feb: "/feb(ruary)?/",
+				mar: "/mar(ch)?/",
+				apr: "/apr(il)?/",
+				may: "/may/",
+				jun: "/jun(e)?/",
+				jul: "/jul(y)?/",
+				aug: "/aug(ust)?/",
+				sep: "/sep(t(ember)?)?/",
+				oct: "/oct(ober)?/",
+				nov: "/nov(ember)?/",
+				dec: "/dec(ember)?/",
+				sun: "/^su(n(day)?)?/",
+				mon: "/^mo(n(day)?)?/",
+				tue: "/^tu(e(s(day)?)?)?/",
+				wed: "/^we(d(nesday)?)?/",
+				thu: "/^th(u(r(s(day)?)?)?)?/",
+				fri: "/fr(i(day)?)?/",
+				sat: "/^sa(t(urday)?)?/",
+				future: "/^next/",
+				past: "/^last|past|prev(ious)?/",
+				add: "/^(\\+|aft(er)?|from|hence)/",
+				subtract: "/^(\\-|bef(ore)?|ago)/",
+				yesterday: "/^yes(terday)?/",
+				today: "/^t(od(ay)?)?/",
+				tomorrow: "/^tom(orrow)?/",
+				now: "/^n(ow)?/",
+				millisecond: "/^ms|milli(second)?s?/",
+				second: "/^sec(ond)?s?/",
+				minute: "/^mn|min(ute)?s?/",
+				hour: "/^h(our)?s?/",
+				week: "/^w(eek)?s?/",
+				month: "/^m(onth)?s?/",
+				day: "/^d(ay)?s?/",
+				year: "/^y(ear)?s?/",
+				shortMeridian: "/^(a|p)/",
+				longMeridian: "/^(a\\.?m?\\.?|p\\.?m?\\.?)/",
+				timezone: "/^((e(s|d)t|c(s|d)t|m(s|d)t|p(s|d)t)|((gmt)?\\s*(\\+|\\-)\\s*\\d\\d\\d\\d?)|gmt|utc)/",
+				ordinalSuffix: "/^\\s*(st|nd|rd|th)/",
+				timeContext: "/^\\s*(\\:|a(?!u|p)|p)/"
+			}, Date.i18n.currentLanguage());
+		}
+	};
+
+	var CultureInfo = function CultureInfo() {
+		var info = getText.getFromObjectValues({
+			name: "name",
+			englishName: "englishName",
+			nativeName: "nativeName",
+			amDesignator: "AM",
+			pmDesignator: "PM",
+			firstDayOfWeek: "firstDayOfWeek",
+			twoDigitYearMax: "twoDigitYearMax",
+			dateElementOrder: "mdy"
+		}, Date.i18n.currentLanguage());
+
+		var constructedInfo = buildInfo.buildFromMethodHash({
+			dayNames: "days",
+			abbreviatedDayNames: "dayAbbr",
+			shortestDayNames: "dayShortNames",
+			firstLetterDayNames: "dayFirstLetters",
+			monthNames: "months",
+			abbreviatedMonthNames: "monthAbbr",
+			formatPatterns: "formatPatterns",
+			regexPatterns: "regex",
+			abbreviatedTimeZoneDST: "timeZoneDST",
+			abbreviatedTimeZoneStandard: "timeZoneStandard"
+		});
+
+		shallowMerge(info, constructedInfo);
+		buildInfo.timeZones(info);
+		return info;
+	};
+
+	$D.i18n = {
+		__: function __(key, lang) {
+			return _2(key, lang);
+		},
+		currentLanguage: function currentLanguage() {
+			return lang || "en-US";
+		},
+		setLanguage: function setLanguage(code, force, cb) {
+			var async = false;
+			if (force || code === "en-US" || !!Date.CultureStrings && !!Date.CultureStrings[code]) {
+				lang = code;
+				Date.CultureStrings = Date.CultureStrings || {};
+				Date.CultureStrings.lang = code;
+				Date.CultureInfo = new CultureInfo();
+			} else {
+				if (!(!!Date.CultureStrings && !!Date.CultureStrings[code])) {
+					if (typeof exports !== "undefined" && this.exports !== exports) {
+						// we're in a Node enviroment, load it using require
+						try {
+							!(function webpackMissingModule() { var e = new Error("Cannot find module \"../i18n\""); e.code = 'MODULE_NOT_FOUND'; throw e; }());
+							lang = code;
+							Date.CultureStrings.lang = code;
+							Date.CultureInfo = new CultureInfo();
+						} catch (e) {
+							// var str = "The language for '" + code + "' could not be loaded by Node. It likely does not exist.";
+							throw new Error("The DateJS IETF language tag '" + code + "' could not be loaded by Node. It likely does not exist.");
+						}
+					} else if (Date.Config && Date.Config.i18n) {
+						// we know the location of the files, so lets load them					
+						async = true;
+						loadI18nScript(code).done(function () {
+							lang = code;
+							Date.CultureStrings = Date.CultureStrings || {};
+							Date.CultureStrings.lang = code;
+							Date.CultureInfo = new CultureInfo();
+							$D.Parsing.Normalizer.buildReplaceData(); // because this is async
+							if ($D.Grammar) {
+								$D.Grammar.buildGrammarFormats(); // so we can parse those strings...
+							}
+							if (cb) {
+								setTimeout(cb, 0);
+							}
+						});
+					} else {
+						Date.console.error("The DateJS IETF language tag '" + code + "' is not available and has not been loaded.");
+						return false;
+					}
+				}
+			}
+			$D.Parsing.Normalizer.buildReplaceData(); // rebuild normalizer strings
+			if ($D.Grammar) {
+				$D.Grammar.buildGrammarFormats(); // so we can parse those strings...
+			}
+			if (!async && cb) {
+				setTimeout(cb, 0);
+			}
+		},
+		getLoggedKeys: function getLoggedKeys() {
+			return loggedKeys;
+		},
+		updateCultureInfo: function updateCultureInfo() {
+			Date.CultureInfo = new CultureInfo();
+		}
+	};
+	$D.i18n.updateCultureInfo(); // run automatically
+})();
+(function () {
+	var $D = Date,
+	    $P = $D.prototype,
+	    p = function p(s, l) {
+		if (!l) {
+			l = 2;
+		}
+		return ("000" + s).slice(l * -1);
+	};
+
+	if (typeof window !== "undefined" && typeof window.console !== "undefined" && typeof window.console.log !== "undefined") {
+		$D.console = console; // used only to raise non-critical errors if available
+	} else {
+		// set mock so we don't give errors.
+		$D.console = {
+			log: function log() {},
+			error: function error() {}
+		};
+	}
+	$D.Config = $D.Config || {};
+
+	$D.initOverloads = function () {
+		/** 
+   * Overload of Date.now. Allows an alternate call for Date.now where it returns the 
+   * current Date as an object rather than just milliseconds since the Unix Epoch.
+   *
+   * Also provides an implementation of now() for browsers (IE<9) that don't have it.
+   * 
+   * Backwards compatible so with work with either:
+   *  Date.now() [returns ms]
+   * or
+   *  Date.now(true) [returns Date]
+   */
+		if (!$D.now) {
+			$D._now = function now() {
+				return new Date().getTime();
+			};
+		} else if (!$D._now) {
+			$D._now = $D.now;
+		}
+
+		$D.now = function (returnObj) {
+			if (returnObj) {
+				return $D.present();
+			} else {
+				return $D._now();
+			}
+		};
+
+		if (!$P.toISOString) {
+			$P.toISOString = function () {
+				return this.getUTCFullYear() + "-" + p(this.getUTCMonth() + 1) + "-" + p(this.getUTCDate()) + "T" + p(this.getUTCHours()) + ":" + p(this.getUTCMinutes()) + ":" + p(this.getUTCSeconds()) + "." + String((this.getUTCMilliseconds() / 1000).toFixed(3)).slice(2, 5) + "Z";
+			};
+		}
+
+		// private
+		if ($P._toString === undefined) {
+			$P._toString = $P.toString;
+		}
+	};
+	$D.initOverloads();
+
+	/** 
+  * Gets a date that is set to the current date. The time is set to the start of the day (00:00 or 12:00 AM).
+  * @return {Date}    The current date.
+  */
+	$D.today = function () {
+		return new Date().clearTime();
+	};
+
+	/** 
+  * Gets a date that is set to the current date and time (same as new Date, but chainable)
+  * @return {Date}    The current date.
+  */
+	$D.present = function () {
+		return new Date();
+	};
+
+	/**
+  * Compares the first date to the second date and returns an number indication of their relative values.  
+  * @param {Date}     First Date object to compare [Required].
+  * @param {Date}     Second Date object to compare to [Required].
+  * @return {Number}  -1 = date1 is lessthan date2. 0 = values are equal. 1 = date1 is greaterthan date2.
+  */
+	$D.compare = function (date1, date2) {
+		if (isNaN(date1) || isNaN(date2)) {
+			throw new Error(date1 + " - " + date2);
+		} else if (date1 instanceof Date && date2 instanceof Date) {
+			return date1 < date2 ? -1 : date1 > date2 ? 1 : 0;
+		} else {
+			throw new TypeError(date1 + " - " + date2);
+		}
+	};
+
+	/**
+  * Compares the first Date object to the second Date object and returns true if they are equal.  
+  * @param {Date}     First Date object to compare [Required]
+  * @param {Date}     Second Date object to compare to [Required]
+  * @return {Boolean} true if dates are equal. false if they are not equal.
+  */
+	$D.equals = function (date1, date2) {
+		return date1.compareTo(date2) === 0;
+	};
+
+	/**
+  * Gets the language appropriate day name when given the day number(0-6)
+  * eg - 0 == Sunday
+  * @return {String}  The day name
+  */
+	$D.getDayName = function (n) {
+		return Date.CultureInfo.dayNames[n];
+	};
+
+	/**
+  * Gets the day number (0-6) if given a CultureInfo specific string which is a valid dayName, abbreviatedDayName or shortestDayName (two char).
+  * @param {String}   The name of the day (eg. "Monday, "Mon", "tuesday", "tue", "We", "we").
+  * @return {Number}  The day number
+  */
+	$D.getDayNumberFromName = function (name) {
+		var n = Date.CultureInfo.dayNames,
+		    m = Date.CultureInfo.abbreviatedDayNames,
+		    o = Date.CultureInfo.shortestDayNames,
+		    s = name.toLowerCase();
+		for (var i = 0; i < n.length; i++) {
+			if (n[i].toLowerCase() === s || m[i].toLowerCase() === s || o[i].toLowerCase() === s) {
+				return i;
+			}
+		}
+		return -1;
+	};
+
+	/**
+  * Gets the month number (0-11) if given a Culture Info specific string which is a valid monthName or abbreviatedMonthName.
+  * @param {String}   The name of the month (eg. "February, "Feb", "october", "oct").
+  * @return {Number}  The day number
+  */
+	$D.getMonthNumberFromName = function (name) {
+		var n = Date.CultureInfo.monthNames,
+		    m = Date.CultureInfo.abbreviatedMonthNames,
+		    s = name.toLowerCase();
+		for (var i = 0; i < n.length; i++) {
+			if (n[i].toLowerCase() === s || m[i].toLowerCase() === s) {
+				return i;
+			}
+		}
+		return -1;
+	};
+
+	/**
+  * Gets the language appropriate month name when given the month number(0-11)
+  * eg - 0 == January
+  * @return {String}  The month name
+  */
+	$D.getMonthName = function (n) {
+		return Date.CultureInfo.monthNames[n];
+	};
+
+	/**
+  * Determines if the current date instance is within a LeapYear.
+  * @param {Number}   The year.
+  * @return {Boolean} true if date is within a LeapYear, otherwise false.
+  */
+	$D.isLeapYear = function (year) {
+		return year % 4 === 0 && year % 100 !== 0 || year % 400 === 0;
+	};
+
+	/**
+  * Gets the number of days in the month, given a year and month value. Automatically corrects for LeapYear.
+  * @param {Number}   The year.
+  * @param {Number}   The month (0-11).
+  * @return {Number}  The number of days in the month.
+  */
+	$D.getDaysInMonth = function (year, month) {
+		if (!month && $D.validateMonth(year)) {
+			month = year;
+			year = Date.today().getFullYear();
+		}
+		return [31, $D.isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
+	};
+
+	$P.getDaysInMonth = function () {
+		return $D.getDaysInMonth(this.getFullYear(), this.getMonth());
+	};
+
+	$D.getTimezoneAbbreviation = function (offset, dst) {
+		var p,
+		    n = dst || false ? Date.CultureInfo.abbreviatedTimeZoneDST : Date.CultureInfo.abbreviatedTimeZoneStandard;
+		for (p in n) {
+			if (n.hasOwnProperty(p)) {
+				if (n[p] === offset) {
+					return p;
+				}
+			}
+		}
+		return null;
+	};
+
+	$D.getTimezoneOffset = function (name, dst) {
+		var i,
+		    a = [],
+		    z = Date.CultureInfo.timezones;
+		if (!name) {
+			name = new Date().getTimezone();
+		}
+		for (i = 0; i < z.length; i++) {
+			if (z[i].name === name.toUpperCase()) {
+				a.push(i);
+			}
+		}
+		if (!z[a[0]]) {
+			return null;
+		}
+		if (a.length === 1 || !dst) {
+			return z[a[0]].offset;
+		} else {
+			for (i = 0; i < a.length; i++) {
+				if (z[a[i]].dst) {
+					return z[a[i]].offset;
+				}
+			}
+		}
+	};
+
+	$D.getQuarter = function (d) {
+		d = d || new Date(); // If no date supplied, use today
+		var q = [1, 2, 3, 4];
+		return q[Math.floor(d.getMonth() / 3)]; // ~~~ is a bitwise op. Faster than Math.floor
+	};
+
+	$D.getDaysLeftInQuarter = function (d) {
+		d = d || new Date();
+		var qEnd = new Date(d);
+		qEnd.setMonth(qEnd.getMonth() + 3 - qEnd.getMonth() % 3, 0);
+		return Math.floor((qEnd - d) / 8.64e7);
+	};
+
+	// private
+	var validate = function validate(n, min, max, name) {
+		name = name ? name : "Object";
+		if (typeof n === "undefined") {
+			return false;
+		} else if (typeof n !== "number") {
+			throw new TypeError(n + " is not a Number.");
+		} else if (n < min || n > max) {
+			// As failing validation is *not* an exceptional circumstance 
+			// lets not throw a RangeError Exception here. 
+			// It's semantically correct but it's not sensible.
+			return false;
+		}
+		return true;
+	};
+
+	/**
+  * Validates the number is within an acceptable range for milliseconds [0-999].
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateMillisecond = function (value) {
+		return validate(value, 0, 999, "millisecond");
+	};
+
+	/**
+  * Validates the number is within an acceptable range for seconds [0-59].
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateSecond = function (value) {
+		return validate(value, 0, 59, "second");
+	};
+
+	/**
+  * Validates the number is within an acceptable range for minutes [0-59].
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateMinute = function (value) {
+		return validate(value, 0, 59, "minute");
+	};
+
+	/**
+  * Validates the number is within an acceptable range for hours [0-23].
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateHour = function (value) {
+		return validate(value, 0, 23, "hour");
+	};
+
+	/**
+  * Validates the number is within an acceptable range for the days in a month [0-MaxDaysInMonth].
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateDay = function (value, year, month) {
+		if (year === undefined || year === null || month === undefined || month === null) {
+			return false;
+		}
+		return validate(value, 1, $D.getDaysInMonth(year, month), "day");
+	};
+
+	/**
+  * Validates the number is within an acceptable range for months [0-11].
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateWeek = function (value) {
+		return validate(value, 0, 53, "week");
+	};
+
+	/**
+  * Validates the number is within an acceptable range for months [0-11].
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateMonth = function (value) {
+		return validate(value, 0, 11, "month");
+	};
+
+	/**
+  * Validates the number is within an acceptable range for years.
+  * @param {Number}   The number to check if within range.
+  * @return {Boolean} true if within range, otherwise false.
+  */
+	$D.validateYear = function (value) {
+		/**
+   * Per ECMAScript spec the range of times supported by Date objects is 
+   * exactly -100,000,000 days to +100,000,000 days measured relative to 
+   * midnight at the beginning of 01 January, 1970 UTC. 
+   * This gives a range of 8,640,000,000,000,000 milliseconds to either 
+   * side of 01 January, 1970 UTC.
+   *
+   * Earliest possible date: Tue, 20 Apr 271,822 B.C. 00:00:00 UTC
+   * Latest possible date: Sat, 13 Sep 275,760 00:00:00 UTC
+   */
+		return validate(value, -271822, 275760, "year");
+	};
+	$D.validateTimezone = function (value) {
+		var timezones = { "ACDT": 1, "ACST": 1, "ACT": 1, "ADT": 1, "AEDT": 1, "AEST": 1, "AFT": 1, "AKDT": 1, "AKST": 1, "AMST": 1, "AMT": 1, "ART": 1, "AST": 1, "AWDT": 1, "AWST": 1, "AZOST": 1, "AZT": 1, "BDT": 1, "BIOT": 1, "BIT": 1, "BOT": 1, "BRT": 1, "BST": 1, "BTT": 1, "CAT": 1, "CCT": 1, "CDT": 1, "CEDT": 1, "CEST": 1, "CET": 1, "CHADT": 1, "CHAST": 1, "CHOT": 1, "ChST": 1, "CHUT": 1, "CIST": 1, "CIT": 1, "CKT": 1, "CLST": 1, "CLT": 1, "COST": 1, "COT": 1, "CST": 1, "CT": 1, "CVT": 1, "CWST": 1, "CXT": 1, "DAVT": 1, "DDUT": 1, "DFT": 1, "EASST": 1, "EAST": 1, "EAT": 1, "ECT": 1, "EDT": 1, "EEDT": 1, "EEST": 1, "EET": 1, "EGST": 1, "EGT": 1, "EIT": 1, "EST": 1, "FET": 1, "FJT": 1, "FKST": 1, "FKT": 1, "FNT": 1, "GALT": 1, "GAMT": 1, "GET": 1, "GFT": 1, "GILT": 1, "GIT": 1, "GMT": 1, "GST": 1, "GYT": 1, "HADT": 1, "HAEC": 1, "HAST": 1, "HKT": 1, "HMT": 1, "HOVT": 1, "HST": 1, "ICT": 1, "IDT": 1, "IOT": 1, "IRDT": 1, "IRKT": 1, "IRST": 1, "IST": 1, "JST": 1, "KGT": 1, "KOST": 1, "KRAT": 1, "KST": 1, "LHST": 1, "LINT": 1, "MAGT": 1, "MART": 1, "MAWT": 1, "MDT": 1, "MET": 1, "MEST": 1, "MHT": 1, "MIST": 1, "MIT": 1, "MMT": 1, "MSK": 1, "MST": 1, "MUT": 1, "MVT": 1, "MYT": 1, "NCT": 1, "NDT": 1, "NFT": 1, "NPT": 1, "NST": 1, "NT": 1, "NUT": 1, "NZDT": 1, "NZST": 1, "OMST": 1, "ORAT": 1, "PDT": 1, "PET": 1, "PETT": 1, "PGT": 1, "PHOT": 1, "PHT": 1, "PKT": 1, "PMDT": 1, "PMST": 1, "PONT": 1, "PST": 1, "PYST": 1, "PYT": 1, "RET": 1, "ROTT": 1, "SAKT": 1, "SAMT": 1, "SAST": 1, "SBT": 1, "SCT": 1, "SGT": 1, "SLST": 1, "SRT": 1, "SST": 1, "SYOT": 1, "TAHT": 1, "THA": 1, "TFT": 1, "TJT": 1, "TKT": 1, "TLT": 1, "TMT": 1, "TOT": 1, "TVT": 1, "UCT": 1, "ULAT": 1, "UTC": 1, "UYST": 1, "UYT": 1, "UZT": 1, "VET": 1, "VLAT": 1, "VOLT": 1, "VOST": 1, "VUT": 1, "WAKT": 1, "WAST": 1, "WAT": 1, "WEDT": 1, "WEST": 1, "WET": 1, "WST": 1, "YAKT": 1, "YEKT": 1, "Z": 1 };
+		return timezones[value] === 1;
+	};
+	$D.validateTimezoneOffset = function (value) {
+		// timezones go from +14hrs to -12hrs, the +X hours are negative offsets.
+		return value > -841 && value < 721;
+	};
+})();
+
+(function () {
+	var $D = Date,
+	    $P = $D.prototype,
+	    p = function p(s, l) {
+		if (!l) {
+			l = 2;
+		}
+		return ("000" + s).slice(l * -1);
+	};
+
+	var validateConfigObject = function validateConfigObject(obj) {
+		var result = {},
+		    self = this,
+		    prop,
+		    testFunc;
+		testFunc = function testFunc(prop, func, value) {
+			if (prop === "day") {
+				var month = obj.month !== undefined ? obj.month : self.getMonth();
+				var year = obj.year !== undefined ? obj.year : self.getFullYear();
+				return $D[func](value, year, month);
+			} else {
+				return $D[func](value);
+			}
+		};
+		for (prop in obj) {
+			if (hasOwnProperty.call(obj, prop)) {
+				var func = "validate" + prop.charAt(0).toUpperCase() + prop.slice(1);
+
+				if ($D[func] && obj[prop] !== null && testFunc(prop, func, obj[prop])) {
+					result[prop] = obj[prop];
+				}
+			}
+		}
+		return result;
+	};
+	/**
+  * Resets the time of this Date object to 12:00 AM (00:00), which is the start of the day.
+  * @param {Boolean}  .clone() this date instance before clearing Time
+  * @return {Date}    this
+  */
+	$P.clearTime = function () {
+		this.setHours(0);
+		this.setMinutes(0);
+		this.setSeconds(0);
+		this.setMilliseconds(0);
+		return this;
+	};
+
+	/**
+  * Resets the time of this Date object to the current time ('now').
+  * @return {Date}    this
+  */
+	$P.setTimeToNow = function () {
+		var n = new Date();
+		this.setHours(n.getHours());
+		this.setMinutes(n.getMinutes());
+		this.setSeconds(n.getSeconds());
+		this.setMilliseconds(n.getMilliseconds());
+		return this;
+	};
+	/**
+  * Returns a new Date object that is an exact date and time copy of the original instance.
+  * @return {Date}    A new Date instance
+  */
+	$P.clone = function () {
+		return new Date(this.getTime());
+	};
+
+	/**
+  * Compares this instance to a Date object and returns an number indication of their relative values.  
+  * @param {Date}     Date object to compare [Required]
+  * @return {Number}  -1 = this is lessthan date. 0 = values are equal. 1 = this is greaterthan date.
+  */
+	$P.compareTo = function (date) {
+		return Date.compare(this, date);
+	};
+
+	/**
+  * Compares this instance to another Date object and returns true if they are equal.  
+  * @param {Date}     Date object to compare. If no date to compare, new Date() [now] is used.
+  * @return {Boolean} true if dates are equal. false if they are not equal.
+  */
+	$P.equals = function (date) {
+		return Date.equals(this, date !== undefined ? date : new Date());
+	};
+
+	/**
+  * Determines if this instance is between a range of two dates or equal to either the start or end dates.
+  * @param {Date}     Start of range [Required]
+  * @param {Date}     End of range [Required]
+  * @return {Boolean} true is this is between or equal to the start and end dates, else false
+  */
+	$P.between = function (start, end) {
+		return this.getTime() >= start.getTime() && this.getTime() <= end.getTime();
+	};
+
+	/**
+  * Determines if this date occurs after the date to compare to.
+  * @param {Date}     Date object to compare. If no date to compare, new Date() ("now") is used.
+  * @return {Boolean} true if this date instance is greater than the date to compare to (or "now"), otherwise false.
+  */
+	$P.isAfter = function (date) {
+		return this.compareTo(date || new Date()) === 1;
+	};
+
+	/**
+  * Determines if this date occurs before the date to compare to.
+  * @param {Date}     Date object to compare. If no date to compare, new Date() ("now") is used.
+  * @return {Boolean} true if this date instance is less than the date to compare to (or "now").
+  */
+	$P.isBefore = function (date) {
+		return this.compareTo(date || new Date()) === -1;
+	};
+
+	/**
+  * Determines if the current Date instance occurs today.
+  * @return {Boolean} true if this date instance is 'today', otherwise false.
+  */
+
+	/**
+  * Determines if the current Date instance occurs on the same Date as the supplied 'date'. 
+  * If no 'date' to compare to is provided, the current Date instance is compared to 'today'. 
+  * @param {date}     Date object to compare. If no date to compare, the current Date ("now") is used.
+  * @return {Boolean} true if this Date instance occurs on the same Day as the supplied 'date'.
+  */
+	$P.isToday = $P.isSameDay = function (date) {
+		return this.clone().clearTime().equals((date || new Date()).clone().clearTime());
+	};
+
+	/**
+  * Adds the specified number of milliseconds to this instance. 
+  * @param {Number}   The number of milliseconds to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addMilliseconds = function (value) {
+		if (!value) {
+			return this;
+		}
+		this.setTime(this.getTime() + value * 1);
+		return this;
+	};
+
+	/**
+  * Adds the specified number of seconds to this instance. 
+  * @param {Number}   The number of seconds to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addSeconds = function (value) {
+		if (!value) {
+			return this;
+		}
+		return this.addMilliseconds(value * 1000);
+	};
+
+	/**
+  * Adds the specified number of seconds to this instance. 
+  * @param {Number}   The number of seconds to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addMinutes = function (value) {
+		if (!value) {
+			return this;
+		}
+		return this.addMilliseconds(value * 60000); // 60*1000
+	};
+
+	/**
+  * Adds the specified number of hours to this instance. 
+  * @param {Number}   The number of hours to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addHours = function (value) {
+		if (!value) {
+			return this;
+		}
+		return this.addMilliseconds(value * 3600000); // 60*60*1000
+	};
+
+	/**
+  * Adds the specified number of days to this instance. 
+  * @param {Number}   The number of days to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addDays = function (value) {
+		if (!value) {
+			return this;
+		}
+		this.setDate(this.getDate() + value * 1);
+		return this;
+	};
+
+	/**
+  * Adds the specified number of weekdays (ie - not sat or sun) to this instance. 
+  * @param {Number}   The number of days to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addWeekdays = function (value) {
+		if (!value) {
+			return this;
+		}
+		var day = this.getDay();
+		var weeks = Math.ceil(Math.abs(value) / 7);
+		if (day === 0 || day === 6) {
+			if (value > 0) {
+				this.next().monday();
+				this.addDays(-1);
+				day = this.getDay();
+			}
+		}
+
+		if (value < 0) {
+			while (value < 0) {
+				this.addDays(-1);
+				day = this.getDay();
+				if (day !== 0 && day !== 6) {
+					value++;
+				}
+			}
+			return this;
+		} else if (value > 5 || 6 - day <= value) {
+			value = value + weeks * 2;
+		}
+
+		return this.addDays(value);
+	};
+
+	/**
+  * Adds the specified number of weeks to this instance. 
+  * @param {Number}   The number of weeks to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addWeeks = function (value) {
+		if (!value) {
+			return this;
+		}
+		return this.addDays(value * 7);
+	};
+
+	/**
+  * Adds the specified number of months to this instance. 
+  * @param {Number}   The number of months to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addMonths = function (value) {
+		if (!value) {
+			return this;
+		}
+		var n = this.getDate();
+		this.setDate(1);
+		this.setMonth(this.getMonth() + value * 1);
+		this.setDate(Math.min(n, $D.getDaysInMonth(this.getFullYear(), this.getMonth())));
+		return this;
+	};
+
+	$P.addQuarters = function (value) {
+		if (!value) {
+			return this;
+		}
+		// note this will take you to the same point in the quarter as you are now.
+		// i.e. - if you are 15 days into the quarter you'll be 15 days into the resulting one.
+		// bonus: this allows adding fractional quarters
+		return this.addMonths(value * 3);
+	};
+
+	/**
+  * Adds the specified number of years to this instance. 
+  * @param {Number}   The number of years to add. The number can be positive or negative [Required]
+  * @return {Date}    this
+  */
+	$P.addYears = function (value) {
+		if (!value) {
+			return this;
+		}
+		return this.addMonths(value * 12);
+	};
+
+	/**
+  * Adds (or subtracts) to the value of the years, months, weeks, days, hours, minutes, seconds, milliseconds of the date instance using given configuration object. Positive and Negative values allowed.
+  * Example
+ <pre><code>
+ Date.today().add( { days: 1, months: 1 } )
+  
+ new Date().add( { years: -1 } )
+ </code></pre> 
+  * @param {Object}   Configuration object containing attributes (months, days, etc.)
+  * @return {Date}    this
+  */
+	$P.add = function (config) {
+		if (typeof config === "number") {
+			this._orient = config;
+			return this;
+		}
+
+		var x = config;
+
+		if (x.day) {
+			// If we should be a different date than today (eg: for 'tomorrow -1d', etc).
+			// Should only effect parsing, not direct usage (eg, Finish and FinishExact)
+			if (x.day - this.getDate() !== 0) {
+				this.setDate(x.day);
+			}
+		}
+		if (x.milliseconds) {
+			this.addMilliseconds(x.milliseconds);
+		}
+		if (x.seconds) {
+			this.addSeconds(x.seconds);
+		}
+		if (x.minutes) {
+			this.addMinutes(x.minutes);
+		}
+		if (x.hours) {
+			this.addHours(x.hours);
+		}
+		if (x.weeks) {
+			this.addWeeks(x.weeks);
+		}
+		if (x.months) {
+			this.addMonths(x.months);
+		}
+		if (x.years) {
+			this.addYears(x.years);
+		}
+		if (x.days) {
+			this.addDays(x.days);
+		}
+		return this;
+	};
+
+	/**
+  * Get the week number. Week one (1) is the week which contains the first Thursday of the year. Monday is considered the first day of the week.
+  * The .getWeek() function does NOT convert the date to UTC. The local datetime is used. 
+  * Please use .getISOWeek() to get the week of the UTC converted date.
+  * @return {Number}  1 to 53
+  */
+	$P.getWeek = function (utc) {
+		// Create a copy of this date object  
+		var self,
+		    target = new Date(this.valueOf());
+		if (utc) {
+			target.addMinutes(target.getTimezoneOffset());
+			self = target.clone();
+		} else {
+			self = this;
+		}
+		// ISO week date weeks start on monday  
+		// so correct the day number  
+		var dayNr = (self.getDay() + 6) % 7;
+		// ISO 8601 states that week 1 is the week  
+		// with the first thursday of that year.  
+		// Set the target date to the thursday in the target week  
+		target.setDate(target.getDate() - dayNr + 3);
+		// Store the millisecond value of the target date  
+		var firstThursday = target.valueOf();
+		// Set the target to the first thursday of the year  
+		// First set the target to january first  
+		target.setMonth(0, 1);
+		// Not a thursday? Correct the date to the next thursday  
+		if (target.getDay() !== 4) {
+			target.setMonth(0, 1 + (4 - target.getDay() + 7) % 7);
+		}
+		// The weeknumber is the number of weeks between the   
+		// first thursday of the year and the thursday in the target week  
+		return 1 + Math.ceil((firstThursday - target) / 604800000); // 604800000 = 7 * 24 * 3600 * 1000  
+	};
+
+	/**
+  * Get the ISO 8601 week number. Week one ("01") is the week which contains the first Thursday of the year. Monday is considered the first day of the week.
+  * The .getISOWeek() function does convert the date to it's UTC value. Please use .getWeek() to get the week of the local date.
+  * @return {String}  "01" to "53"
+  */
+	$P.getISOWeek = function () {
+		return p(this.getWeek(true));
+	};
+
+	/**
+  * Moves the date to Monday of the week set. Week one (1) is the week which contains the first Thursday of the year.
+  * @param {Number}   A Number (1 to 53) that represents the week of the year.
+  * @return {Date}    this
+  */
+	$P.setWeek = function (n) {
+		if (n - this.getWeek() === 0) {
+			if (this.getDay() !== 1) {
+				return this.moveToDayOfWeek(1, this.getDay() > 1 ? -1 : 1);
+			} else {
+				return this;
+			}
+		} else {
+			return this.moveToDayOfWeek(1, this.getDay() > 1 ? -1 : 1).addWeeks(n - this.getWeek());
+		}
+	};
+
+	$P.setQuarter = function (qtr) {
+		var month = Math.abs((qtr - 1) * 3 + 1);
+		return this.setMonth(month, 1);
+	};
+
+	$P.getQuarter = function () {
+		return Date.getQuarter(this);
+	};
+
+	$P.getDaysLeftInQuarter = function () {
+		return Date.getDaysLeftInQuarter(this);
+	};
+
+	/**
+  * Moves the date to the next n'th occurrence of the dayOfWeek starting from the beginning of the month. The number (-1) is a magic number and will return the last occurrence of the dayOfWeek in the month.
+  * @param {Number}   The dayOfWeek to move to
+  * @param {Number}   The n'th occurrence to move to. Use (-1) to return the last occurrence in the month
+  * @return {Date}    this
+  */
+	$P.moveToNthOccurrence = function (dayOfWeek, occurrence) {
+		if (dayOfWeek === "Weekday") {
+			if (occurrence > 0) {
+				this.moveToFirstDayOfMonth();
+				if (this.is().weekday()) {
+					occurrence -= 1;
+				}
+			} else if (occurrence < 0) {
+				this.moveToLastDayOfMonth();
+				if (this.is().weekday()) {
+					occurrence += 1;
+				}
+			} else {
+				return this;
+			}
+			return this.addWeekdays(occurrence);
+		}
+		var shift = 0;
+		if (occurrence > 0) {
+			shift = occurrence - 1;
+		} else if (occurrence === -1) {
+			this.moveToLastDayOfMonth();
+			if (this.getDay() !== dayOfWeek) {
+				this.moveToDayOfWeek(dayOfWeek, -1);
+			}
+			return this;
+		}
+		return this.moveToFirstDayOfMonth().addDays(-1).moveToDayOfWeek(dayOfWeek, +1).addWeeks(shift);
+	};
+
+	var moveToN = function moveToN(getFunc, addFunc, nVal) {
+		return function (value, orient) {
+			var diff = (value - this[getFunc]() + nVal * (orient || +1)) % nVal;
+			return this[addFunc](diff === 0 ? diff += nVal * (orient || +1) : diff);
+		};
+	};
+	/**
+  * Move to the next or last dayOfWeek based on the orient value.
+  * @param {Number}   The dayOfWeek to move to
+  * @param {Number}   Forward (+1) or Back (-1). Defaults to +1. [Optional]
+  * @return {Date}    this
+  */
+	$P.moveToDayOfWeek = moveToN("getDay", "addDays", 7);
+	/**
+  * Move to the next or last month based on the orient value.
+  * @param {Number}   The month to move to. 0 = January, 11 = December
+  * @param {Number}   Forward (+1) or Back (-1). Defaults to +1. [Optional]
+  * @return {Date}    this
+  */
+	$P.moveToMonth = moveToN("getMonth", "addMonths", 12);
+	/**
+  * Get the Ordinate of the current day ("th", "st", "rd").
+  * @return {String} 
+  */
+	$P.getOrdinate = function () {
+		var num = this.getDate();
+		return ord(num);
+	};
+	/**
+  * Get the Ordinal day (numeric day number) of the year, adjusted for leap year.
+  * @return {Number} 1 through 365 (366 in leap years)
+  */
+	$P.getOrdinalNumber = function () {
+		return Math.ceil((this.clone().clearTime() - new Date(this.getFullYear(), 0, 1)) / 86400000) + 1;
+	};
+
+	/**
+  * Get the time zone abbreviation of the current date.
+  * @return {String} The abbreviated time zone name (e.g. "EST")
+  */
+	$P.getTimezone = function () {
+		return $D.getTimezoneAbbreviation(this.getUTCOffset(), this.isDaylightSavingTime());
+	};
+
+	$P.setTimezoneOffset = function (offset) {
+		var here = this.getTimezoneOffset(),
+		    there = Number(offset) * -6 / 10;
+		return there || there === 0 ? this.addMinutes(there - here) : this;
+	};
+
+	$P.setTimezone = function (offset) {
+		return this.setTimezoneOffset($D.getTimezoneOffset(offset));
+	};
+
+	/**
+  * Indicates whether Daylight Saving Time is observed in the current time zone.
+  * @return {Boolean} true|false
+  */
+	$P.hasDaylightSavingTime = function () {
+		return Date.today().set({ month: 0, day: 1 }).getTimezoneOffset() !== Date.today().set({ month: 6, day: 1 }).getTimezoneOffset();
+	};
+
+	/**
+  * Indicates whether this Date instance is within the Daylight Saving Time range for the current time zone.
+  * @return {Boolean} true|false
+  */
+	$P.isDaylightSavingTime = function () {
+		return Date.today().set({ month: 0, day: 1 }).getTimezoneOffset() !== this.getTimezoneOffset();
+	};
+
+	/**
+  * Get the offset from UTC of the current date.
+  * @return {String} The 4-character offset string prefixed with + or - (e.g. "-0500")
+  */
+	$P.getUTCOffset = function (offset) {
+		var n = (offset || this.getTimezoneOffset()) * -10 / 6,
+		    r;
+		if (n < 0) {
+			r = (n - 10000).toString();
+			return r.charAt(0) + r.substr(2);
+		} else {
+			r = (n + 10000).toString();
+			return "+" + r.substr(1);
+		}
+	};
+
+	/**
+  * Returns the number of milliseconds between this date and date.
+  * @param {Date} Defaults to now
+  * @return {Number} The diff in milliseconds
+  */
+	$P.getElapsed = function (date) {
+		return (date || new Date()) - this;
+	};
+
+	/**
+  * Set the value of year, month, day, hour, minute, second, millisecond of date instance using given configuration object.
+  * Example
+ <pre><code>
+ Date.today().set( { day: 20, month: 1 } )
+ 	new Date().set( { millisecond: 0 } )
+ </code></pre>
+  * 
+  * @param {Object}   Configuration object containing attributes (month, day, etc.)
+  * @return {Date}    this
+  */
+	$P.set = function (config) {
+		config = validateConfigObject.call(this, config);
+		var key;
+		for (key in config) {
+			if (hasOwnProperty.call(config, key)) {
+				var name = key.charAt(0).toUpperCase() + key.slice(1);
+				var addFunc, getFunc;
+				if (key !== "week" && key !== "month" && key !== "timezone" && key !== "timezoneOffset") {
+					name += "s";
+				}
+				addFunc = "add" + name;
+				getFunc = "get" + name;
+				if (key === "month") {
+					addFunc = addFunc + "s";
+				} else if (key === "year") {
+					getFunc = "getFullYear";
+				}
+				if (key !== "day" && key !== "timezone" && key !== "timezoneOffset" && key !== "week" && key !== "hour") {
+					this[addFunc](config[key] - this[getFunc]());
+				} else if (key === "timezone" || key === "timezoneOffset" || key === "week" || key === "hour") {
+					this["set" + name](config[key]);
+				}
+			}
+		}
+		// day has to go last because you can't validate the day without first knowing the month
+		if (config.day) {
+			this.addDays(config.day - this.getDate());
+		}
+
+		return this;
+	};
+
+	/**
+  * Moves the date to the first day of the month.
+  * @return {Date}    this
+  */
+	$P.moveToFirstDayOfMonth = function () {
+		return this.set({ day: 1 });
+	};
+
+	/**
+  * Moves the date to the last day of the month.
+  * @return {Date}    this
+  */
+	$P.moveToLastDayOfMonth = function () {
+		return this.set({ day: $D.getDaysInMonth(this.getFullYear(), this.getMonth()) });
+	};
+
+	/**
+  * Converts the value of the current Date object to its equivalent string representation.
+  * Format Specifiers
+  * CUSTOM DATE AND TIME FORMAT STRINGS
+  * Format  Description                                                                  Example
+  * ------  ---------------------------------------------------------------------------  -----------------------
+  * s      The seconds of the minute between 0-59.                                      "0" to "59"
+  * ss     The seconds of the minute with leading zero if required.                     "00" to "59"
+  * 
+  * m      The minute of the hour between 0-59.                                         "0"  or "59"
+  * mm     The minute of the hour with leading zero if required.                        "00" or "59"
+  * 
+  * h      The hour of the day between 1-12.                                            "1"  to "12"
+  * hh     The hour of the day with leading zero if required.                           "01" to "12"
+  * 
+  * H      The hour of the day between 0-23.                                            "0"  to "23"
+  * HH     The hour of the day with leading zero if required.                           "00" to "23"
+  * 
+  * d      The day of the month between 1 and 31.                                       "1"  to "31"
+  * dd     The day of the month with leading zero if required.                          "01" to "31"
+  * ddd    Abbreviated day name. Date.CultureInfo.abbreviatedDayNames.                                "Mon" to "Sun" 
+  * dddd   The full day name. Date.CultureInfo.dayNames.                                              "Monday" to "Sunday"
+  * 
+  * M      The month of the year between 1-12.                                          "1" to "12"
+  * MM     The month of the year with leading zero if required.                         "01" to "12"
+  * MMM    Abbreviated month name. Date.CultureInfo.abbreviatedMonthNames.                            "Jan" to "Dec"
+  * MMMM   The full month name. Date.CultureInfo.monthNames.                                          "January" to "December"
+  *
+  * yy     The year as a two-digit number.                                              "99" or "08"
+  * yyyy   The full four digit year.                                                    "1999" or "2008"
+  * 
+  * t      Displays the first character of the A.M./P.M. designator.                    "A" or "P"
+  *		Date.CultureInfo.amDesignator or Date.CultureInfo.pmDesignator
+  * tt     Displays the A.M./P.M. designator.                                           "AM" or "PM"
+  *		Date.CultureInfo.amDesignator or Date.CultureInfo.pmDesignator
+  * 
+  * S      The ordinal suffix ("st, "nd", "rd" or "th") of the current day.            "st, "nd", "rd" or "th"
+  *
+  * STANDARD DATE AND TIME FORMAT STRINGS
+  * Format  Description                                                                  Example
+  *------  ---------------------------------------------------------------------------  -----------------------
+  * d      The CultureInfo shortDate Format Pattern                                     "M/d/yyyy"
+  * D      The CultureInfo longDate Format Pattern                                      "dddd, MMMM dd, yyyy"
+  * F      The CultureInfo fullDateTime Format Pattern                                  "dddd, MMMM dd, yyyy h:mm:ss tt"
+  * m      The CultureInfo monthDay Format Pattern                                      "MMMM dd"
+  * r      The CultureInfo rfc1123 Format Pattern                                       "ddd, dd MMM yyyy HH:mm:ss GMT"
+  * s      The CultureInfo sortableDateTime Format Pattern                              "yyyy-MM-ddTHH:mm:ss"
+  * t      The CultureInfo shortTime Format Pattern                                     "h:mm tt"
+  * T      The CultureInfo longTime Format Pattern                                      "h:mm:ss tt"
+  * u      The CultureInfo universalSortableDateTime Format Pattern                     "yyyy-MM-dd HH:mm:ssZ"
+  * y      The CultureInfo yearMonth Format Pattern                                     "MMMM, yyyy"
+  *
+  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
+  * @return {String}  A string representation of the current Date object.
+  */
+
+	var ord = function ord(n) {
+		switch (n * 1) {
+			case 1:
+			case 21:
+			case 31:
+				return "st";
+			case 2:
+			case 22:
+				return "nd";
+			case 3:
+			case 23:
+				return "rd";
+			default:
+				return "th";
+		}
+	};
+	var parseStandardFormats = function parseStandardFormats(format) {
+		var y,
+		    c = Date.CultureInfo.formatPatterns;
+		switch (format) {
+			case "d":
+				return this.toString(c.shortDate);
+			case "D":
+				return this.toString(c.longDate);
+			case "F":
+				return this.toString(c.fullDateTime);
+			case "m":
+				return this.toString(c.monthDay);
+			case "r":
+			case "R":
+				y = this.clone().addMinutes(this.getTimezoneOffset());
+				return y.toString(c.rfc1123) + " GMT";
+			case "s":
+				return this.toString(c.sortableDateTime);
+			case "t":
+				return this.toString(c.shortTime);
+			case "T":
+				return this.toString(c.longTime);
+			case "u":
+				y = this.clone().addMinutes(this.getTimezoneOffset());
+				return y.toString(c.universalSortableDateTime);
+			case "y":
+				return this.toString(c.yearMonth);
+			default:
+				return false;
+		}
+	};
+	var parseFormatStringsClosure = function parseFormatStringsClosure(context) {
+		return function (m) {
+			if (m.charAt(0) === "\\") {
+				return m.replace("\\", "");
+			}
+			switch (m) {
+				case "hh":
+					return p(context.getHours() < 13 ? context.getHours() === 0 ? 12 : context.getHours() : context.getHours() - 12);
+				case "h":
+					return context.getHours() < 13 ? context.getHours() === 0 ? 12 : context.getHours() : context.getHours() - 12;
+				case "HH":
+					return p(context.getHours());
+				case "H":
+					return context.getHours();
+				case "mm":
+					return p(context.getMinutes());
+				case "m":
+					return context.getMinutes();
+				case "ss":
+					return p(context.getSeconds());
+				case "s":
+					return context.getSeconds();
+				case "yyyy":
+					return p(context.getFullYear(), 4);
+				case "yy":
+					return p(context.getFullYear());
+				case "y":
+					return context.getFullYear();
+				case "E":
+				case "dddd":
+					return Date.CultureInfo.dayNames[context.getDay()];
+				case "ddd":
+					return Date.CultureInfo.abbreviatedDayNames[context.getDay()];
+				case "dd":
+					return p(context.getDate());
+				case "d":
+					return context.getDate();
+				case "MMMM":
+					return Date.CultureInfo.monthNames[context.getMonth()];
+				case "MMM":
+					return Date.CultureInfo.abbreviatedMonthNames[context.getMonth()];
+				case "MM":
+					return p(context.getMonth() + 1);
+				case "M":
+					return context.getMonth() + 1;
+				case "t":
+					return context.getHours() < 12 ? Date.CultureInfo.amDesignator.substring(0, 1) : Date.CultureInfo.pmDesignator.substring(0, 1);
+				case "tt":
+					return context.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator;
+				case "S":
+					return ord(context.getDate());
+				case "W":
+					return context.getWeek();
+				case "WW":
+					return context.getISOWeek();
+				case "Q":
+					return "Q" + context.getQuarter();
+				case "q":
+					return String(context.getQuarter());
+				case "z":
+					return context.getTimezone();
+				case "Z":
+				case "X":
+					return Date.getTimezoneOffset(context.getTimezone());
+				case "ZZ":
+					// Timezone offset in seconds
+					return context.getTimezoneOffset() * -60;
+				case "u":
+					return context.getDay();
+				case "L":
+					return $D.isLeapYear(context.getFullYear()) ? 1 : 0;
+				case "B":
+					// Swatch Internet Time (.beats)
+					return "@" + (context.getUTCSeconds() + context.getUTCMinutes() * 60 + (context.getUTCHours() + 1) * 3600) / 86.4;
+				default:
+					return m;
+			}
+		};
+	};
+	$P.toString = function (format, ignoreStandards) {
+
+		// Standard Date and Time Format Strings. Formats pulled from CultureInfo file and
+		// may vary by culture. 
+		if (!ignoreStandards && format && format.length === 1) {
+			output = parseStandardFormats.call(this, format);
+			if (output) {
+				return output;
+			}
+		}
+		var parseFormatStrings = parseFormatStringsClosure(this);
+		return format ? format.replace(/((\\)?(dd?d?d?|MM?M?M?|yy?y?y?|hh?|HH?|mm?|ss?|tt?|S|q|Q|WW?W?W?)(?![^\[]*\]))/g, parseFormatStrings).replace(/\[|\]/g, "") : this._toString();
+	};
+})();
+/*************************************************************
+ * SugarPak - Domain Specific Language -  Syntactical Sugar  *
+ *************************************************************/
+
+(function () {
+	var $D = Date,
+	    $P = $D.prototype,
+	    $N = Number.prototype;
+
+	// private
+	$P._orient = +1;
+
+	// private
+	$P._nth = null;
+
+	// private
+	$P._is = false;
+
+	// private
+	$P._same = false;
+
+	// private
+	$P._isSecond = false;
+
+	// private
+	$N._dateElement = "days";
+
+	/** 
+  * Moves the date to the next instance of a date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
+  * Example
+ <pre><code>
+ Date.today().next().friday();
+ Date.today().next().fri();
+ Date.today().next().march();
+ Date.today().next().mar();
+ Date.today().next().week();
+ </code></pre>
+  * 
+  * @return {Date}    date
+  */
+	$P.next = function () {
+		this._move = true;
+		this._orient = +1;
+		return this;
+	};
+
+	/** 
+  * Creates a new Date (Date.today()) and moves the date to the next instance of the date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
+  * Example
+ <pre><code>
+ Date.next().friday();
+ Date.next().fri();
+ Date.next().march();
+ Date.next().mar();
+ Date.next().week();
+ </code></pre>
+  * 
+  * @return {Date}    date
+  */
+	$D.next = function () {
+		return $D.today().next();
+	};
+
+	/** 
+  * Moves the date to the previous instance of a date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
+  * Example
+ <pre><code>
+ Date.today().last().friday();
+ Date.today().last().fri();
+ Date.today().last().march();
+ Date.today().last().mar();
+ Date.today().last().week();
+ </code></pre>
+  *  
+  * @return {Date}    date
+  */
+	$P.last = $P.prev = $P.previous = function () {
+		this._move = true;
+		this._orient = -1;
+		return this;
+	};
+
+	/** 
+  * Creates a new Date (Date.today()) and moves the date to the previous instance of the date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
+  * Example
+ <pre><code>
+ Date.last().friday();
+ Date.last().fri();
+ Date.previous().march();
+ Date.prev().mar();
+ Date.last().week();
+ </code></pre>
+  *  
+  * @return {Date}    date
+  */
+	$D.last = $D.prev = $D.previous = function () {
+		return $D.today().last();
+	};
+
+	/** 
+  * Performs a equality check when followed by either a month name, day name or .weekday() function.
+  * Example
+ <pre><code>
+ Date.today().is().friday(); // true|false
+ Date.today().is().fri();
+ Date.today().is().march();
+ Date.today().is().mar();
+ </code></pre>
+  *  
+  * @return {Boolean}    true|false
+  */
+	$P.is = function () {
+		this._is = true;
+		return this;
+	};
+
+	/** 
+  * Determines if two date objects occur on/in exactly the same instance of the subsequent date part function.
+  * The function .same() must be followed by a date part function (example: .day(), .month(), .year(), etc).
+  *
+  * An optional Date can be passed in the date part function. If now date is passed as a parameter, 'Now' is used. 
+  *
+  * The following example demonstrates how to determine if two dates fall on the exact same day.
+  *
+  * Example
+ <pre><code>
+ var d1 = Date.today(); // today at 00:00
+ var d2 = new Date();   // exactly now.
+ 
+ // Do they occur on the same day?
+ d1.same().day(d2); // true
+ 
+ // Do they occur on the same hour?
+ d1.same().hour(d2); // false, unless d2 hour is '00' (midnight).
+ 
+ // What if it's the same day, but one year apart?
+ var nextYear = Date.today().add(1).year();
+ 
+ d1.same().day(nextYear); // false, because the dates must occur on the exact same day. 
+ </code></pre>
+  *
+  * Scenario: Determine if a given date occurs during some week period 2 months from now. 
+  *
+  * Example
+ <pre><code>
+ var future = Date.today().add(2).months();
+ return someDate.same().week(future); // true|false;
+ </code></pre>
+  *  
+  * @return {Boolean}    true|false
+  */
+	$P.same = function () {
+		this._same = true;
+		this._isSecond = false;
+		return this;
+	};
+
+	/** 
+  * Determines if the current date/time occurs during Today. Must be preceded by the .is() function.
+  * Example
+ <pre><code>
+ someDate.is().today();    // true|false
+ new Date().is().today();  // true
+ Date.today().is().today();// true
+ Date.today().add(-1).day().is().today(); // false
+ </code></pre>
+  *  
+  * @return {Boolean}    true|false
+  */
+	$P.today = function () {
+		return this.same().day();
+	};
+
+	/** 
+  * Determines if the current date is a weekday. This function must be preceded by the .is() function.
+  * Example
+ <pre><code>
+ Date.today().is().weekday(); // true|false
+ </code></pre>
+  *  
+  * @return {Boolean}    true|false
+  */
+	$P.weekday = function () {
+		if (this._nth) {
+			return df("Weekday").call(this);
+		}
+		if (this._move) {
+			return this.addWeekdays(this._orient);
+		}
+		if (this._is) {
+			this._is = false;
+			return !this.is().sat() && !this.is().sun();
+		}
+		return false;
+	};
+	/** 
+  * Determines if the current date is on the weekend. This function must be preceded by the .is() function.
+  * Example
+ <pre><code>
+ Date.today().is().weekend(); // true|false
+ </code></pre>
+  *  
+  * @return {Boolean}    true|false
+  */
+	$P.weekend = function () {
+		if (this._is) {
+			this._is = false;
+			return this.is().sat() || this.is().sun();
+		}
+		return false;
+	};
+
+	/** 
+  * Sets the Time of the current Date instance. A string "6:15 pm" or config object {hour:18, minute:15} are accepted.
+  * Example
+ <pre><code>
+ // Set time to 6:15pm with a String
+ Date.today().at("6:15pm");
+ 
+ // Set time to 6:15pm with a config object
+ Date.today().at({hour:18, minute:15});
+ </code></pre>
+  *  
+  * @return {Date}    date
+  */
+	$P.at = function (time) {
+		return typeof time === "string" ? $D.parse(this.toString("d") + " " + time) : this.set(time);
+	};
+
+	/** 
+  * Creates a new Date() and adds this (Number) to the date based on the preceding date element function (eg. second|minute|hour|day|month|year).
+  * Example
+ <pre><code>
+ // Undeclared Numbers must be wrapped with parentheses. Requirment of JavaScript.
+ (3).days().fromNow();
+ (6).months().fromNow();
+ 
+ // Declared Number variables do not require parentheses. 
+ var n = 6;
+ n.months().fromNow();
+ </code></pre>
+  *  
+  * @return {Date}    A new Date instance
+  */
+	$N.fromNow = $N.after = function (date) {
+		var c = {};
+		c[this._dateElement] = this;
+		return (!date ? new Date() : date.clone()).add(c);
+	};
+
+	/** 
+  * Creates a new Date() and subtract this (Number) from the date based on the preceding date element function (eg. second|minute|hour|day|month|year).
+  * Example
+ <pre><code>
+ // Undeclared Numbers must be wrapped with parentheses. Requirment of JavaScript.
+ (3).days().ago();
+ (6).months().ago();
+ 
+ // Declared Number variables do not require parentheses. 
+ var n = 6;
+ n.months().ago();
+ </code></pre>
+  *  
+  * @return {Date}    A new Date instance
+  */
+	$N.ago = $N.before = function (date) {
+		var c = {},
+		    s = this._dateElement[this._dateElement.length - 1] !== "s" ? this._dateElement + "s" : this._dateElement;
+		c[s] = this * -1;
+		return (!date ? new Date() : date.clone()).add(c);
+	};
+
+	// Do NOT modify the following string tokens. These tokens are used to build dynamic functions.
+	// All culture-specific strings can be found in the CultureInfo files.
+	var dx = "sunday monday tuesday wednesday thursday friday saturday".split(/\s/),
+	    mx = "january february march april may june july august september october november december".split(/\s/),
+	    px = "Millisecond Second Minute Hour Day Week Month Year Quarter Weekday".split(/\s/),
+	    pxf = "Milliseconds Seconds Minutes Hours Date Week Month FullYear Quarter".split(/\s/),
+	    nth = "final first second third fourth fifth".split(/\s/),
+	    de;
+
+	/** 
+ * Returns an object literal of all the date parts.
+ * Example
+ <pre><code>
+ var o = new Date().toObject();
+ 	// { year: 2008, month: 4, week: 20, day: 13, hour: 18, minute: 9, second: 32, millisecond: 812 }
+ 	// The object properties can be referenced directly from the object.
+ 	alert(o.day);  // alerts "13"
+ alert(o.year); // alerts "2008"
+ </code></pre>
+ *  
+ * @return {Date}    An object literal representing the original date object.
+ */
+	$P.toObject = function () {
+		var o = {};
+		for (var i = 0; i < px.length; i++) {
+			if (this["get" + pxf[i]]) {
+				o[px[i].toLowerCase()] = this["get" + pxf[i]]();
+			}
+		}
+		return o;
+	};
+
+	/** 
+ * Returns a date created from an object literal. Ignores the .week property if set in the config. 
+ * Example
+ <pre><code>
+ var o = new Date().toObject();
+ 	return Date.fromObject(o); // will return the same date. 
+ var o2 = {month: 1, day: 20, hour: 18}; // birthday party!
+ Date.fromObject(o2);
+ </code></pre>
+ *  
+ * @return {Date}    An object literal representing the original date object.
+ */
+	$D.fromObject = function (config) {
+		config.week = null;
+		return Date.today().set(config);
+	};
+
+	// Create day name functions and abbreviated day name functions (eg. monday(), friday(), fri()).
+
+	var df = function df(n) {
+		return function () {
+			if (this._is) {
+				this._is = false;
+				return this.getDay() === n;
+			}
+			if (this._move) {
+				this._move = null;
+			}
+			if (this._nth !== null) {
+				// If the .second() function was called earlier, remove the _orient 
+				// from the date, and then continue.
+				// This is required because 'second' can be used in two different context.
+				// 
+				// Example
+				//
+				//   Date.today().add(1).second();
+				//   Date.march().second().monday();
+				// 
+				// Things get crazy with the following...
+				//   Date.march().add(1).second().second().monday(); // but it works!!
+				//  
+				if (this._isSecond) {
+					this.addSeconds(this._orient * -1);
+				}
+				// make sure we reset _isSecond
+				this._isSecond = false;
+
+				var ntemp = this._nth;
+				this._nth = null;
+				var temp = this.clone().moveToLastDayOfMonth();
+				this.moveToNthOccurrence(n, ntemp);
+				if (this > temp) {
+					throw new RangeError($D.getDayName(n) + " does not occur " + ntemp + " times in the month of " + $D.getMonthName(temp.getMonth()) + " " + temp.getFullYear() + ".");
+				}
+				return this;
+			}
+			return this.moveToDayOfWeek(n, this._orient);
+		};
+	};
+
+	var sdf = function sdf(n) {
+		return function () {
+			var t = $D.today(),
+			    shift = n - t.getDay();
+			if (n === 0 && Date.CultureInfo.firstDayOfWeek === 1 && t.getDay() !== 0) {
+				shift = shift + 7;
+			}
+			return t.addDays(shift);
+		};
+	};
+
+	// Create month name functions and abbreviated month name functions (eg. january(), march(), mar()).
+	var month_instance_functions = function month_instance_functions(n) {
+		return function () {
+			if (this._is) {
+				this._is = false;
+				return this.getMonth() === n;
+			}
+			return this.moveToMonth(n, this._orient);
+		};
+	};
+
+	var month_static_functions = function month_static_functions(n) {
+		return function () {
+			return $D.today().set({ month: n, day: 1 });
+		};
+	};
+
+	var processTerms = function processTerms(names, staticFunc, instanceFunc) {
+		for (var i = 0; i < names.length; i++) {
+			// Create constant static Name variables.
+			$D[names[i].toUpperCase()] = $D[names[i].toUpperCase().substring(0, 3)] = i;
+			// Create Name functions.
+			$D[names[i]] = $D[names[i].substring(0, 3)] = staticFunc(i);
+			// Create Name instance functions.
+			$P[names[i]] = $P[names[i].substring(0, 3)] = instanceFunc(i);
+		}
+	};
+
+	processTerms(dx, sdf, df);
+	processTerms(mx, month_static_functions, month_instance_functions);
+
+	// Create date element functions and plural date element functions used with Date (eg. day(), days(), months()).
+	var ef = function ef(j) {
+		return function () {
+			// if the .second() function was called earlier, the _orient 
+			// has alread been added. Just return this and reset _isSecond.
+			if (this._isSecond) {
+				this._isSecond = false;
+				return this;
+			}
+
+			if (this._same) {
+				this._same = this._is = false;
+				var o1 = this.toObject(),
+				    o2 = (arguments[0] || new Date()).toObject(),
+				    v = "",
+				    k = j.toLowerCase();
+
+				// the substr trick with -1 doesn't work in IE8 or less
+				k = k[k.length - 1] === "s" ? k.substring(0, k.length - 1) : k;
+
+				for (var m = px.length - 1; m > -1; m--) {
+					v = px[m].toLowerCase();
+					if (o1[v] !== o2[v]) {
+						return false;
+					}
+					if (k === v) {
+						break;
+					}
+				}
+				return true;
+			}
+
+			if (j.substring(j.length - 1) !== "s") {
+				j += "s";
+			}
+			if (this._move) {
+				this._move = null;
+			}
+			return this["add" + j](this._orient);
+		};
+	};
+
+	var nf = function nf(n) {
+		return function () {
+			this._dateElement = n;
+			return this;
+		};
+	};
+
+	for (var k = 0; k < px.length; k++) {
+		de = px[k].toLowerCase();
+		if (de !== "weekday") {
+			// Create date element functions and plural date element functions used with Date (eg. day(), days(), months()).
+			$P[de] = $P[de + "s"] = ef(px[k]);
+
+			// Create date element functions and plural date element functions used with Number (eg. day(), days(), months()).
+			$N[de] = $N[de + "s"] = nf(de + "s");
+		}
+	}
+
+	$P._ss = ef("Second");
+
+	var nthfn = function nthfn(n) {
+		return function (dayOfWeek) {
+			if (this._same) {
+				return this._ss(arguments[0]);
+			}
+			if (dayOfWeek || dayOfWeek === 0) {
+				return this.moveToNthOccurrence(dayOfWeek, n);
+			}
+			this._nth = n;
+
+			// if the operator is 'second' add the _orient, then deal with it later...
+			if (n === 2 && (dayOfWeek === undefined || dayOfWeek === null)) {
+				this._isSecond = true;
+				return this.addSeconds(this._orient);
+			}
+			return this;
+		};
+	};
+
+	for (var l = 0; l < nth.length; l++) {
+		$P[nth[l]] = l === 0 ? nthfn(-1) : nthfn(l);
+	}
+})();
+
+(function () {
+	"use strict";
+
+	Date.Parsing = {
+		Exception: function Exception(s) {
+			this.message = "Parse error at '" + s.substring(0, 10) + " ...'";
+		}
+	};
+	var $P = Date.Parsing;
+	var dayOffsets = {
+		standard: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],
+		leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+	};
+
+	$P.isLeapYear = function (year) {
+		return year % 4 === 0 && year % 100 !== 0 || year % 400 === 0;
+	};
+
+	var utils = {
+		multiReplace: function multiReplace(str, hash) {
+			var key;
+			for (key in hash) {
+				if (Object.prototype.hasOwnProperty.call(hash, key)) {
+					var regex;
+					if (typeof hash[key] === "function") {} else {
+						regex = hash[key] instanceof RegExp ? hash[key] : new RegExp(hash[key], "g");
+					}
+					str = str.replace(regex, key);
+				}
+			}
+			return str;
+		},
+		getDayOfYearFromWeek: function getDayOfYearFromWeek(obj) {
+			var d, jan4, offset;
+			obj.weekDay = !obj.weekDay && obj.weekDay !== 0 ? 1 : obj.weekDay;
+			d = new Date(obj.year, 0, 4);
+			jan4 = d.getDay() === 0 ? 7 : d.getDay(); // JS is 0 indexed on Sunday.
+			offset = jan4 + 3;
+			obj.dayOfYear = obj.week * 7 + (obj.weekDay === 0 ? 7 : obj.weekDay) - offset;
+			return obj;
+		},
+		getDayOfYear: function getDayOfYear(obj, dayOffset) {
+			if (!obj.dayOfYear) {
+				obj = utils.getDayOfYearFromWeek(obj);
+			}
+			for (var i = 0; i <= dayOffset.length; i++) {
+				if (obj.dayOfYear < dayOffset[i] || i === dayOffset.length) {
+					obj.day = obj.day ? obj.day : obj.dayOfYear - dayOffset[i - 1];
+					break;
+				} else {
+					obj.month = i;
+				}
+			}
+			return obj;
+		},
+		adjustForTimeZone: function adjustForTimeZone(obj, date) {
+			var offset;
+			if (obj.zone.toUpperCase() === "Z" || obj.zone_hours === 0 && obj.zone_minutes === 0) {
+				// it's UTC/GML so work out the current timeszone offset
+				offset = -date.getTimezoneOffset();
+			} else {
+				offset = obj.zone_hours * 60 + (obj.zone_minutes || 0);
+				if (obj.zone_sign === "+") {
+					offset *= -1;
+				}
+				offset -= date.getTimezoneOffset();
+			}
+			date.setMinutes(date.getMinutes() + offset);
+			return date;
+		},
+		setDefaults: function setDefaults(obj) {
+			obj.year = obj.year || Date.today().getFullYear();
+			obj.hours = obj.hours || 0;
+			obj.minutes = obj.minutes || 0;
+			obj.seconds = obj.seconds || 0;
+			obj.milliseconds = obj.milliseconds || 0;
+			if (!(!obj.month && (obj.week || obj.dayOfYear))) {
+				// if we have a month, or if we don't but don't have the day calculation data
+				obj.month = obj.month || 0;
+				obj.day = obj.day || 1;
+			}
+			return obj;
+		},
+		dataNum: function dataNum(data, mod, explict, postProcess) {
+			var dataNum = data * 1;
+			if (mod) {
+				if (postProcess) {
+					return data ? mod(data) * 1 : data;
+				} else {
+					return data ? mod(dataNum) : data;
+				}
+			} else if (!explict) {
+				return data ? dataNum : data;
+			} else {
+				return data && typeof data !== "undefined" ? dataNum : data;
+			}
+		},
+		timeDataProcess: function timeDataProcess(obj) {
+			var timeObj = {};
+			for (var x in obj.data) {
+				if (obj.data.hasOwnProperty(x)) {
+					timeObj[x] = obj.ignore[x] ? obj.data[x] : utils.dataNum(obj.data[x], obj.mods[x], obj.explict[x], obj.postProcess[x]);
+				}
+			}
+			if (obj.data.secmins) {
+				obj.data.secmins = obj.data.secmins.replace(",", ".") * 60;
+				if (!timeObj.minutes) {
+					timeObj.minutes = obj.data.secmins;
+				} else if (!timeObj.seconds) {
+					timeObj.seconds = obj.data.secmins;
+				}
+				delete obj.secmins;
+			}
+			return timeObj;
+		},
+		buildTimeObjectFromData: function buildTimeObjectFromData(data) {
+			var time = utils.timeDataProcess({
+				data: {
+					year: data[1],
+					month: data[5],
+					day: data[7],
+					week: data[8],
+					dayOfYear: data[10],
+					hours: data[15],
+					zone_hours: data[23],
+					zone_minutes: data[24],
+					zone: data[21],
+					zone_sign: data[22],
+					weekDay: data[9],
+					minutes: data[16],
+					seconds: data[19],
+					milliseconds: data[20],
+					secmins: data[18]
+				},
+				mods: {
+					month: function month(data) {
+						return data - 1;
+					},
+					weekDay: function weekDay(data) {
+						data = Math.abs(data);
+						return data === 7 ? 0 : data;
+					},
+					minutes: function minutes(data) {
+						return data.replace(":", "");
+					},
+					seconds: function seconds(data) {
+						return Math.floor(data.replace(":", "").replace(",", ".") * 1);
+					},
+					milliseconds: function milliseconds(data) {
+						return data.replace(",", ".") * 1000;
+					}
+				},
+				postProcess: {
+					minutes: true,
+					seconds: true,
+					milliseconds: true
+				},
+				explict: {
+					zone_hours: true,
+					zone_minutes: true
+				},
+				ignore: {
+					zone: true,
+					zone_sign: true,
+					secmins: true
+				}
+			});
+			return time;
+		},
+		addToHash: function addToHash(hash, keys, data) {
+			keys = keys;
+			data = data;
+			var len = keys.length;
+			for (var i = 0; i < len; i++) {
+				hash[keys[i]] = data[i];
+			}
+			return hash;
+		},
+		combineRegex: function combineRegex(r1, r2) {
+			return new RegExp("((" + r1.source + ")\\s(" + r2.source + "))");
+		},
+		getDateNthString: function getDateNthString(add, last, inc) {
+			if (add) {
+				return Date.today().addDays(inc).toString("d");
+			} else if (last) {
+				return Date.today().last()[inc]().toString("d");
+			}
+		},
+		buildRegexData: function buildRegexData(array) {
+			var arr = [];
+			var len = array.length;
+			for (var i = 0; i < len; i++) {
+				if (Object.prototype.toString.call(array[i]) === '[object Array]') {
+					// oldIE compat version of Array.isArray
+					arr.push(this.combineRegex(array[i][0], array[i][1]));
+				} else {
+					arr.push(array[i]);
+				}
+			}
+			return arr;
+		}
+	};
+
+	$P.processTimeObject = function (obj) {
+		var date, dayOffset;
+
+		utils.setDefaults(obj);
+		dayOffset = $P.isLeapYear(obj.year) ? dayOffsets.leap : dayOffsets.standard;
+
+		if (!obj.month && (obj.week || obj.dayOfYear)) {
+			utils.getDayOfYear(obj, dayOffset);
+		} else {
+			obj.dayOfYear = dayOffset[obj.month] + obj.day;
+		}
+
+		date = new Date(obj.year, obj.month, obj.day, obj.hours, obj.minutes, obj.seconds, obj.milliseconds);
+
+		if (obj.zone) {
+			utils.adjustForTimeZone(obj, date); // adjust (and calculate) for timezone
+		}
+		return date;
+	};
+
+	$P.ISO = {
+		regex: /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-3])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-4])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?\s?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/,
+		parse: function parse(s) {
+			var time,
+			    data = s.match(this.regex);
+			if (!data || !data.length) {
+				return null;
+			}
+
+			time = utils.buildTimeObjectFromData(data);
+
+			if (!time.year || !time.year && !time.month && !time.day && !time.week && !time.dayOfYear) {
+				return null;
+			}
+			return $P.processTimeObject(time);
+		}
+	};
+
+	$P.Numeric = {
+		isNumeric: function isNumeric(e) {
+			return !isNaN(parseFloat(e)) && isFinite(e);
+		},
+		regex: /\b([0-1]?[0-9])([0-3]?[0-9])([0-2]?[0-9]?[0-9][0-9])\b/i,
+		parse: function parse(s) {
+			var data,
+			    i,
+			    time = {},
+			    order = Date.CultureInfo.dateElementOrder.split("");
+			if (!this.isNumeric(s) || // if it's non-numeric OR
+			s[0] === "+" && s[0] === "-") {
+				// It's an arithmatic string (eg +/-1000)
+				return null;
+			}
+			if (s.length < 5 && s.indexOf(".") < 0 && s.indexOf("/") < 0) {
+				// assume it's just a year.
+				time.year = s;
+				return $P.processTimeObject(time);
+			}
+			data = s.match(this.regex);
+			if (!data || !data.length) {
+				return null;
+			}
+			for (i = 0; i < order.length; i++) {
+				switch (order[i]) {
+					case "d":
+						time.day = data[i + 1];
+						break;
+					case "m":
+						time.month = data[i + 1] - 1;
+						break;
+					case "y":
+						time.year = data[i + 1];
+						break;
+				}
+			}
+			return $P.processTimeObject(time);
+		}
+	};
+
+	$P.Normalizer = {
+		regexData: function regexData() {
+			var $R = Date.CultureInfo.regexPatterns;
+			return utils.buildRegexData([$R.tomorrow, $R.yesterday, [$R.past, $R.mon], [$R.past, $R.tue], [$R.past, $R.wed], [$R.past, $R.thu], [$R.past, $R.fri], [$R.past, $R.sat], [$R.past, $R.sun]]);
+		},
+		basicReplaceHash: function basicReplaceHash() {
+			var $R = Date.CultureInfo.regexPatterns;
+			return {
+				"January": $R.jan.source,
+				"February": $R.feb,
+				"March": $R.mar,
+				"April": $R.apr,
+				"May": $R.may,
+				"June": $R.jun,
+				"July": $R.jul,
+				"August": $R.aug,
+				"September": $R.sep,
+				"October": $R.oct,
+				"November": $R.nov,
+				"December": $R.dec,
+				"": /\bat\b/gi,
+				" ": /\s{2,}/,
+				"am": $R.inTheMorning,
+				"9am": $R.thisMorning,
+				"pm": $R.inTheEvening,
+				"7pm": $R.thisEvening
+			};
+		},
+		keys: function keys() {
+			return [utils.getDateNthString(true, false, 1), // tomorrow
+			utils.getDateNthString(true, false, -1), // yesterday
+			utils.getDateNthString(false, true, "monday"), //last mon
+			utils.getDateNthString(false, true, "tuesday"), //last tues
+			utils.getDateNthString(false, true, "wednesday"), //last wed
+			utils.getDateNthString(false, true, "thursday"), //last thurs
+			utils.getDateNthString(false, true, "friday"), //last fri
+			utils.getDateNthString(false, true, "saturday"), //last sat
+			utils.getDateNthString(false, true, "sunday") //last sun
+			];
+		},
+		buildRegexFunctions: function buildRegexFunctions() {
+			var $R = Date.CultureInfo.regexPatterns;
+			var __ = Date.i18n.__;
+			var tomorrowRE = new RegExp("(\\b\\d\\d?(" + __("AM") + "|" + __("PM") + ")? )(" + $R.tomorrow.source.slice(1) + ")", "i"); // adapted tomorrow regex for AM PM relative dates
+			var todayRE = new RegExp($R.today.source + "(?!\\s*([+-]))\\b"); // today, but excludes the math operators (eg "today + 2h")
+
+			this.replaceFuncs = [[todayRE, function (full) {
+				return full.length > 1 ? Date.today().toString("d") : full;
+			}], [tomorrowRE, function (full, m1) {
+				var t = Date.today().addDays(1).toString("d");
+				return t + " " + m1;
+			}], [$R.amThisMorning, function (str, am) {
+				return am;
+			}], [$R.pmThisEvening, function (str, pm) {
+				return pm;
+			}]];
+		},
+		buildReplaceData: function buildReplaceData() {
+			this.buildRegexFunctions();
+			this.replaceHash = utils.addToHash(this.basicReplaceHash(), this.keys(), this.regexData());
+		},
+		stringReplaceFuncs: function stringReplaceFuncs(s) {
+			for (var i = 0; i < this.replaceFuncs.length; i++) {
+				s = s.replace(this.replaceFuncs[i][0], this.replaceFuncs[i][1]);
+			}
+			return s;
+		},
+		parse: function parse(s) {
+			s = this.stringReplaceFuncs(s);
+			s = utils.multiReplace(s, this.replaceHash);
+
+			try {
+				var n = s.split(/([\s\-\.\,\/\x27]+)/);
+				if (n.length === 3 && $P.Numeric.isNumeric(n[0]) && $P.Numeric.isNumeric(n[2]) && n[2].length >= 4) {
+					// ok, so we're dealing with x/year. But that's not a full date.
+					// This fixes wonky dateElementOrder parsing when set to dmy order.
+					if (Date.CultureInfo.dateElementOrder[0] === "d") {
+						s = "1/" + n[0] + "/" + n[2]; // set to 1st of month and normalize the seperator
+					}
+				}
+			} catch (e) {}
+
+			return s;
+		}
+	};
+	$P.Normalizer.buildReplaceData();
+})();
+(function () {
+	var $P = Date.Parsing;
+	var _ = $P.Operators = {
+		//
+		// Tokenizers
+		//
+		rtoken: function rtoken(r) {
+			// regex token
+			return function (s) {
+				var mx = s.match(r);
+				if (mx) {
+					return [mx[0], s.substring(mx[0].length)];
+				} else {
+					throw new $P.Exception(s);
+				}
+			};
+		},
+		token: function token() {
+			// whitespace-eating token
+			return function (s) {
+				return _.rtoken(new RegExp("^\\s*" + s + "\\s*"))(s);
+			};
+		},
+		stoken: function stoken(s) {
+			// string token
+			return _.rtoken(new RegExp("^" + s));
+		},
+
+		// Atomic Operators
+
+		until: function until(p) {
+			return function (s) {
+				var qx = [],
+				    rx = null;
+				while (s.length) {
+					try {
+						rx = p.call(this, s);
+					} catch (e) {
+						qx.push(rx[0]);
+						s = rx[1];
+						continue;
+					}
+					break;
+				}
+				return [qx, s];
+			};
+		},
+		many: function many(p) {
+			return function (s) {
+				var rx = [],
+				    r = null;
+				while (s.length) {
+					try {
+						r = p.call(this, s);
+					} catch (e) {
+						return [rx, s];
+					}
+					rx.push(r[0]);
+					s = r[1];
+				}
+				return [rx, s];
+			};
+		},
+
+		// generator operators -- see below
+		optional: function optional(p) {
+			return function (s) {
+				var r = null;
+				try {
+					r = p.call(this, s);
+				} catch (e) {
+					return [null, s];
+				}
+				return [r[0], r[1]];
+			};
+		},
+		not: function not(p) {
+			return function (s) {
+				try {
+					p.call(this, s);
+				} catch (e) {
+					return [null, s];
+				}
+				throw new $P.Exception(s);
+			};
+		},
+		ignore: function ignore(p) {
+			return p ? function (s) {
+				var r = null;
+				r = p.call(this, s);
+				return [null, r[1]];
+			} : null;
+		},
+		product: function product() {
+			var px = arguments[0],
+			    qx = Array.prototype.slice.call(arguments, 1),
+			    rx = [];
+			for (var i = 0; i < px.length; i++) {
+				rx.push(_.each(px[i], qx));
+			}
+			return rx;
+		},
+		cache: function cache(rule) {
+			var cache = {},
+			    cache_length = 0,
+			    cache_keys = [],
+			    CACHE_MAX = Date.Config.CACHE_MAX || 100000,
+			    r = null;
+			var cacheCheck = function cacheCheck() {
+				if (cache_length === CACHE_MAX) {
+					// kill several keys, don't want to have to do this all the time...
+					for (var i = 0; i < 10; i++) {
+						var key = cache_keys.shift();
+						if (key) {
+							delete cache[key];
+							cache_length--;
+						}
+					}
+				}
+			};
+			return function (s) {
+				cacheCheck();
+				try {
+					r = cache[s] = cache[s] || rule.call(this, s);
+				} catch (e) {
+					r = cache[s] = e;
+				}
+				cache_length++;
+				cache_keys.push(s);
+				if (r instanceof $P.Exception) {
+					throw r;
+				} else {
+					return r;
+				}
+			};
+		},
+
+		// vector operators -- see below
+		any: function any() {
+			var px = arguments;
+			return function (s) {
+				var r = null;
+				for (var i = 0; i < px.length; i++) {
+					if (px[i] == null) {
+						continue;
+					}
+					try {
+						r = px[i].call(this, s);
+					} catch (e) {
+						r = null;
+					}
+					if (r) {
+						return r;
+					}
+				}
+				throw new $P.Exception(s);
+			};
+		},
+		each: function each() {
+			var px = arguments;
+			return function (s) {
+				var rx = [],
+				    r = null;
+				for (var i = 0; i < px.length; i++) {
+					if (px[i] == null) {
+						continue;
+					}
+					try {
+						r = px[i].call(this, s);
+					} catch (e) {
+						throw new $P.Exception(s);
+					}
+					rx.push(r[0]);
+					s = r[1];
+				}
+				return [rx, s];
+			};
+		},
+		all: function all() {
+			var px = arguments,
+			    _ = _;
+			return _.each(_.optional(px));
+		},
+
+		// delimited operators
+		sequence: function sequence(px, d, c) {
+			d = d || _.rtoken(/^\s*/);
+			c = c || null;
+
+			if (px.length === 1) {
+				return px[0];
+			}
+			return function (s) {
+				var r = null,
+				    q = null;
+				var rx = [];
+				for (var i = 0; i < px.length; i++) {
+					try {
+						r = px[i].call(this, s);
+					} catch (e) {
+						break;
+					}
+					rx.push(r[0]);
+					try {
+						q = d.call(this, r[1]);
+					} catch (ex) {
+						q = null;
+						break;
+					}
+					s = q[1];
+				}
+				if (!r) {
+					throw new $P.Exception(s);
+				}
+				if (q) {
+					throw new $P.Exception(q[1]);
+				}
+				if (c) {
+					try {
+						r = c.call(this, r[1]);
+					} catch (ey) {
+						throw new $P.Exception(r[1]);
+					}
+				}
+				return [rx, r ? r[1] : s];
+			};
+		},
+
+		//
+		// Composite Operators
+		//
+
+		between: function between(d1, p, d2) {
+			d2 = d2 || d1;
+			var _fn = _.each(_.ignore(d1), p, _.ignore(d2));
+			return function (s) {
+				var rx = _fn.call(this, s);
+				return [[rx[0][0], r[0][2]], rx[1]];
+			};
+		},
+		list: function list(p, d, c) {
+			d = d || _.rtoken(/^\s*/);
+			c = c || null;
+			return p instanceof Array ? _.each(_.product(p.slice(0, -1), _.ignore(d)), p.slice(-1), _.ignore(c)) : _.each(_.many(_.each(p, _.ignore(d))), px, _.ignore(c));
+		},
+		set: function set(px, d, c) {
+			d = d || _.rtoken(/^\s*/);
+			c = c || null;
+			return function (s) {
+				// r is the current match, best the current 'best' match
+				// which means it parsed the most amount of input
+				var r = null,
+				    p = null,
+				    q = null,
+				    rx = null,
+				    best = [[], s],
+				    last = false;
+				// go through the rules in the given set
+				for (var i = 0; i < px.length; i++) {
+
+					// last is a flag indicating whether this must be the last element
+					// if there is only 1 element, then it MUST be the last one
+					q = null;
+					p = null;
+					r = null;
+					last = px.length === 1;
+					// first, we try simply to match the current pattern
+					// if not, try the next pattern
+					try {
+						r = px[i].call(this, s);
+					} catch (e) {
+						continue;
+					}
+					// since we are matching against a set of elements, the first
+					// thing to do is to add r[0] to matched elements
+					rx = [[r[0]], r[1]];
+					// if we matched and there is still input to parse and 
+					// we don't already know this is the last element,
+					// we're going to next check for the delimiter ...
+					// if there's none, or if there's no input left to parse
+					// than this must be the last element after all ...
+					if (r[1].length > 0 && !last) {
+						try {
+							q = d.call(this, r[1]);
+						} catch (ex) {
+							last = true;
+						}
+					} else {
+						last = true;
+					}
+
+					// if we parsed the delimiter and now there's no more input,
+					// that means we shouldn't have parsed the delimiter at all
+					// so don't update r and mark this as the last element ...
+					if (!last && q[1].length === 0) {
+						last = true;
+					}
+
+					// so, if this isn't the last element, we're going to see if
+					// we can get any more matches from the remaining (unmatched)
+					// elements ...
+					if (!last) {
+						// build a list of the remaining rules we can match against,
+						// i.e., all but the one we just matched against
+						var qx = [];
+						for (var j = 0; j < px.length; j++) {
+							if (i !== j) {
+								qx.push(px[j]);
+							}
+						}
+
+						// now invoke recursively set with the remaining input
+						// note that we don't include the closing delimiter ...
+						// we'll check for that ourselves at the end
+						p = _.set(qx, d).call(this, q[1]);
+
+						// if we got a non-empty set as a result ...
+						// (otw rx already contains everything we want to match)
+						if (p[0].length > 0) {
+							// update current result, which is stored in rx ...
+							// basically, pick up the remaining text from p[1]
+							// and concat the result from p[0] so that we don't
+							// get endless nesting ...
+							rx[0] = rx[0].concat(p[0]);
+							rx[1] = p[1];
+						}
+					}
+
+					// at this point, rx either contains the last matched element
+					// or the entire matched set that starts with this element.
+
+					// now we just check to see if this variation is better than
+					// our best so far, in terms of how much of the input is parsed
+					if (rx[1].length < best[1].length) {
+						best = rx;
+					}
+
+					// if we've parsed all the input, then we're finished
+					if (best[1].length === 0) {
+						break;
+					}
+				}
+
+				// so now we've either gone through all the patterns trying them
+				// as the initial match; or we found one that parsed the entire
+				// input string ...
+
+				// if best has no matches, just return empty set ...
+				if (best[0].length === 0) {
+					return best;
+				}
+
+				// if a closing delimiter is provided, then we have to check it also
+				if (c) {
+					// we try this even if there is no remaining input because the pattern
+					// may well be optional or match empty input ...
+					try {
+						q = c.call(this, best[1]);
+					} catch (ey) {
+						throw new $P.Exception(best[1]);
+					}
+
+					// it parsed ... be sure to update the best match remaining input
+					best[1] = q[1];
+				}
+				// if we're here, either there was no closing delimiter or we parsed it
+				// so now we have the best match; just return it!
+				return best;
+			};
+		},
+		forward: function forward(gr, fname) {
+			return function (s) {
+				return gr[fname].call(this, s);
+			};
+		},
+
+		//
+		// Translation Operators
+		//
+		replace: function replace(rule, repl) {
+			return function (s) {
+				var r = rule.call(this, s);
+				return [repl, r[1]];
+			};
+		},
+		process: function process(rule, fn) {
+			return function (s) {
+				var r = rule.call(this, s);
+				return [fn.call(this, r[0]), r[1]];
+			};
+		},
+		min: function min(_min, rule) {
+			return function (s) {
+				var rx = rule.call(this, s);
+				if (rx[0].length < _min) {
+					throw new $P.Exception(s);
+				}
+				return rx;
+			};
+		}
+	};
+
+	// Generator Operators And Vector Operators
+
+	// Generators are operators that have a signature of F(R) => R,
+	// taking a given rule and returning another rule, such as 
+	// ignore, which parses a given rule and throws away the result.
+
+	// Vector operators are those that have a signature of F(R1,R2,...) => R,
+	// take a list of rules and returning a new rule, such as each.
+
+	// Generator operators are converted (via the following _generator
+	// function) into functions that can also take a list or array of rules
+	// and return an array of new rules as though the function had been
+	// called on each rule in turn (which is what actually happens).
+
+	// This allows generators to be used with vector operators more easily.
+	// Example:
+	// each(ignore(foo, bar)) instead of each(ignore(foo), ignore(bar))
+
+	// This also turns generators into vector operators, which allows
+	// constructs like:
+	// not(cache(foo, bar))
+
+	var _generator = function _generator(op) {
+		function gen() {
+			var args = null,
+			    rx = [],
+			    px,
+			    i;
+			if (arguments.length > 1) {
+				args = Array.prototype.slice.call(arguments);
+			} else if (arguments[0] instanceof Array) {
+				args = arguments[0];
+			}
+			if (args) {
+				px = args.shift();
+				if (px.length > 0) {
+					args.unshift(px[i]);
+					rx.push(op.apply(null, args));
+					args.shift();
+					return rx;
+				}
+			} else {
+				return op.apply(null, arguments);
+			}
+		}
+
+		return gen;
+	};
+
+	var gx = "optional not ignore cache".split(/\s/);
+
+	for (var i = 0; i < gx.length; i++) {
+		_[gx[i]] = _generator(_[gx[i]]);
+	}
+
+	var _vector = function _vector(op) {
+		return function () {
+			if (arguments[0] instanceof Array) {
+				return op.apply(null, arguments[0]);
+			} else {
+				return op.apply(null, arguments);
+			}
+		};
+	};
+
+	var vx = "each any all".split(/\s/);
+
+	for (var j = 0; j < vx.length; j++) {
+		_[vx[j]] = _vector(_[vx[j]]);
+	}
+})();
+(function () {
+	var $D = Date;
+
+	var flattenAndCompact = function flattenAndCompact(ax) {
+		var rx = [];
+		for (var i = 0; i < ax.length; i++) {
+			if (ax[i] instanceof Array) {
+				rx = rx.concat(flattenAndCompact(ax[i]));
+			} else {
+				if (ax[i]) {
+					rx.push(ax[i]);
+				}
+			}
+		}
+		return rx;
+	};
+
+	var parseMeridian = function parseMeridian() {
+		if (this.meridian && (this.hour || this.hour === 0)) {
+			if (this.meridian === "a" && this.hour > 11 && Date.Config.strict24hr) {
+				throw "Invalid hour and meridian combination";
+			} else if (this.meridian === "p" && this.hour < 12 && Date.Config.strict24hr) {
+				throw "Invalid hour and meridian combination";
+			} else if (this.meridian === "p" && this.hour < 12) {
+				this.hour = this.hour + 12;
+			} else if (this.meridian === "a" && this.hour === 12) {
+				this.hour = 0;
+			}
+		}
+	};
+
+	var setDefaults = function setDefaults() {
+		var now = new Date();
+		if ((this.hour || this.minute) && !this.month && !this.year && !this.day) {
+			this.day = now.getDate();
+		}
+
+		if (!this.year) {
+			this.year = now.getFullYear();
+		}
+
+		if (!this.month && this.month !== 0) {
+			this.month = now.getMonth();
+		}
+
+		if (!this.day) {
+			this.day = 1;
+		}
+
+		if (!this.hour) {
+			this.hour = 0;
+		}
+
+		if (!this.minute) {
+			this.minute = 0;
+		}
+
+		if (!this.second) {
+			this.second = 0;
+		}
+		if (!this.millisecond) {
+			this.millisecond = 0;
+		}
+	};
+
+	var finishUtils = {
+		getToday: function getToday() {
+			if (this.now || "hour minute second".indexOf(this.unit) !== -1) {
+				return new Date();
+			} else {
+				return $D.today();
+			}
+		},
+		setDaysFromWeekday: function setDaysFromWeekday(today, orient) {
+			var gap;
+			orient = orient || 1;
+			this.unit = "day";
+			gap = $D.getDayNumberFromName(this.weekday) - today.getDay();
+			this.days = gap ? (gap + orient * 7) % 7 : orient * 7;
+			return this;
+		},
+		setMonthsFromMonth: function setMonthsFromMonth(today, orient) {
+			var gap;
+			orient = orient || 1;
+			this.unit = "month";
+			gap = this.month - today.getMonth();
+			this.months = gap ? (gap + orient * 12) % 12 : orient * 12;
+			this.month = null;
+			return this;
+		},
+		setDMYFromWeekday: function setDMYFromWeekday() {
+			var d = Date[this.weekday]();
+			this.day = d.getDate();
+			if (!this.month) {
+				this.month = d.getMonth();
+			}
+			this.year = d.getFullYear();
+			return this;
+		},
+		setUnitValue: function setUnitValue(orient) {
+			if (!this.value && this.operator && this.operator !== null && this[this.unit + "s"] && this[this.unit + "s"] !== null) {
+				this[this.unit + "s"] = this[this.unit + "s"] + (this.operator === "add" ? 1 : -1) + (this.value || 0) * orient;
+			} else if (this[this.unit + "s"] == null || this.operator != null) {
+				if (!this.value) {
+					this.value = 1;
+				}
+				this[this.unit + "s"] = this.value * orient;
+			}
+		},
+		generateDateFromWeeks: function generateDateFromWeeks() {
+			var weekday = this.weekday !== undefined ? this.weekday : "today";
+			var d = Date[weekday]().addWeeks(this.weeks);
+			if (this.now) {
+				d.setTimeToNow();
+			}
+			return d;
+		}
+	};
+
+	$D.Translator = {
+		hour: function hour(s) {
+			return function () {
+				this.hour = Number(s);
+			};
+		},
+		minute: function minute(s) {
+			return function () {
+				this.minute = Number(s);
+			};
+		},
+		second: function second(s) {
+			return function () {
+				this.second = Number(s);
+			};
+		},
+		/* for ss.s format */
+		secondAndMillisecond: function secondAndMillisecond(s) {
+			return function () {
+				var mx = s.match(/^([0-5][0-9])\.([0-9]{1,3})/);
+				this.second = Number(mx[1]);
+				this.millisecond = Number(mx[2]);
+			};
+		},
+		meridian: function meridian(s) {
+			return function () {
+				this.meridian = s.slice(0, 1).toLowerCase();
+			};
+		},
+		timezone: function timezone(s) {
+			return function () {
+				var n = s.replace(/[^\d\+\-]/g, "");
+				if (n.length) {
+					this.timezoneOffset = Number(n);
+				} else {
+					this.timezone = s.toLowerCase();
+				}
+			};
+		},
+		day: function day(x) {
+			var s = x[0];
+			return function () {
+				this.day = Number(s.match(/\d+/)[0]);
+				if (this.day < 1) {
+					throw "invalid day";
+				}
+			};
+		},
+		month: function month(s) {
+			return function () {
+				this.month = s.length === 3 ? "jan feb mar apr may jun jul aug sep oct nov dec".indexOf(s) / 4 : Number(s) - 1;
+				if (this.month < 0) {
+					throw "invalid month";
+				}
+			};
+		},
+		year: function year(s) {
+			return function () {
+				var n = Number(s);
+				this.year = s.length > 2 ? n : n + (n + 2000 < Date.CultureInfo.twoDigitYearMax ? 2000 : 1900);
+			};
+		},
+		rday: function rday(s) {
+			return function () {
+				switch (s) {
+					case "yesterday":
+						this.days = -1;
+						break;
+					case "tomorrow":
+						this.days = 1;
+						break;
+					case "today":
+						this.days = 0;
+						break;
+					case "now":
+						this.days = 0;
+						this.now = true;
+						break;
+				}
+			};
+		},
+		finishExact: function finishExact(x) {
+			var d;
+			x = x instanceof Array ? x : [x];
+
+			for (var i = 0; i < x.length; i++) {
+				if (x[i]) {
+					x[i].call(this);
+				}
+			}
+
+			setDefaults.call(this);
+			parseMeridian.call(this);
+
+			if (this.day > $D.getDaysInMonth(this.year, this.month)) {
+				throw new RangeError(this.day + " is not a valid value for days.");
+			}
+
+			d = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
+			if (this.year < 100) {
+				d.setFullYear(this.year); // means years less that 100 are process correctly. JS will parse it otherwise as 1900-1999.
+			}
+			if (this.timezone) {
+				d.set({ timezone: this.timezone });
+			} else if (this.timezoneOffset) {
+				d.set({ timezoneOffset: this.timezoneOffset });
+			}
+
+			return d;
+		},
+		finish: function finish(x) {
+			var today, expression, orient, temp;
+
+			x = x instanceof Array ? flattenAndCompact(x) : [x];
+
+			if (x.length === 0) {
+				return null;
+			}
+
+			for (var i = 0; i < x.length; i++) {
+				if (typeof x[i] === "function") {
+					x[i].call(this);
+				}
+			}
+			if (this.now && !this.unit && !this.operator) {
+				return new Date();
+			} else {
+				today = finishUtils.getToday.call(this);
+			}
+
+			expression = !!(this.days && this.days !== null || this.orient || this.operator);
+			orient = this.orient === "past" || this.operator === "subtract" ? -1 : 1;
+
+			if (this.month && this.unit === "week") {
+				this.value = this.month + 1;
+				delete this.month;
+				delete this.day;
+			}
+
+			if ((this.month || this.month === 0) && "year day hour minute second".indexOf(this.unit) !== -1) {
+				if (!this.value) {
+					this.value = this.month + 1;
+				}
+				this.month = null;
+				expression = true;
+			}
+
+			if (!expression && this.weekday && !this.day && !this.days) {
+				finishUtils.setDMYFromWeekday.call(this);
+			}
+
+			if (expression && this.weekday && this.unit !== "month" && this.unit !== "week") {
+				finishUtils.setDaysFromWeekday.call(this, today, orient);
+			}
+
+			if (this.weekday && this.unit !== "week" && !this.day && !this.days) {
+				temp = Date[this.weekday]();
+				this.day = temp.getDate();
+				if (temp.getMonth() !== today.getMonth()) {
+					this.month = temp.getMonth();
+				}
+			}
+
+			if (this.month && this.unit === "day" && this.operator) {
+				if (!this.value) {
+					this.value = this.month + 1;
+				}
+				this.month = null;
+			}
+
+			if (this.value != null && this.month != null && this.year != null) {
+				this.day = this.value * 1;
+			}
+
+			if (this.month && !this.day && this.value) {
+				today.set({ day: this.value * 1 });
+				if (!expression) {
+					this.day = this.value * 1;
+				}
+			}
+
+			if (!this.month && this.value && this.unit === "month" && !this.now) {
+				this.month = this.value;
+				expression = true;
+			}
+
+			if (expression && (this.month || this.month === 0) && this.unit !== "year") {
+				finishUtils.setMonthsFromMonth.call(this, today, orient);
+			}
+
+			if (!this.unit) {
+				this.unit = "day";
+			}
+
+			finishUtils.setUnitValue.call(this, orient);
+			parseMeridian.call(this);
+
+			if ((this.month || this.month === 0) && !this.day) {
+				this.day = 1;
+			}
+
+			if (!this.orient && !this.operator && this.unit === "week" && this.value && !this.day && !this.month) {
+				return Date.today().setWeek(this.value);
+			}
+
+			if (this.unit === "week" && this.weeks && !this.day && !this.month) {
+				return finishUtils.generateDateFromWeeks.call(this);
+			}
+
+			if (expression && this.timezone && this.day && this.days) {
+				this.day = this.days;
+			}
+
+			if (expression) {
+				today.add(this);
+			} else {
+				today.set(this);
+			}
+
+			if (this.timezone) {
+				this.timezone = this.timezone.toUpperCase();
+				var offset = $D.getTimezoneOffset(this.timezone);
+				var timezone;
+				if (today.hasDaylightSavingTime()) {
+					// lets check that we're being sane with timezone setting
+					timezone = $D.getTimezoneAbbreviation(offset, today.isDaylightSavingTime());
+					if (timezone !== this.timezone) {
+						// bugger, we're in a place where things like EST vs EDT matters.
+						if (today.isDaylightSavingTime()) {
+							today.addHours(-1);
+						} else {
+							today.addHours(1);
+						}
+					}
+				}
+				today.setTimezoneOffset(offset);
+			}
+
+			return today;
+		}
+	};
+})();
+(function () {
+	var $D = Date;
+	$D.Grammar = {};
+	var _ = $D.Parsing.Operators,
+	    g = $D.Grammar,
+	    t = $D.Translator,
+	    _fn;
+	// Allow rolling up into general purpose rules
+	_fn = function _fn() {
+		return _.each(_.any.apply(null, arguments), _.not(g.ctoken2("timeContext")));
+	};
+
+	g.datePartDelimiter = _.rtoken(/^([\s\-\.\,\/\x27]+)/);
+	g.timePartDelimiter = _.stoken(":");
+	g.whiteSpace = _.rtoken(/^\s*/);
+	g.generalDelimiter = _.rtoken(/^(([\s\,]|at|@|on)+)/);
+
+	var _C = {};
+	g.ctoken = function (keys) {
+		var fn = _C[keys];
+		if (!fn) {
+			var c = Date.CultureInfo.regexPatterns;
+			var kx = keys.split(/\s+/),
+			    px = [];
+			for (var i = 0; i < kx.length; i++) {
+				px.push(_.replace(_.rtoken(c[kx[i]]), kx[i]));
+			}
+			fn = _C[keys] = _.any.apply(null, px);
+		}
+		return fn;
+	};
+	g.ctoken2 = function (key) {
+		return _.rtoken(Date.CultureInfo.regexPatterns[key]);
+	};
+	var cacheProcessRtoken = function cacheProcessRtoken(key, token, type, eachToken) {
+		if (eachToken) {
+			g[key] = _.cache(_.process(_.each(_.rtoken(token), _.optional(g.ctoken2(eachToken))), type));
+		} else {
+			g[key] = _.cache(_.process(_.rtoken(token), type));
+		}
+	};
+	var cacheProcessCtoken = function cacheProcessCtoken(token, type) {
+		return _.cache(_.process(g.ctoken2(token), type));
+	};
+	var _F = {}; //function cache
+
+	var _get = function _get(f) {
+		_F[f] = _F[f] || g.format(f)[0];
+		return _F[f];
+	};
+
+	g.allformats = function (fx) {
+		var rx = [];
+		if (fx instanceof Array) {
+			for (var i = 0; i < fx.length; i++) {
+				rx.push(_get(fx[i]));
+			}
+		} else {
+			rx.push(_get(fx));
+		}
+		return rx;
+	};
+
+	g.formats = function (fx) {
+		if (fx instanceof Array) {
+			var rx = [];
+			for (var i = 0; i < fx.length; i++) {
+				rx.push(_get(fx[i]));
+			}
+			return _.any.apply(null, rx);
+		} else {
+			return _get(fx);
+		}
+	};
+
+	var grammarFormats = {
+		timeFormats: function timeFormats() {
+			var i,
+			    RTokenKeys = ["h", "hh", "H", "HH", "m", "mm", "s", "ss", "ss.s", "z", "zz"],
+			    RToken = [/^(0[0-9]|1[0-2]|[1-9])/, /^(0[0-9]|1[0-2])/, /^([0-1][0-9]|2[0-3]|[0-9])/, /^([0-1][0-9]|2[0-3])/, /^([0-5][0-9]|[0-9])/, /^[0-5][0-9]/, /^([0-5][0-9]|[0-9])/, /^[0-5][0-9]/, /^[0-5][0-9]\.[0-9]{1,3}/, /^((\+|\-)\s*\d\d\d\d)|((\+|\-)\d\d\:?\d\d)/, /^((\+|\-)\s*\d\d\d\d)|((\+|\-)\d\d\:?\d\d)/],
+			    tokens = [t.hour, t.hour, t.hour, t.minute, t.minute, t.second, t.second, t.secondAndMillisecond, t.timezone, t.timezone, t.timezone];
+
+			for (i = 0; i < RTokenKeys.length; i++) {
+				cacheProcessRtoken(RTokenKeys[i], RToken[i], tokens[i]);
+			}
+
+			g.hms = _.cache(_.sequence([g.H, g.m, g.s], g.timePartDelimiter));
+
+			g.t = cacheProcessCtoken("shortMeridian", t.meridian);
+			g.tt = cacheProcessCtoken("longMeridian", t.meridian);
+			g.zzz = cacheProcessCtoken("timezone", t.timezone);
+
+			g.timeSuffix = _.each(_.ignore(g.whiteSpace), _.set([g.tt, g.zzz]));
+			g.time = _.each(_.optional(_.ignore(_.stoken("T"))), g.hms, g.timeSuffix);
+		},
+		dateFormats: function dateFormats() {
+			// pre-loaded rules for different date part order preferences
+			var _setfn = function _setfn() {
+				return _.set(arguments, g.datePartDelimiter);
+			};
+			var i,
+			    RTokenKeys = ["d", "dd", "M", "MM", "y", "yy", "yyy", "yyyy"],
+			    RToken = [/^([0-2]\d|3[0-1]|\d)/, /^([0-2]\d|3[0-1])/, /^(1[0-2]|0\d|\d)/, /^(1[0-2]|0\d)/, /^(\d+)/, /^(\d\d)/, /^(\d\d?\d?\d?)/, /^(\d\d\d\d)/],
+			    tokens = [t.day, t.day, t.month, t.month, t.year, t.year, t.year, t.year],
+			    eachToken = ["ordinalSuffix", "ordinalSuffix"];
+			for (i = 0; i < RTokenKeys.length; i++) {
+				cacheProcessRtoken(RTokenKeys[i], RToken[i], tokens[i], eachToken[i]);
+			}
+
+			g.MMM = g.MMMM = _.cache(_.process(g.ctoken("jan feb mar apr may jun jul aug sep oct nov dec"), t.month));
+			g.ddd = g.dddd = _.cache(_.process(g.ctoken("sun mon tue wed thu fri sat"), function (s) {
+				return function () {
+					this.weekday = s;
+				};
+			}));
+
+			g.day = _fn(g.d, g.dd);
+			g.month = _fn(g.M, g.MMM);
+			g.year = _fn(g.yyyy, g.yy);
+
+			g.mdy = _setfn(g.ddd, g.month, g.day, g.year);
+			g.ymd = _setfn(g.ddd, g.year, g.month, g.day);
+			g.dmy = _setfn(g.ddd, g.day, g.month, g.year);
+
+			g.date = function (s) {
+				return (g[Date.CultureInfo.dateElementOrder] || g.mdy).call(this, s);
+			};
+		},
+		relative: function relative() {
+			// relative date / time expressions
+			g.orientation = _.process(g.ctoken("past future"), function (s) {
+				return function () {
+					this.orient = s;
+				};
+			});
+
+			g.operator = _.process(g.ctoken("add subtract"), function (s) {
+				return function () {
+					this.operator = s;
+				};
+			});
+			g.rday = _.process(g.ctoken("yesterday tomorrow today now"), t.rday);
+			g.unit = _.process(g.ctoken("second minute hour day week month year"), function (s) {
+				return function () {
+					this.unit = s;
+				};
+			});
+		}
+	};
+
+	g.buildGrammarFormats = function () {
+		// these need to be rebuilt every time the language changes.
+		_C = {};
+
+		grammarFormats.timeFormats();
+		grammarFormats.dateFormats();
+		grammarFormats.relative();
+
+		g.value = _.process(_.rtoken(/^([-+]?\d+)?(st|nd|rd|th)?/), function (s) {
+			return function () {
+				this.value = s.replace(/\D/g, "");
+			};
+		});
+		g.expression = _.set([g.rday, g.operator, g.value, g.unit, g.orientation, g.ddd, g.MMM]);
+
+		g.format = _.process(_.many(_.any(
+		// translate format specifiers into grammar rules
+		_.process(_.rtoken(/^(dd?d?d?(?!e)|MM?M?M?|yy?y?y?|hh?|HH?|mm?|ss?|tt?|zz?z?)/), function (fmt) {
+			if (g[fmt]) {
+				return g[fmt];
+			} else {
+				throw $D.Parsing.Exception(fmt);
+			}
+		}),
+		// translate separator tokens into token rules
+		_.process(_.rtoken(/^[^dMyhHmstz]+/), // all legal separators 
+		function (s) {
+			return _.ignore(_.stoken(s));
+		}))),
+		// construct the parser ...
+		function (rules) {
+			return _.process(_.each.apply(null, rules), t.finishExact);
+		});
+
+		// starting rule for general purpose grammar
+		g._start = _.process(_.set([g.date, g.time, g.expression], g.generalDelimiter, g.whiteSpace), t.finish);
+	};
+
+	g.buildGrammarFormats();
+	// parsing date format specifiers - ex: "h:m:s tt" 
+	// this little guy will generate a custom parser based
+	// on the format string, ex: g.format("h:m:s tt")
+	// check for these formats first
+	g._formats = g.formats(["\"yyyy-MM-ddTHH:mm:ssZ\"", "yyyy-MM-ddTHH:mm:ss.sz", "yyyy-MM-ddTHH:mm:ssZ", "yyyy-MM-ddTHH:mm:ssz", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mmZ", "yyyy-MM-ddTHH:mmz", "yyyy-MM-ddTHH:mm", "ddd, MMM dd, yyyy H:mm:ss tt", "ddd MMM d yyyy HH:mm:ss zzz", "MMddyyyy", "ddMMyyyy", "Mddyyyy", "ddMyyyy", "Mdyyyy", "dMyyyy", "yyyy", "Mdyy", "dMyy", "d"]);
+
+	// real starting rule: tries selected formats first, 
+	// then general purpose rule
+	g.start = function (s) {
+		try {
+			var r = g._formats.call({}, s);
+			if (r[1].length === 0) {
+				return r;
+			}
+		} catch (e) {}
+		return g._start.call({}, s);
+	};
+})();
+(function () {
+	var $D = Date;
+
+	/**
+  * @desc Converts the specified string value into its JavaScript Date equivalent using CultureInfo specific format information.
+  * 
+  * Example
+ <pre><code>
+ ///////////
+ // Dates //
+ ///////////
+ 
+ // 15-Oct-2004
+ var d1 = Date.parse("10/15/2004");
+ 
+ // 15-Oct-2004
+ var d1 = Date.parse("15-Oct-2004");
+ 
+ // 15-Oct-2004
+ var d1 = Date.parse("2004.10.15");
+ 
+ //Fri Oct 15, 2004
+ var d1 = Date.parse("Fri Oct 15, 2004");
+ 
+ ///////////
+ // Times //
+ ///////////
+ 
+ // Today at 10 PM.
+ var d1 = Date.parse("10 PM");
+ 
+ // Today at 10:30 PM.
+ var d1 = Date.parse("10:30 P.M.");
+ 
+ // Today at 6 AM.
+ var d1 = Date.parse("06am");
+ 
+ /////////////////////
+ // Dates and Times //
+ /////////////////////
+ 
+ // 8-July-2004 @ 10:30 PM
+ var d1 = Date.parse("July 8th, 2004, 10:30 PM");
+ 
+ // 1-July-2004 @ 10:30 PM
+ var d1 = Date.parse("2004-07-01T22:30:00");
+ 
+ ////////////////////
+ // Relative Dates //
+ ////////////////////
+ 
+ // Returns today's date. The string "today" is culture specific.
+ var d1 = Date.parse("today");
+ 
+ // Returns yesterday's date. The string "yesterday" is culture specific.
+ var d1 = Date.parse("yesterday");
+ 
+ // Returns the date of the next thursday.
+ var d1 = Date.parse("Next thursday");
+ 
+ // Returns the date of the most previous monday.
+ var d1 = Date.parse("last monday");
+ 
+ // Returns today's day + one year.
+ var d1 = Date.parse("next year");
+ 
+ ///////////////
+ // Date Math //
+ ///////////////
+ 
+ // Today + 2 days
+ var d1 = Date.parse("t+2");
+ 
+ // Today + 2 days
+ var d1 = Date.parse("today + 2 days");
+ 
+ // Today + 3 months
+ var d1 = Date.parse("t+3m");
+ 
+ // Today - 1 year
+ var d1 = Date.parse("today - 1 year");
+ 
+ // Today - 1 year
+ var d1 = Date.parse("t-1y"); 
+ 
+ 
+ /////////////////////////////
+ // Partial Dates and Times //
+ /////////////////////////////
+ 
+ // July 15th of this year.
+ var d1 = Date.parse("July 15");
+ 
+ // 15th day of current day and year.
+ var d1 = Date.parse("15");
+ 
+ // July 1st of current year at 10pm.
+ var d1 = Date.parse("7/1 10pm");
+ </code></pre>
+  *
+  * @param {String}   The string value to convert into a Date object [Required]
+  * @return {Date}    A Date object or null if the string cannot be converted into a Date.
+  */
+	var parseUtils = {
+		removeOrds: function removeOrds(s) {
+			ords = s.match(/\b(\d+)(?:st|nd|rd|th)\b/); // find ordinal matches
+			s = ords && ords.length === 2 ? s.replace(ords[0], ords[1]) : s;
+			return s;
+		},
+		grammarParser: function grammarParser(s) {
+			var r = null;
+			try {
+				r = $D.Grammar.start.call({}, s.replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1"));
+			} catch (e) {
+				return null;
+			}
+
+			return r[1].length === 0 ? r[0] : null;
+		},
+		nativeFallback: function nativeFallback(s) {
+			var t;
+			try {
+				// ok we haven't parsed it, last ditch attempt with the built-in parser.
+				t = Date._parse(s);
+				return t || t === 0 ? new Date(t) : null;
+			} catch (e) {
+				return null;
+			}
+		}
+	};
+	function parse(s) {
+		var d;
+		if (!s) {
+			return null;
+		}
+		if (s instanceof Date) {
+			return s.clone();
+		}
+		if (s.length >= 4 && s.charAt(0) !== "0" && s.charAt(0) !== "+" && s.charAt(0) !== "-") {
+			// ie: 2004 will pass, 0800 won't.
+			//  Start with specific formats
+			d = $D.Parsing.ISO.parse(s) || $D.Parsing.Numeric.parse(s);
+		}
+		if (d instanceof Date && !isNaN(d.getTime())) {
+			return d;
+		} else {
+			// find ordinal dates (1st, 3rd, 8th, etc and remove them as they cause parsing issues)
+			s = $D.Parsing.Normalizer.parse(parseUtils.removeOrds(s));
+			d = parseUtils.grammarParser(s);
+			if (d !== null) {
+				return d;
+			} else {
+				return parseUtils.nativeFallback(s);
+			}
+		}
+	}
+
+	if (!$D._parse) {
+		$D._parse = $D.parse;
+	}
+	$D.parse = parse;
+
+	Date.getParseFunction = function (fx) {
+		var fns = Date.Grammar.allformats(fx);
+		return function (s) {
+			var r = null;
+			for (var i = 0; i < fns.length; i++) {
+				try {
+					r = fns[i].call({}, s);
+				} catch (e) {
+					continue;
+				}
+				if (r[1].length === 0) {
+					return r[0];
+				}
+			}
+			return null;
+		};
+	};
+
+	/**
+  * Converts the specified string value into its JavaScript Date equivalent using the specified format {String} or formats {Array} and the CultureInfo specific format information.
+  * The format of the string value must match one of the supplied formats exactly.
+  * 
+  * Example
+ <pre><code>
+ // 15-Oct-2004
+ var d1 = Date.parseExact("10/15/2004", "M/d/yyyy");
+ 
+ // 15-Oct-2004
+ var d1 = Date.parse("15-Oct-2004", "M-ddd-yyyy");
+ 
+ // 15-Oct-2004
+ var d1 = Date.parse("2004.10.15", "yyyy.MM.dd");
+ 
+ // Multiple formats
+ var d1 = Date.parseExact("10/15/2004", ["M/d/yyyy", "MMMM d, yyyy"]);
+ </code></pre>
+  *
+  * @param {String}   The string value to convert into a Date object [Required].
+  * @param {Object}   The expected format {String} or an array of expected formats {Array} of the date string [Required].
+  * @return {Date}    A Date object or null if the string cannot be converted into a Date.
+  */
+	$D.parseExact = function (s, fx) {
+		return $D.getParseFunction(fx)(s);
+	};
+})();
+
+(function () {
+	var $D = Date,
+	    $P = $D.prototype,
+
+	// $C = $D.CultureInfo, // not used atm
+	p = function p(s, l) {
+		if (!l) {
+			l = 2;
+		}
+		return ("000" + s).slice(l * -1);
+	};
+	/**
+  * Converts a PHP format string to Java/.NET format string.
+  * A PHP format string can be used with ._format or .format.
+  * A Java/.NET format string can be used with .toString().
+  * The .parseExact function will only accept a Java/.NET format string
+  *
+  * Example
+  * var f1 = "%m/%d/%y"
+  * var f2 = Date.normalizeFormat(f1);	// "MM/dd/yy"
+  *
+  * new Date().format(f1);	// "04/13/08"
+  * new Date()._format(f1);	// "04/13/08"
+  * new Date().toString(f2);	// "04/13/08"
+  *
+  * var date = Date.parseExact("04/13/08", f2); // Sun Apr 13 2008
+  *
+  * @param {String}   A PHP format string consisting of one or more format spcifiers.
+  * @return {String}  The PHP format converted to a Java/.NET format string.
+  */
+	var normalizerSubstitutions = {
+		"d": "dd",
+		"%d": "dd",
+		"D": "ddd",
+		"%a": "ddd",
+		"j": "dddd",
+		"l": "dddd",
+		"%A": "dddd",
+		"S": "S",
+		"F": "MMMM",
+		"%B": "MMMM",
+		"m": "MM",
+		"%m": "MM",
+		"M": "MMM",
+		"%b": "MMM",
+		"%h": "MMM",
+		"n": "M",
+		"Y": "yyyy",
+		"%Y": "yyyy",
+		"y": "yy",
+		"%y": "yy",
+		"g": "h",
+		"%I": "h",
+		"G": "H",
+		"h": "hh",
+		"H": "HH",
+		"%H": "HH",
+		"i": "mm",
+		"%M": "mm",
+		"s": "ss",
+		"%S": "ss",
+		"%r": "hh:mm tt",
+		"%R": "H:mm",
+		"%T": "H:mm:ss",
+		"%X": "t",
+		"%x": "d",
+		"%e": "d",
+		"%D": "MM/dd/yy",
+		"%n": "\\n",
+		"%t": "\\t",
+		"e": "z",
+		"T": "z",
+		"%z": "z",
+		"%Z": "z",
+		"Z": "ZZ",
+		"N": "u",
+		"w": "u",
+		"%w": "u",
+		"W": "W",
+		"%V": "W"
+	};
+	var normalizer = {
+		substitutes: function substitutes(m) {
+			return normalizerSubstitutions[m];
+		},
+		interpreted: function interpreted(m, x) {
+			var y;
+			switch (m) {
+				case "%u":
+					return x.getDay() + 1;
+				case "z":
+					return x.getOrdinalNumber();
+				case "%j":
+					return p(x.getOrdinalNumber(), 3);
+				case "%U":
+					var d1 = x.clone().set({ month: 0, day: 1 }).addDays(-1).moveToDayOfWeek(0),
+					    d2 = x.clone().addDays(1).moveToDayOfWeek(0, -1);
+					return d2 < d1 ? "00" : p((d2.getOrdinalNumber() - d1.getOrdinalNumber()) / 7 + 1);
+
+				case "%W":
+					return p(x.getWeek());
+				case "t":
+					return $D.getDaysInMonth(x.getFullYear(), x.getMonth());
+				case "o":
+				case "%G":
+					return x.setWeek(x.getISOWeek()).toString("yyyy");
+				case "%g":
+					return x._format("%G").slice(-2);
+				case "a":
+				case "%p":
+					return t("tt").toLowerCase();
+				case "A":
+					return t("tt").toUpperCase();
+				case "u":
+					return p(x.getMilliseconds(), 3);
+				case "I":
+					return x.isDaylightSavingTime() ? 1 : 0;
+				case "O":
+					return x.getUTCOffset();
+				case "P":
+					y = x.getUTCOffset();
+					return y.substring(0, y.length - 2) + ":" + y.substring(y.length - 2);
+				case "B":
+					var now = new Date();
+					return Math.floor((now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() + (now.getTimezoneOffset() + 60) * 60) / 86.4);
+				case "c":
+					return x.toISOString().replace(/\"/g, "");
+				case "U":
+					return $D.strtotime("now");
+				case "%c":
+					return t("d") + " " + t("t");
+				case "%C":
+					return Math.floor(x.getFullYear() / 100 + 1);
+			}
+		},
+		shouldOverrideDefaults: function shouldOverrideDefaults(m) {
+			switch (m) {
+				case "%e":
+					return true;
+				default:
+					return false;
+			}
+		},
+		parse: function parse(m, context) {
+			var formatString,
+			    c = context || new Date();
+			formatString = normalizer.substitutes(m);
+			if (formatString) {
+				return formatString;
+			}
+			formatString = normalizer.interpreted(m, c);
+
+			if (formatString) {
+				return formatString;
+			} else {
+				return m;
+			}
+		}
+	};
+
+	$D.normalizeFormat = function (format, context) {
+		return format.replace(/(%|\\)?.|%%/g, function (t) {
+			return normalizer.parse(t, context);
+		});
+	};
+	/**
+  * Format a local Unix timestamp according to locale settings
+  *
+  * Example:
+  * Date.strftime("%m/%d/%y", new Date());		// "04/13/08"
+  * Date.strftime("c", "2008-04-13T17:52:03Z");	// "04/13/08"
+  *
+  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
+  * @param {Number|String}   The number representing the number of seconds that have elapsed since January 1, 1970 (local time).
+  * @return {String}  A string representation of the current Date object.
+  */
+	$D.strftime = function (format, time) {
+		var d = Date.parse(time);
+		return d._format(format);
+	};
+	/**
+  * Parse any textual datetime description into a Unix timestamp.
+  * A Unix timestamp is the number of seconds that have elapsed since January 1, 1970 (midnight UTC/GMT).
+  *
+  * Example:
+  * Date.strtotime("04/13/08");				// 1208044800
+  * Date.strtotime("1970-01-01T00:00:00Z");	// 0
+  *
+  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
+  * @param {Object}   A string or date object.
+  * @return {String}  A string representation of the current Date object.
+  */
+	$D.strtotime = function (time) {
+		var d = $D.parse(time);
+		return Math.round($D.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds()) / 1000);
+	};
+	/**
+  * Converts the value of the current Date object to its equivalent string representation using a PHP/Unix style of date format specifiers.
+  * Format Specifiers
+  * Format  Description																	Example
+  * ------  ---------------------------------------------------------------------------	-----------------------
+  * %a		abbreviated weekday name according to the current localed					"Mon" through "Sun"
+  * %A		full weekday name according to the current localed							"Sunday" through "Saturday"
+  * %b		abbreviated month name according to the current localed						"Jan" through "Dec"
+  * %B		full month name according to the current locale								"January" through "December"
+  * %c		preferred date and time representation for the current locale				"4/13/2008 12:33 PM"
+  * %C		century number (the year divided by 100 and truncated to an integer)		"00" to "99"
+  * %d		day of the month as a decimal number										"01" to "31"
+  * %D		same as %m/%d/%y															"04/13/08"
+  * %e		day of the month as a decimal number, a single digit is preceded by a space	"1" to "31"
+  * %g		like %G, but without the century											"08"
+  * %G		The 4-digit year corresponding to the ISO week number (see %V).				"2008"
+  *		This has the same format and value as %Y, except that if the ISO week number
+  *		belongs to the previous or next year, that year is used instead.
+  * %h		same as %b																	"Jan" through "Dec"
+  * %H		hour as a decimal number using a 24-hour clock.								"00" to "23"
+  * %I		hour as a decimal number using a 12-hour clock.								"01" to "12"
+  * %j		day of the year as a decimal number.										"001" to "366"
+  * %m		month as a decimal number.													"01" to "12"
+  * %M		minute as a decimal number.													"00" to "59"
+  * %n		newline character		"\n"
+  * %p		either "am" or "pm" according to the given time value, or the				"am" or "pm"
+  *		corresponding strings for the current locale.
+  * %r		time in a.m. and p.m. notation												"8:44 PM"
+  * %R		time in 24 hour notation													"20:44"
+  * %S		second as a decimal number													"00" to "59"
+  * %t		tab character																"\t"
+  * %T		current time, equal to %H:%M:%S												"12:49:11"
+  * %u		weekday as a decimal number ["1", "7"], with "1" representing Monday		"1" to "7"
+  * %U		week number of the current year as a decimal number, starting with the		"0" to ("52" or "53")
+  *		first Sunday as the first day of the first week
+  * %V		The ISO 8601:1988 week number of the current year as a decimal number,		"00" to ("52" or "53")
+  *		range 01 to 53, where week 1 is the first week that has at least 4 days
+  *		in the current year, and with Monday as the first day of the week.
+  *		(Use %G or %g for the year component that corresponds to the week number
+  *		for the specified timestamp.)
+  * %W		week number of the current year as a decimal number, starting with the		"00" to ("52" or "53")
+  *		first Monday as the first day of the first week
+  * %w		day of the week as a decimal, Sunday being "0"								"0" to "6"
+  * %x		preferred date representation for the current locale without the time		"4/13/2008"
+  * %X		preferred time representation for the current locale without the date		"12:53:05"
+  * %y		year as a decimal number without a century									"00" "99"
+  * %Y		year as a decimal number including the century								"2008"
+  * %Z		time zone or name or abbreviation											"UTC", "EST", "PST"
+  * %z		same as %Z
+  * %%		a literal "%" characters													"%"
+  * d		Day of the month, 2 digits with leading zeros								"01" to "31"
+  * D		A textual representation of a day, three letters							"Mon" through "Sun"
+  * j		Day of the month without leading zeros										"1" to "31"
+  * l		A full textual representation of the day of the week (lowercase "L")		"Sunday" through "Saturday"
+  * N		ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0)	"1" (for Monday) through "7" (for Sunday)
+  * S		English ordinal suffix for the day of the month, 2 characters				"st", "nd", "rd" or "th". Works well with j
+  * w		Numeric representation of the day of the week								"0" (for Sunday) through "6" (for Saturday)
+  * z		The day of the year (starting from "0")										"0" through "365"
+  * W		ISO-8601 week number of year, weeks starting on Monday						"00" to ("52" or "53")
+  * F		A full textual representation of a month, such as January or March			"January" through "December"
+  * m		Numeric representation of a month, with leading zeros						"01" through "12"
+  * M		A short textual representation of a month, three letters					"Jan" through "Dec"
+  * n		Numeric representation of a month, without leading zeros					"1" through "12"
+  * t		Number of days in the given month											"28" through "31"
+  * L		Whether it's a leap year													"1" if it is a leap year, "0" otherwise
+  * o		ISO-8601 year number. This has the same value as Y, except that if the		"2008"
+  *		ISO week number (W) belongs to the previous or next year, that year
+  *		is used instead.
+  * Y		A full numeric representation of a year, 4 digits							"2008"
+  * y		A two digit representation of a year										"08"
+  * a		Lowercase Ante meridiem and Post meridiem									"am" or "pm"
+  * A		Uppercase Ante meridiem and Post meridiem									"AM" or "PM"
+  * B		Swatch Internet time														"000" through "999"
+  * g		12-hour format of an hour without leading zeros								"1" through "12"
+  * G		24-hour format of an hour without leading zeros								"0" through "23"
+  * h		12-hour format of an hour with leading zeros								"01" through "12"
+  * H		24-hour format of an hour with leading zeros								"00" through "23"
+  * i		Minutes with leading zeros													"00" to "59"
+  * s		Seconds, with leading zeros													"00" through "59"
+  * u		Milliseconds																"54321"
+  * e		Timezone identifier															"UTC", "EST", "PST"
+  * I		Whether or not the date is in daylight saving time (uppercase i)			"1" if Daylight Saving Time, "0" otherwise
+  * O		Difference to Greenwich time (GMT) in hours									"+0200", "-0600"
+  * P		Difference to Greenwich time (GMT) with colon between hours and minutes		"+02:00", "-06:00"
+  * T		Timezone abbreviation														"UTC", "EST", "PST"
+  * Z		Timezone offset in seconds. The offset for timezones west of UTC is			"-43200" through "50400"
+  *			always negative, and for those east of UTC is always positive.
+  * c		ISO 8601 date																"2004-02-12T15:19:21+00:00"
+  * r		RFC 2822 formatted date														"Thu, 21 Dec 2000 16:01:07 +0200"
+  * U		Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)					"0"
+  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
+  * @return {String}  A string representation of the current Date object.
+  */
+	var formatReplace = function formatReplace(context) {
+		return function (m) {
+			var formatString,
+			    override = false;
+			if (m.charAt(0) === "\\" || m.substring(0, 2) === "%%") {
+				return m.replace("\\", "").replace("%%", "%");
+			}
+
+			override = normalizer.shouldOverrideDefaults(m);
+			formatString = $D.normalizeFormat(m, context);
+			if (formatString) {
+				return context.toString(formatString, override);
+			}
+		};
+	};
+	$P._format = function (format) {
+		var formatter = formatReplace(this);
+		if (!format) {
+			return this._toString();
+		} else {
+			return format.replace(/(%|\\)?.|%%/g, formatter);
+		}
+	};
+
+	if (!$P.format) {
+		$P.format = $P._format;
+	}
+})();
+(function () {
+	"use strict";
+
+	var gFn = function gFn(attr) {
+		return function () {
+			return this[attr];
+		};
+	};
+
+	var sFn = function sFn(attr) {
+		return function (val) {
+			this[attr] = val;
+			return this;
+		};
+	};
+	var attrs = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds"];
+	var addSetFuncs = function addSetFuncs(context, attrs) {
+		for (var i = 0; i < attrs.length; i++) {
+			var $a = attrs[i],
+			    $b = $a.slice(0, 1).toUpperCase() + $a.slice(1);
+			context.prototype[$a] = 0;
+			context.prototype["get" + $b] = gFn($a);
+			context.prototype["set" + $b] = sFn($a);
+		}
+	};
+	/**
+  * new TimeSpan(milliseconds);
+  * new TimeSpan(days, hours, minutes, seconds);
+  * new TimeSpan(days, hours, minutes, seconds, milliseconds);
+  */
+	var TimeSpan = function TimeSpan(days, hours, minutes, seconds, milliseconds) {
+		if (arguments.length === 1 && typeof days === "number") {
+			var orient = days < 0 ? -1 : +1;
+			var millsLeft = Math.abs(days);
+			this.setDays(Math.floor(millsLeft / 86400000) * orient);
+			millsLeft = millsLeft % 86400000;
+			this.setHours(Math.floor(millsLeft / 3600000) * orient);
+			millsLeft = millsLeft % 3600000;
+			this.setMinutes(Math.floor(millsLeft / 60000) * orient);
+			millsLeft = millsLeft % 60000;
+			this.setSeconds(Math.floor(millsLeft / 1000) * orient);
+			millsLeft = millsLeft % 1000;
+			this.setMilliseconds(millsLeft * orient);
+		} else {
+			this.set(days, hours, minutes, seconds, milliseconds);
+		}
+
+		this.getTotalMilliseconds = function () {
+			return this.getDays() * 86400000 + this.getHours() * 3600000 + this.getMinutes() * 60000 + this.getSeconds() * 1000;
+		};
+
+		this.compareTo = function (time) {
+			var t1 = new Date(1970, 1, 1, this.getHours(), this.getMinutes(), this.getSeconds()),
+			    t2;
+			if (time === null) {
+				t2 = new Date(1970, 1, 1, 0, 0, 0);
+			} else {
+				t2 = new Date(1970, 1, 1, time.getHours(), time.getMinutes(), time.getSeconds());
+			}
+			return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+		};
+
+		this.equals = function (time) {
+			return this.compareTo(time) === 0;
+		};
+
+		this.add = function (time) {
+			return time === null ? this : this.addSeconds(time.getTotalMilliseconds() / 1000);
+		};
+
+		this.subtract = function (time) {
+			return time === null ? this : this.addSeconds(-time.getTotalMilliseconds() / 1000);
+		};
+
+		this.addDays = function (n) {
+			return new TimeSpan(this.getTotalMilliseconds() + n * 86400000);
+		};
+
+		this.addHours = function (n) {
+			return new TimeSpan(this.getTotalMilliseconds() + n * 3600000);
+		};
+
+		this.addMinutes = function (n) {
+			return new TimeSpan(this.getTotalMilliseconds() + n * 60000);
+		};
+
+		this.addSeconds = function (n) {
+			return new TimeSpan(this.getTotalMilliseconds() + n * 1000);
+		};
+
+		this.addMilliseconds = function (n) {
+			return new TimeSpan(this.getTotalMilliseconds() + n);
+		};
+
+		this.get12HourHour = function () {
+			return this.getHours() > 12 ? this.getHours() - 12 : this.getHours() === 0 ? 12 : this.getHours();
+		};
+
+		this.getDesignator = function () {
+			return this.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator;
+		};
+
+		this.toString = function (format) {
+			this._toString = function () {
+				if (this.getDays() !== null && this.getDays() > 0) {
+					return this.getDays() + "." + this.getHours() + ":" + this.p(this.getMinutes()) + ":" + this.p(this.getSeconds());
+				} else {
+					return this.getHours() + ":" + this.p(this.getMinutes()) + ":" + this.p(this.getSeconds());
+				}
+			};
+
+			this.p = function (s) {
+				return s.toString().length < 2 ? "0" + s : s;
+			};
+
+			var me = this;
+
+			return format ? format.replace(/dd?|HH?|hh?|mm?|ss?|tt?/g, function (format) {
+				switch (format) {
+					case "d":
+						return me.getDays();
+					case "dd":
+						return me.p(me.getDays());
+					case "H":
+						return me.getHours();
+					case "HH":
+						return me.p(me.getHours());
+					case "h":
+						return me.get12HourHour();
+					case "hh":
+						return me.p(me.get12HourHour());
+					case "m":
+						return me.getMinutes();
+					case "mm":
+						return me.p(me.getMinutes());
+					case "s":
+						return me.getSeconds();
+					case "ss":
+						return me.p(me.getSeconds());
+					case "t":
+						return (me.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator).substring(0, 1);
+					case "tt":
+						return me.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator;
+				}
+			}) : this._toString();
+		};
+		return this;
+	};
+	addSetFuncs(TimeSpan, attrs.slice(2));
+	TimeSpan.prototype.set = function (days, hours, minutes, seconds, milliseconds) {
+		this.setDays(days || this.getDays());
+		this.setHours(hours || this.getHours());
+		this.setMinutes(minutes || this.getMinutes());
+		this.setSeconds(seconds || this.getSeconds());
+		this.setMilliseconds(milliseconds || this.getMilliseconds());
+	};
+
+	/**
+  * Gets the time of day for this date instances. 
+  * @return {TimeSpan} TimeSpan
+  */
+	Date.prototype.getTimeOfDay = function () {
+		return new TimeSpan(0, this.getHours(), this.getMinutes(), this.getSeconds(), this.getMilliseconds());
+	};
+
+	Date.TimeSpan = TimeSpan;
+
+	if (typeof window !== "undefined") {
+		// keeping API compatible for v1.x 
+		window.TimeSpan = TimeSpan;
+	}
+})();
+(function () {
+	"use strict";
+
+	var attrs = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds"];
+	var gFn = function gFn(attr) {
+		return function () {
+			return this[attr];
+		};
+	};
+
+	var sFn = function sFn(attr) {
+		return function (val) {
+			this[attr] = val;
+			return this;
+		};
+	};
+	var addSetFuncs = function addSetFuncs(context, attrs) {
+		for (var i = 0; i < attrs.length; i++) {
+			var $a = attrs[i],
+			    $b = $a.slice(0, 1).toUpperCase() + $a.slice(1);
+			context.prototype[$a] = 0;
+			context.prototype["get" + $b] = gFn($a);
+			context.prototype["set" + $b] = sFn($a);
+		}
+	};
+
+	var setMonthsAndYears = function setMonthsAndYears(orient, d1, d2, context) {
+		function inc() {
+			d1.addMonths(-orient);
+			context.months++;
+			if (context.months === 12) {
+				context.years++;
+				context.months = 0;
+			}
+		}
+		if (orient === +1) {
+			while (d1 > d2) {
+				inc();
+			}
+		} else {
+			while (d1 < d2) {
+				inc();
+			}
+		}
+		context.months--;
+		context.months *= orient;
+		context.years *= orient;
+	};
+
+	var adjustForDST = function adjustForDST(orient, startDate, endDate) {
+		var hasDSTMismatch = false === (startDate.isDaylightSavingTime() === endDate.isDaylightSavingTime());
+		if (hasDSTMismatch && orient === 1) {
+			startDate.addHours(-1);
+		} else if (hasDSTMismatch) {
+			startDate.addHours(1);
+		}
+	};
+	/**
+  * TimePeriod(startDate, endDate);
+  * TimePeriod(years, months, days, hours, minutes, seconds, milliseconds);
+  */
+	var TimePeriod = function TimePeriod(years, months, days, hours, minutes, seconds, milliseconds) {
+		if (arguments.length === 7) {
+			this.set(years, months, days, hours, minutes, seconds, milliseconds);
+		} else if (arguments.length === 2 && arguments[0] instanceof Date && arguments[1] instanceof Date) {
+			var startDate = arguments[0].clone();
+			var endDate = arguments[1].clone();
+			var orient = startDate > endDate ? +1 : -1;
+			this.dates = {
+				start: arguments[0].clone(),
+				end: arguments[1].clone()
+			};
+
+			setMonthsAndYears(orient, startDate, endDate, this);
+			adjustForDST(orient, startDate, endDate);
+			// // TODO - adjust for DST
+			var diff = endDate - startDate;
+			if (diff !== 0) {
+				var ts = new TimeSpan(diff);
+				this.set(this.years, this.months, ts.getDays(), ts.getHours(), ts.getMinutes(), ts.getSeconds(), ts.getMilliseconds());
+			}
+		}
+		return this;
+	};
+	// create all the set functions.
+	addSetFuncs(TimePeriod, attrs);
+	TimePeriod.prototype.set = function (years, months, days, hours, minutes, seconds, milliseconds) {
+		this.setYears(years || this.getYears());
+		this.setMonths(months || this.getMonths());
+		this.setDays(days || this.getDays());
+		this.setHours(hours || this.getHours());
+		this.setMinutes(minutes || this.getMinutes());
+		this.setSeconds(seconds || this.getSeconds());
+		this.setMilliseconds(milliseconds || this.getMilliseconds());
+	};
+
+	Date.TimePeriod = TimePeriod;
+
+	if (typeof window !== "undefined") {
+		// keeping API compatible for v1.x 
+		window.TimePeriod = TimePeriod;
+	}
+})();
+
+/***/ }),
+/* 55 */
 /***/ (function(module, exports) {
 
 /*!
@@ -34186,32 +38458,4284 @@ VectorCanvas.prototype.setSize = function (width, height) {
 };
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports) {
 
 /** Add World Map Data Points */
 jQuery.fn.vectorMap('addMap', 'world_en', { "width": 950, "height": 550, "paths": { "id": { "path": "M781.68,324.4l-2.31,8.68l-12.53,4.23l-3.75-4.4l-1.82,0.5l3.4,13.12l5.09,0.57l6.79,2.57v2.57l3.11-0.57l4.53-6.27v-5.13l2.55-5.13l2.83,0.57l-3.4-7.13l-0.52-4.59L781.68,324.4L781.68,324.4M722.48,317.57l-0.28,2.28l6.79,11.41h1.98l14.15,23.67l5.66,0.57l2.83-8.27l-4.53-2.85l-0.85-4.56L722.48,317.57L722.48,317.57M789.53,349.11l2.26,2.77l-1.47,4.16v0.79h3.34l1.18-10.4l1.08,0.3l1.96,9.5l1.87,0.5l1.77-4.06l-1.77-6.14l-1.47-2.67l4.62-3.37l-1.08-1.49l-4.42,2.87h-1.18l-2.16-3.17l0.69-1.39l3.64-1.78l5.5,1.68l1.67-0.1l4.13-3.86l-1.67-1.68l-3.83,2.97h-2.46l-3.73-1.78l-2.65,0.1l-2.95,4.75l-1.87,8.22L789.53,349.11L789.53,349.11M814.19,330.5l-1.87,4.55l2.95,3.86h0.98l1.28-2.57l0.69-0.89l-1.28-1.39l-1.87-0.69L814.19,330.5L814.19,330.5M819.99,345.45l-4.03,0.89l-1.18,1.29l0.98,1.68l2.65-0.99l1.67-0.99l2.46,1.98l1.08-0.89l-1.96-2.38L819.99,345.45L819.99,345.45M753.17,358.32l-2.75,1.88l0.59,1.58l8.75,1.98l4.42,0.79l1.87,1.98l5.01,0.4l2.36,1.98l2.16-0.5l1.97-1.78l-3.64-1.68l-3.14-2.67l-8.16-1.98L753.17,358.32L753.17,358.32M781.77,366.93l-2.16,1.19l1.28,1.39l3.14-1.19L781.77,366.93L781.77,366.93M785.5,366.04l0.39,1.88l2.26,0.59l0.88-1.09l-0.98-1.49L785.5,366.04L785.5,366.04M790.91,370.99l-2.75,0.4l2.46,2.08h1.96L790.91,370.99L790.91,370.99M791.69,367.72l-0.59,1.19l4.42,0.69l3.44-1.98l-1.96-0.59l-3.14,0.89l-1.18-0.99L791.69,367.72L791.69,367.72M831.93,339.34l-4.17,0.47l-2.68,1.96l1.11,2.24l4.54,0.84v0.84l-2.87,2.33l1.39,4.85l1.39,0.09l1.2-4.76h2.22l0.93,4.66l10.83,8.96l0.28,7l3.7,4.01l1.67-0.09l0.37-24.72l-6.29-4.38l-5.93,4.01l-2.13,1.31l-3.52-2.24l-0.09-7.09L831.93,339.34L831.93,339.34z", "name": "Indonesia" }, "pg": { "path": "M852.76,348.29l-0.37,24.44l3.52-0.19l4.63-5.41l3.89,0.19l2.5,2.24l0.83,6.9l7.96,4.2l2.04-0.75v-2.52l-6.39-5.32l-3.15-7.28l2.5-1.21l-1.85-4.01l-3.7-0.09l-0.93-4.29l-9.81-6.62L852.76,348.29L852.76,348.29M880.48,349l-0.88,1.25l4.81,4.26l0.66,2.5l1.31-0.15l0.15-2.57l-1.46-1.32L880.48,349L880.48,349M882.89,355.03l-0.95,0.22l-0.58,2.57l-1.82,1.18l-5.47,0.96l0.22,2.06l5.76-0.29l3.65-2.28l-0.22-3.97L882.89,355.03L882.89,355.03M889.38,359.51l1.24,3.45l2.19,2.13l0.66-0.59l-0.22-2.28l-2.48-3.01L889.38,359.51L889.38,359.51z", "name": "Papua New Guinea" }, "mx": { "path": "M137.49,225.43l4.83,15.21l-2.25,1.26l0.25,3.02l4.25,3.27v6.05l5.25,5.04l-2.25-14.86l-3-9.83l0.75-6.8l2.5,0.25l1,2.27l-1,5.79l13,25.44v9.07l10.5,12.34l11.5,5.29l4.75-2.77l6.75,5.54l4-4.03l-1.75-4.54l5.75-1.76l1.75,1.01l1.75-1.76h2.75l5-8.82l-2.5-2.27l-9.75,2.27l-2.25,6.55l-5.75,1.01l-6.75-2.77l-3-9.57l2.27-12.07l-4.64-2.89l-2.21-11.59l-1.85-0.79l-3.38,3.43l-3.88-2.07l-1.52-7.73l-15.37-1.61l-7.94-5.97L137.49,225.43L137.49,225.43z", "name": "Mexico" }, "ee": { "path": "M517.77,143.66l-5.6-0.2l-3.55,2.17l-0.05,1.61l2.3,2.17l7.15,1.21L517.77,143.66L517.77,143.66M506.76,147.64l-1.55-0.05l-0.9,0.91l0.65,0.96l1.55,0.1l0.8-1.16L506.76,147.64L506.76,147.64z", "name": "Estonia" }, "dz": { "path": "M473.88,227.49l-4.08-1.37l-16.98,3.19l-3.7,2.81l2.26,11.67l-6.75,0.27l-4.06,6.53l-9.67,2.32l0.03,4.75l31.85,24.35l5.43,0.46l18.11-14.15l-1.81-2.28l-3.4-0.46l-2.04-3.42v-14.15l-1.36-1.37l0.23-3.65l-3.62-3.65l-0.45-3.88l1.58-1.14l-0.68-4.11L473.88,227.49L473.88,227.49z", "name": "Algeria" }, "ma": { "path": "M448.29,232.28h-11.55l-2.26,5.02l-5.21,2.51l-4.3,11.64l-8.38,5.02l-11.77,19.39l11.55-0.23l0.45-5.7h2.94v-7.76h10.19l0.23-10.04l9.74-2.28l4.08-6.62l6.34-0.23L448.29,232.28L448.29,232.28z", "name": "Morocco" }, "mr": { "path": "M404.9,276.66l2.18,2.85l-0.45,12.32l3.17-2.28l2.26-0.46l3.17,1.14l3.62,5.02l3.4-2.28l16.53-0.23l-4.08-27.61l4.38-0.02l-8.16-6.25l0.01,4.06l-10.33,0.01l-0.05,7.75l-2.97-0.01l-0.38,5.72L404.9,276.66L404.9,276.66z", "name": "Mauritania" }, "sn": { "path": "M412.03,289.84L410.12,290.31L406.18,293.18L405.28,294.78L405,296.37L406.43,297.40L411.28,297.34L414.40,296.5L414.75,298.03L414.46,300.06L414.53,300.09L406.78,300.21L408.03,303.21L408.71,301.37L418,302.15L418.06,302.21L419.03,302.25L422,302.37L422.12,300.62L418.53,296.31L414.53,290.87L412.03,289.84z", "name": "Senegal" }, "gm": { "path": "M406.89,298.34l-0.13,1.11l6.92-0.1l0.35-1.03l-0.15-1.04l-1.99,0.81L406.89,298.34L406.89,298.34z", "name": "Gambia" }, "gw": { "path": "M408.6,304.53l1.4,2.77l3.93-3.38l0.04-1.04l-4.63-0.67L408.6,304.53L408.6,304.53z", "name": "Guinea-Bissau" }, "gn": { "path": "M410.42,307.94l3.04,4.68l3.96-3.44l4.06-0.18l3.38,4.49l2.87,1.89l1.08-2.1l0.96-0.54l-0.07-4.62l-1.91-5.48l-5.86,0.65l-7.25-0.58l-0.04,1.86L410.42,307.94L410.42,307.94z", "name": "Guinea" }, "sl": { "path": "M413.93,313.13l5.65,5.46l4.03-4.89l-2.52-3.95l-3.47,0.35L413.93,313.13L413.93,313.13z", "name": "Sierra Leone" }, "lr": { "path": "M420.17,319.19l10.98,7.34l-0.26-5.56l-3.32-3.91l-3.24-2.87L420.17,319.19L420.17,319.19z", "name": "Liberia" }, "ci": { "path": "M432.07,326.75l4.28-3.03l5.32-0.93l5.43,1.17l-2.77-4.19l-0.81-2.56l0.81-7.57l-4.85,0.23l-2.2-2.1l-4.62,0.12l-2.2,0.35l0.23,5.12l-1.16,0.47l-1.39,2.56l3.58,4.19L432.07,326.75L432.07,326.75z", "name": "Cote d'Ivoire" }, "ml": { "path": "M419.46,295.84l3.08-2.11l17.12-0.1l-3.96-27.54l4.52-0.13l21.87,16.69l2.94,0.42l-1.11,9.28l-13.75,1.25l-10.61,7.92l-1.93,5.42l-7.37,0.31l-1.88-5.41l-5.65,0.4l0.22-1.77L419.46,295.84L419.46,295.84z", "name": "Mali" }, "bf": { "path": "M450.59,294.28l3.64-0.29l5.97,8.44l-5.54,4.18l-4.01-1.03l-5.39,0.07l-0.87,3.16l-4.52,0.22l-1.24-1.69l1.6-5.14L450.59,294.28L450.59,294.28z", "name": "Burkina Faso" }, "ne": { "path": "M460.89,302l2.55-0.06l2.3-3.45l3.86-0.69l4.11,2.51l8.77,0.25l6.78-2.76l2.55-2.19l0.19-2.88l4.73-4.77l1.25-10.53l-3.11-6.52l-7.96-1.94l-18.42,14.36l-2.61-0.25l-1.12,9.97l-9.4,0.94L460.89,302L460.89,302z", "name": "Niger" }, "gh": { "path": "M444.34,317.05l1.12,2.63l2.92,4.58l1.62-0.06l4.42-2.51l-0.31-14.29l-3.42-1l-4.79,0.13L444.34,317.05L444.34,317.05z", "name": "Ghana" }, "tg": { "path": "M455.22,321.25l2.68-1.57l-0.06-10.35l-1.74-2.82l-1.12,0.94L455.22,321.25L455.22,321.25z", "name": "Togo" }, "bj": { "path": "M458.71,319.49h2.12l0.12-6.02l2.68-3.89l-0.12-6.77l-2.43-0.06l-4.17,3.26l1.74,3.32L458.71,319.49L458.71,319.49z", "name": "Benin" }, "ng": { "path": "M461.57,319.37l3.92,0.19l4.73,5.27l2.3,0.63l1.8-0.88l2.74-0.38l0.93-3.82l3.73-2.45l4.04-0.19l7.4-13.61l-0.12-3.07l-3.42-2.63l-6.84,3.01l-9.15-0.13l-4.36-2.76l-3.11,0.69l-1.62,2.82l-0.12,7.96l-2.61,3.7L461.57,319.37L461.57,319.37z", "name": "Nigeria" }, "tn": { "path": "M474.91,227.33l5.53-2.23l1.82,1.18l0.07,1.44l-0.85,1.11l0.13,1.97l0.85,0.46v3.54l-0.98,1.64l0.13,1.05l3.71,1.31l-2.99,4.65l-1.17-0.07l-0.2,3.74l-1.3,0.2l-1.11-0.98l0.26-3.8l-3.64-3.54l-0.46-3.08l1.76-1.38L474.91,227.33L474.91,227.33z", "name": "Tunisia" }, "ly": { "path": "M480.05,248.03l1.56-0.26l0.46-3.6h0.78l3.19-5.24l7.87,2.29l2.15,3.34l7.74,3.54l4.03-1.7l-0.39-1.7l-1.76-1.7l0.2-1.18l2.86-2.42h5.66l2.15,2.88l4.55,0.66l0.59,36.89l-3.38-0.13l-20.42-10.62l-2.21,1.25l-8.39-2.1l-2.28-3.01l-3.32-0.46l-1.69-3.01L480.05,248.03L480.05,248.03z", "name": "Libya" }, "eg": { "path": "M521.93,243.06l2.67,0.07l5.2,1.44l2.47,0.07l3.06-2.56h1.43l2.6,1.44h3.29l0.59-0.04l2.08,5.98l0.59,1.93l0.55,2.89l-0.98,0.72l-1.69-0.85l-1.95-6.36l-1.76-0.13l-0.13,2.16l1.17,3.74l9.37,11.6l0.2,4.98l-2.73,3.15L522.32,273L521.93,243.06L521.93,243.06z", "name": "Egypt" }, "td": { "path": "M492.79,296l0.13-2.95l4.74-4.61l1.27-11.32l-3.16-6.04l2.21-1.13l21.4,11.15l-0.13,10.94l-3.77,3.21v5.64l2.47,4.78h-4.36l-7.22,7.14l-0.19,2.16l-5.33-0.07l-0.07,0.98l-3.04-0.4l-2.08-3.93l-1.56-0.77l0.2-1.2l1.96-1.5v-7.02l-2.71-0.42l-3.27-2.43L492.79,296L492.79,296L492.79,296z", "name": "Chad" }, "sd": { "path": "M520.15,292.43l0.18-11.83l2.46,0.07l-0.28-6.57l25.8,0.23l3.69-3.72l7.96,12.73l-4.36,5.14v7.85l-6.86,14.75l-2.36,1.04l0.75,4.11h2.94l3.99,5.79l-3.2,0.41l-0.82,1.49l-0.08,2.15l-9.6-0.17l-0.98-1.49l-6.71-0.38l-12.32-12.68l1.23-0.74l0.33-2.98l-2.95-1.74l-2.69-5.31l0.15-4.94L520.15,292.43L520.15,292.43z", "name": "Sudan" }, "cm": { "path": "M477.82,324.28l3.22,2.96l-0.23,4.58l17.66-0.41l1.44-1.62l-5.06-5.45l-0.75-1.97l3.22-6.03l-2.19-4l-1.84-0.99v-2.03l2.13-1.39l0.12-6.32l-1.69-0.19l-0.03,3.32l-7.42,13.85l-4.54,0.23l-3.11,2.14L477.82,324.28L477.82,324.28z", "name": "Cameroon" }, "er": { "path": "M556.71,294.7l-0.25-5.89l3.96-4.62l1.07,0.82l1.95,6.52l9.36,6.97l-1.7,2.09l-6.85-5.89H556.71L556.71,294.7z", "name": "Eritrea" }, "dj": { "path": "M571.48,301.54l-0.57,3.36l3.96-0.06l0.06-4.94l-1.45-0.89L571.48,301.54L571.48,301.54z", "name": "Djibouti" }, "et": { "path": "M549.49,311.76l7.28-16.2l7.23,0.04l6.41,5.57l-0.45,4.59h4.97l0.51,2.76l8.04,4.81l4.96,0.25l-9.43,10.13l-12.95,3.99h-3.21l-5.72-4.88l-2.26-0.95l-4.38-6.45l-2.89,0.04l-0.34-2.96L549.49,311.76L549.49,311.76z", "name": "Ethiopia" }, "so": { "path": "M575.74,305.04l4.08,2.78l1.21-0.06l10.13-3.48l1.15,3.71l-0.81,3.13l-2.19,1.74l-5.47-0.35l-7.83-4.81L575.74,305.04L575.74,305.04M591.97,304.05l4.37-1.68l1.55,0.93l-0.17,3.88l-4.03,11.48l-21.81,23.36l-2.53-1.74l-0.17-9.86l3.28-3.77l6.96-2.15l10.21-10.78l2.67-2.38l0.75-3.48L591.97,304.05L591.97,304.05z", "name": "Somalia" }, "ye": { "path": "M599.62,299.65l2.13,2.38l2.88-1.74l1.04-0.35l-1.32-1.28l-2.53,0.75L599.62,299.65L599.62,299.65M571.99,289.23l1.44,4.28v4.18l3.46,3.14l24.38-9.93l0.23-2.73l-3.91-7.02l-9.81,3.13l-5.63,5.54l-6.53-3.86L571.99,289.23L571.99,289.23z", "name": "Yemen" }, "cf": { "path": "M495.66,324.05l4.66,5.04l1.84-2.38l2.93,0.12l0.63-2.32l2.88-1.8l5.98,4.12l3.45-3.42l13.39,0.59L519,311.18l1.67-1.04l0.23-2.26l-2.82-1.33h-4.14l-6.67,6.61l-0.23,2.72l-5.29-0.17l-0.17,1.16l-3.45-0.35l-3.11,5.91L495.66,324.05L495.66,324.05z", "name": "Central African Republic" }, "st": { "path": "M470.74,337.15l1.15-0.58l0.86,0.7l-0.86,1.33l-1.04-0.41L470.74,337.15L470.74,337.15M473.05,333.5l1.73-0.29l0.58,1.1l-0.86,0.93l-0.86-0.12L473.05,333.5L473.05,333.5z", "name": "Sao Tome and Principe" }, "gq": { "path": "M476.84,327.41l-0.46,1.97l1.38,0.75l1.32-0.99l-0.46-2.03L476.84,327.41L476.84,327.41M480.99,332.69l-0.06,1.39l4.54,0.23l-0.06-1.57L480.99,332.69L480.99,332.69z", "name": "Equatorial Guinea" }, "ga": { "path": "M486.39,332.63l-0.12,2.49l-5.64-0.12l-3.45,6.67l8.11,8.87l2.01-1.68l-0.06-1.74l-1.38-0.64v-1.22l3.11-1.97l2.76,2.09l3.05,0.06l-0.06-10.49l-4.83-0.23l-0.06-2.2L486.39,332.63L486.39,332.63z", "name": "Gabon" }, "cg": { "path": "M491,332.52l-0.06,1.45l4.78,0.12l0.17,12.41l-4.37-0.12l-2.53-1.97l-1.96,1.1l-0.09,0.55l1.01,0.49l0.29,2.55l-2.7,2.32l0.58,1.22l2.99-2.32h1.44l0.46,1.39l1.9,0.81l6.1-5.16l-0.12-3.77l1.27-3.07l3.91-2.9l1.05-9.81l-2.78,0.01l-3.22,4.41L491,332.52L491,332.52z", "name": "Congo" }, "ao": { "path": "M486.55,353.23l1.74,2.26l2.25-2.13l-0.66-2.21l-0.56-0.04L486.55,353.23L486.55,353.23M488.62,356.71l3.41,12.73l-0.08,4.02l-4.99,5.36l-0.75,8.71l19.2,0.17l6.24,2.26l5.15-0.67l-3-3.76l0.01-10.74l5.9-0.25v-4.19l-4.79-0.2l-0.96-9.92l-2.02,0.03l-1.09-0.98l-1.19,0.06l-1.58,3.06H502l-1.41-1.42l0.42-2.01l-1.66-2.43L488.62,356.71L488.62,356.71z", "name": "Angola" }, "cd": { "path": "M489.38,355.71l10.31-0.18l2.09,2.97l-0.08,2.19l0.77,0.7h5.12l1.47-2.89h2.09l0.85,0.86l2.87-0.08l0.85,10.08l4.96,0.16v0.78l13.33,6.01l0.62,1.17h2.79l-0.31-4.22l-5.04-2.42l0.31-3.2l2.17-5.08l4.96-0.16l-4.26-14.14l0.08-6.01l6.74-10.54l0.08-1.48l-1.01-0.55l0.04-2.86l-1.23-0.11l-1.24-1.58l-20.35-0.92l-3.73,3.63l-6.11-4.02l-2.15,1.32l-1.56,13.13l-3.86,2.98l-1.16,2.64l0.21,3.91l-6.96,5.69l-1.85-0.84l0.25,1.09L489.38,355.71L489.38,355.71z", "name": "Congo" }, "rw": { "path": "M537.82,339.9l2.81,2.59l-0.12,2.77l-4.36,0.09v-3.06L537.82,339.9L537.82,339.9z", "name": "Rwanda" }, "bi": { "path": "M536.21,346.21l4.27-0.09l-1.11,3.74l-1.08,0.94h-1.32l-0.94-2.53L536.21,346.21L536.21,346.21z", "name": "Burundi" }, "ug": { "path": "M538.3,339.09l3.03,2.84l1.9-1.21l5.14-0.84l0.88,0.09l0.33-1.95l2.9-6.1l-2.44-5.08l-7.91,0.05l-0.05,2.09l1.06,1.02l-0.16,2.09L538.3,339.09L538.3,339.09z", "name": "Uganda" }, "ke": { "path": "M550.83,326.52l2.66,5.19l-3.19,6.69l-0.42,2.03l15.93,9.85l4.94-7.76l-2.5-2.03l-0.05-10.22l3.13-3.42l-4.99,1.66l-3.77,0.05l-5.9-4.98l-1.86-0.8l-3.45,0.32l-0.61,1.02L550.83,326.52L550.83,326.52z", "name": "Kenya" }, "tz": { "path": "M550.57,371.42l17.47-2.14l-3.93-7.6l-0.21-7.28l1.27-3.48l-16.62-10.44l-5.21,0.86l-1.81,1.34l-0.16,3.05l-1.17,4.23l-1.22,1.45l-1.75,0.16l3.35,11.61l5.47,2.57l3.77,0.11L550.57,371.42L550.57,371.42z", "name": "Tanzania" }, "zm": { "path": "M514.55,384.7l3.17,4.4l4.91,0.3l1.74,0.96l5.14,0.06l4.43-6.21l12.38-5.54l1.08-4.88l-1.44-6.99l-6.46-3.68l-4.31,0.3l-2.15,4.76l0.06,2.17l5.08,2.47l0.3,5.37l-4.37,0.24l-1.08-1.81l-12.14-5.18l-0.36,3.98l-5.74,0.18L514.55,384.7L514.55,384.7z", "name": "Zambia" }, "mw": { "path": "M547.16,379.4l3.11,3.25l-0.06,4.16l0.6,1.75l4.13-4.46l-0.48-5.67l-2.21-1.69l-1.97-9.95l-3.41-0.12l1.55,7.17L547.16,379.4L547.16,379.4z", "name": "Malawi" }, "mz": { "path": "M541.17,413.28l2.69,2.23l6.34-3.86l1.02-5.73v-9.46l10.17-8.32l1.74,0.06l6.16-5.91l-0.96-12.18L552,372.17l0.48,3.68l2.81,2.17l0.66,6.63l-5.5,5.37l-1.32-3.01l0.24-3.98l-3.17-3.44l-7.78,3.62l7.24,3.68l0.24,10.73l-4.79,7.11L541.17,413.28L541.17,413.28z", "name": "Mozambique" }, "zw": { "path": "M524.66,392.3l8.97,10.13l6.88,1.75l4.61-7.23l-0.36-9.58l-7.48-3.86l-2.81,1.27l-4.19,6.39l-5.8-0.06L524.66,392.3L524.66,392.3z", "name": "Zimbabwe" }, "na": { "path": "M496.55,421.96l3.35,0.24l1.97,1.99l4.67,0.06l1.14-13.26v-8.68l2.99-0.6l1.14-9.1l7.6-0.24l2.69-2.23l-4.55-0.18l-6.16,0.84l-6.64-2.41h-18.66l0.48,5.3l6.22,9.16l-1.08,4.7l0.06,2.47L496.55,421.96L496.55,421.96z", "name": "Namibia" }, "bw": { "path": "M508.51,411.23l2.15,0.66l-0.3,6.15l2.21,0.3l5.08-4.58l6.1,0.66l1.62-4.1l7.72-7.05l-9.27-10.67l-0.12-1.75l-1.02-0.3l-2.81,2.59l-7.3,0.18l-1.02,9.1l-2.87,0.66L508.51,411.23L508.51,411.23z", "name": "Botswana" }, "sz": { "path": "M540.87,414l-2.51,0.42l-1.08,2.95l1.92,1.75h2.33l1.97-2.83L540.87,414L540.87,414z", "name": "Swaziland" }, "ls": { "path": "M527.41,425.39l3.05-2.35l1.44,0.06l1.74,2.17l-0.18,2.17l-2.93,1.08v0.84l-3.23-0.18l-0.78-2.35L527.41,425.39L527.41,425.39z", "name": "Lesotho" }, "za": { "path": "M534.16,403.63l-7.9,7.3l-1.88,4.51l-6.26-0.78l-5.21,4.63l-3.46-0.34l0.28-6.4l-1.23-0.43l-0.86,13.09l-6.14-0.06l-1.85-2.18l-2.71-0.03l2.47,7.09l4.41,4.17l-3.15,3.67l2.04,4.6l4.72,1.8l3.76-3.2l10.77,0.06l0.77-0.96l4.78-0.84l16.17-16.1l-0.06-5.07l-1.73,2.24h-2.59l-3.15-2.64l1.6-3.98l2.75-0.56l-0.25-8.18L534.16,403.63L534.16,403.63z M530.37,422.13l1.51-0.06l2.45,2.66l-0.07,3.08l-2.87,1.45l-0.18,1.02l-4.38,0.05l-1.37-3.3l1.25-2.42L530.37,422.13L530.37,422.13z", "name": "South Africa" }, "gl": { "path": "M321.13,50.07l-1.36,2.17l2.45,2.45l-1.09,2.45l3.54,4.62l4.35-1.36l5.71-0.54l6.53,7.07l4.35,11.69l-3.53,7.34l4.89-0.82l2.72,1.63l0.27,3.54l-5.98,0.27l3.26,3.26l4.08,0.82l-8.97,11.96l-1.09,7.34l1.9,5.98l-1.36,3.54l2.45,7.61l4.62,5.17l1.36-0.27l2.99-0.82l0.27,4.35l1.9,2.72l3.53-0.27l2.72-10.06l8.16-10.06l12.24-4.89l7.61-9.52l3.53,1.63h7.34l5.98-5.98l7.34-2.99l0.82-4.62l-4.62-4.08l-4.08-1.36l-2.18-5.71l5.17-2.99l8.16,4.35l2.72-2.99l-4.35-2.45l9.25-12.51l-1.63-5.44l-4.35-0.27l1.63-4.89l5.44-2.45l11.15-9.79l-3.26-3.53l-12.51,1.09l-6.53,6.53l3.81-8.43l-4.35-1.09l-2.45,4.35l-3.53-2.99l-9.79,1.09l2.72-4.35l16.04-0.54l-4.08-5.44l-17.4-3.26l-7.07,1.09l0.27,3.54l-7.34-2.45l0.27-2.45l-5.17,1.09l-1.09,2.72l5.44,1.9l-5.71,4.08l-4.08-4.62l-5.71-1.63l-0.82,4.35h-5.71l-2.18-4.62l-8.97-1.36l-4.89,2.45l-0.27,3.26l-6.25-0.82l-3.81,1.63l0.27,3.81v1.9l-7.07,1.36l-3.26-2.17l-2.18,3.53l3.26,3.54l6.8-0.82l0.54,2.18l-5.17,2.45L321.13,50.07L321.13,50.07M342.89,92.49l1.63,2.45l-0.82,2.99h-1.63l-2.18-2.45l0.54-1.9L342.89,92.49L342.89,92.49M410.87,85.69l4.62,1.36l-0.27,3.81l-4.89-2.45l-1.09-1.36L410.87,85.69L410.87,85.69z", "name": "Greenland" }, "au": { "path": "M761.17,427.98l-0.35,25.38l-3.9,2.86l-0.35,2.5l5.32,3.57l13.13-2.5h6.74l2.48-3.58l14.9-2.86l10.64,3.22l-0.71,4.29l1.42,4.29l8.16-1.43l0.35,2.14l-5.32,3.93l1.77,1.43l3.9-1.43l-1.06,11.8l7.45,5.72l4.26-1.43l2.13,2.14l12.42-1.79l11.71-18.95l4.26-1.07l8.51-15.73l2.13-13.58l-5.32-6.79l2.13-1.43l-4.26-13.23l-4.61-3.22l0.71-17.87l-4.26-3.22l-1.06-10.01h-2.13l-7.1,23.59l-3.9,0.36l-8.87-8.94l4.97-13.23l-9.22-1.79l-10.29,2.86l-2.84,8.22l-4.61,1.07l-0.35-5.72l-18.8,11.44l0.35,4.29l-2.84,3.93h-7.1l-15.26,6.43L761.17,427.98L761.17,427.98M825.74,496.26l-1.77,7.15l0.35,5l5.32-0.36l6.03-9.29L825.74,496.26L825.74,496.26z", "name": "Australia" }, "nz": { "path": "M913.02,481.96l1.06,11.8l-1.42,5.36l-5.32,3.93l0.35,4.65v5l1.42,1.79l14.55-12.51v-2.86h-3.55l-4.97-16.8L913.02,481.96L913.02,481.96M902.38,507.7l2.84,5.36l-7.81,7.51l-0.71,3.93l-5.32,0.71l-8.87,8.22l-8.16-3.93l-0.71-2.86l14.9-6.43L902.38,507.7L902.38,507.7z", "name": "New Zealand" }, "nc": { "path": "M906.64,420.47l-0.35,1.79l4.61,6.43l2.48,1.07l0.35-2.5L906.64,420.47L906.64,420.47z", "name": "New Caledonia" }, "my": { "path": "M764.14,332.92l3.02,3.49l11.58-4.01l2.29-8.84l5.16-0.37l4.72-3.42l-6.12-4.46l-1.4-2.45l-3.02,5.57l1.11,3.2l-1.84,2.67l-3.47-0.89l-8.41,6.17l0.22,3.57L764.14,332.92L764.14,332.92M732.71,315.45l2.01,4.51l0.45,5.86l2.69,4.17l6.49,3.94l2.46,0.23l-0.45-4.06l-2.13-5.18l-3.12-6.63l-0.26,1.16l-3.76-0.17l-2.7-3.88L732.71,315.45L732.71,315.45z", "name": "Malaysia" }, "bn": { "path": "M779.77,319.25l-2.88,3.49l2.36,0.74l1.33-1.86L779.77,319.25L779.77,319.25z", "name": "Brunei Darussalam" }, "tl": { "path": "M806.14,368.42l-5.11,4.26l0.49,1.09l2.16-0.4l2.55-2.38l5.01-0.69l-0.98-1.68L806.14,368.42L806.14,368.42z", "name": "Timor-Leste" }, "sb": { "path": "M895.43,364.65l0.15,2.28l1.39,1.32l1.31-0.81l-1.17-2.43L895.43,364.65L895.43,364.65M897.18,370.31l-1.17,1.25l1.24,2.28l1.46,0.44l-0.07-1.54L897.18,370.31L897.18,370.31M900.03,368.99l1.02,2.5l1.97,2.35l1.09-1.76l-1.46-2.5L900.03,368.99L900.03,368.99M905.14,372.74l0.58,3.09l1.39,1.91l1.17-2.42L905.14,372.74L905.14,372.74M906.74,379.65l-0.51,0.88l1.68,2.21l1.17,0.07l-0.73-2.87L906.74,379.65L906.74,379.65M903.02,384.05l-1.75,0.81l1.53,2.13l1.31-0.74L903.02,384.05L903.02,384.05z", "name": "Solomon Islands" }, "vu": { "path": "M920.87,397.22l-1.24,1.66l0.52,1.87l0.62,0.42l1.13-1.46L920.87,397.22L920.87,397.22M921.49,402.31l0.1,1.35l1.34,0.42l0.93-0.52l-0.93-1.46L921.49,402.31L921.49,402.31M923.45,414.37l-0.62,0.94l0.93,1.04l1.55-0.52L923.45,414.37L923.45,414.37z", "name": "Vanuatu" }, "fj": { "path": "M948.62,412.29l-1.24,1.66l-0.1,1.87l1.44,1.46L948.62,412.29L948.62,412.29z", "name": "Fiji" }, "ph": { "path": "M789.37,297.53l-0.86,1.64l-0.48,2.02l-4.78,6.07l0.29,1.25l2.01-0.29l6.21-6.94L789.37,297.53L789.37,297.53M797.11,295.22l-0.1,5.01l1.82,1.83l0.67,3.56l1.82,0.39l0.86-2.22l-1.43-1.06l-0.38-6.26L797.11,295.22L797.11,295.22M802.28,297.15l-0.1,4.43l1.05,1.73l1.82-2.12l-0.48-3.85L802.28,297.15L802.28,297.15M803.42,293.29l1.82,2.41l0.86,2.31h1.63l-0.29-3.95l-1.82-1.25L803.42,293.29L803.42,293.29M806.96,302.35l0.38,2.89l-3.35,2.7l-2.77,0.29l-2.96,3.18l0.1,1.45l2.77-0.87l1.91-1.25l1.63,4.14l2.87,2.02l1.15-0.39l1.05-1.25l-2.29-2.31l1.34-1.06l1.53,1.25l1.05-1.73l-1.05-2.12l-0.19-4.72L806.96,302.35L806.96,302.35M791.38,272.97l-2.58,1.83l-0.29,5.78l4.02,7.8l1.34,1.06l1.72-1.16l2.96,0.48l0.57,2.6l2.2,0.19l1.05-1.44l-1.34-1.83l-1.63-1.54l-3.44-0.38l-1.82-2.99l2.1-3.18l0.19-2.79l-1.43-3.56L791.38,272.97L791.38,272.97M792.72,290.21l0.76,2.7l1.34,0.87l0.96-1.25l-1.53-2.12L792.72,290.21L792.72,290.21z", "name": "Philippines" }, "cn": { "path": "M759.83,270.17l-2.39,0.67l-1.72,2.12l1.43,2.79l2.1,0.19l2.39-2.12l0.57-2.79L759.83,270.17L759.83,270.17M670.4,170.07l-3.46,8.7l-4.77-0.25l-5.03,11.01l4.27,5.44l-8.8,12.15l-4.52-0.76l-3.02,3.8l0.75,2.28l3.52,0.25l1.76,4.05l3.52,0.76l10.81,13.93v7.09l5.28,3.29l5.78-1.01l7.29,4.3l8.8,2.53l4.27-0.51l4.78-0.51l10.05-6.58l3.27,0.51l1.25,2.97l2.77,0.83l3.77,5.57l-2.51,5.57l1.51,3.8l4.27,1.52l0.75,4.56l5.03,0.51l0.75-2.28l7.29-3.8l4.52,0.25l5.28,5.82l3.52-1.52l2.26,0.25l1.01,2.79l1.76,0.25l2.51-3.54l10.05-3.8l9.05-10.89l3.02-10.38l-0.25-6.84l-3.77-0.76l2.26-2.53l-0.5-4.05l-9.55-9.62v-4.81l2.76-3.54l2.76-1.27l0.25-2.79h-7.04l-1.26,3.8l-3.27-0.76l-4.02-4.3l2.51-6.58l3.52-3.8l3.27,0.25l-0.5,5.82l1.76,1.52l4.27-4.3l1.51-0.25l-0.5-3.29l4.02-4.81l3.02,0.25l1.76-5.57l2.06-1.09l0.21-3.47l-2-2.1l-0.17-5.48l3.85-0.25l-0.25-14.13l-2.7,1.62l-1.01,3.62l-4.51-0.01l-13.07-7.35l-9.44-11.38l-9.58-0.1l-2.44,2.12l3.1,7.1l-1.08,6.66l-3.86,1.6l-2.17-0.17l-0.16,6.59l2.26,0.51l4.02-1.77l5.28,2.53v2.53l-3.77,0.25l-3.02,6.58l-2.76,0.25l-9.8,12.91l-10.3,4.56l-7.04,0.51l-4.77-3.29l-6.79,3.55l-7.29-2.28l-1.76-4.81l-12.31-0.76l-6.53-10.63h-2.76l-2.22-4.93L670.4,170.07z", "name": "China" }, "tw": { "path": "M787.46,248.31l-3.54,2.7l-0.19,5.2l3.06,3.56l0.76-0.67L787.46,248.31L787.46,248.31z", "name": "Taiwan" }, "jp": { "path": "M803.23,216.42l-1.63,1.64l0.67,2.31l1.43,0.1l0.96,5.01l1.15,1.25l2.01-1.83l0.86-3.28l-2.49-3.56L803.23,216.42L803.23,216.42M812.03,213.15l-2.77,2.6l-0.1,2.99l0.67,0.87l3.73-3.18l-0.29-3.18L812.03,213.15L812.03,213.15M808.2,206.98l-4.88,5.59l0.86,1.35l2.39,0.29l4.49-3.47l3.16-0.58l2.87,3.37l2.2-0.77l0.86-3.28l4.11-0.1l4.02-4.82l-2.1-8l-0.96-4.24l2.1-1.73l-4.78-7.22l-1.24,0.1l-2.58,2.89v2.41l1.15,1.35l0.38,6.36l-2.96,3.66l-1.72-1.06l-1.34,2.99l-0.29,2.79l1.05,1.64l-0.67,1.25l-2.2-1.83h-1.53l-1.34,0.77L808.2,206.98L808.2,206.98M816.43,163.44l-1.53,1.35l0.77,2.89l1.34,1.35l-0.1,4.43l-1.72,0.67l-1.34,2.99l3.92,5.39l2.58-0.87l0.48-1.35l-2.77-2.5l1.72-2.22l1.82,0.29l1.43,1.54l0.1-3.18l3.92-3.18l2.2-0.58l-1.82-3.08l-0.86-1.35l-1.43,0.96l-1.24,1.54l-2.68-0.58l-2.77-1.83L816.43,163.44L816.43,163.44z", "name": "Japan" }, "ru": { "path": "M506.61,151.72l-1.5-0.15l-2.7,3.23v1.51l0.9,0.35l1.75,0.05l2.9-2.37l0.4-0.81L506.61,151.72L506.61,151.72M830.86,160.45l-2.68,3.76l0.19,1.83l1.34-0.58l3.15-3.95L830.86,160.45L830.86,160.45M834.4,154.96l-0.96,2.6l0.1,1.73l1.63-1.06l1.53-3.08V154L834.4,154.96L834.4,154.96M840.04,132.03l-1.24,1.54l0.1,2.41l1.15-0.1l1.91-3.37L840.04,132.03L840.04,132.03M837.75,137.91v4.24l1.34,0.48l0.96-1.54v-3.27L837.75,137.91L837.75,137.91M798.64,122.59l-0.09,6.17l7.74,11.95l2.77,10.4l4.88,9.25l1.91,0.67l1.63-1.35l0.76-2.22l-6.98-7.61l0.19-3.95l1.53-0.67l0.38-2.31l-13.67-19.36L798.64,122.59L798.64,122.59M852.57,103.42l-1.91,0.19l1.15,1.64l2.39,1.64l0.67-0.77L852.57,103.42L852.57,103.42M856.29,104.58l0.29,1.64l2.96,0.87l0.29-1.16L856.29,104.58L856.29,104.58M547.82,38.79l1.72,0.69l-1.21,2.08v2.95l-2.58,1.56H543l-1.55-1.91l0.17-2.08l1.21-1.56h2.41L547.82,38.79L547.82,38.79M554.36,36.88v2.08l1.72,1.39l2.41-0.17l2.07-1.91v-1.39h-1.89l-1.55,0.52l-1.21-1.39L554.36,36.88L554.36,36.88M564.18,37.06l1.21,2.6l2.41,0.17l1.72-0.69l-0.86-2.43l-2.24-0.52L564.18,37.06L564.18,37.06M573.99,33.59l-1.89-0.35l-1.72,1.74l0.86,1.56l0.52,2.43l2.24-1.73l0.52-1.91L573.99,33.59L573.99,33.59M584.49,51.98l-0.52,2.43l-3.96,3.47l-8.44,1.91l-6.89,11.45l-1.21,3.3l6.89,1.74l1.03-4.16l2.07-6.42l5.34-2.78l4.48-3.47l3.27-1.39h1.72v-4.68L584.49,51.98L584.49,51.98M562.28,77.31l4.65,0.52l1.55,5.38l3.96,4.16l-1.38,2.78h-2.41l-2.24-2.6l-4.99-0.17l-2.07-2.78v-1.91l3.1-0.87L562.28,77.31L562.28,77.31M634.95,18.15l-2.24-1.39h-2.58l-0.52,1.56l-2.75,1.56l-2.07,0.69l-0.34,2.08l4.82,0.35L634.95,18.15L634.95,18.15M640.28,18.67l-1.21,2.6l-2.41-0.17l-3.79,2.78l-1.03,3.47h2.41l1.38-2.26l3.27,2.43l3.1-1.39l2.24-1.91l-0.86-2.95l-1.21-2.08L640.28,18.67L640.28,18.67M645.28,20.58l1.21,4.86l1.89,4.51l2.07-3.64l3.96-0.87v-2.6l-2.58-1.91L645.28,20.58L645.28,20.58M739.76,12.8l2.69,2.26l1.91-0.79l0.56-3.17L741,8.39l-2.58,1.7l-6.28,0.57v2.83l-6.62,0.11v4.63l7.74,5.76l2.02-1.47l-0.45-4.07l4.94-1.24l-1.01-1.92l-1.79-1.81L739.76,12.8L739.76,12.8M746.94,10.09l1.79,3.39l6.96-0.79l1.91-2.49l-0.45-2.15l-1.91-0.79l-1.79,1.36l-5.16,1.13L746.94,10.09L746.94,10.09M746.49,23.31l-3.48-0.9L741,24.56l-0.9,2.94l4.71-0.45l3.59-1.81L746.49,23.31L746.49,23.31M836.68,3.76l-2.92-0.9L830.4,4.1l-1.68,2.49l2.13,2.83l5.61-2.49l1.12-1.24L836.68,3.76L836.68,3.76M817.97,72.93l1.76,6.08l3.52,1.01l3.52-5.57l-2.01-3.8l0.75-3.29h5.28l-1.26,2.53l0.5,9.12l-7.54,18.74l0.75,4.05l-0.25,6.84l14.07,20.51l2.76,0.76l0.25-16.71l2.76-2.53l-3.02-6.58l2.51-2.79l-5.53-7.34l-3.02,0.25l-1-12.15l7.79-2.03l0.5-3.55l4.02-1.01l2.26,2.03l2.76-11.14l4.77-8.1l3.77-2.03l3.27,0.25v-3.8l-5.28-1.01l-7.29-6.08l3.52-4.05l-3.02-6.84l2.51-2.53l3.02,4.05l7.54,2.79l8.29,0.76l1.01-3.54l-4.27-4.3l4.77-6.58l-10.81-3.8l-2.76,5.57l-3.52-4.56l-19.85-6.84l-18.85,3.29l-2.76,1.52v1.52l4.02,2.03l-0.5,4.81l-7.29-3.04l-16.08,6.33l-2.76-5.82h-11.06l-5.03,5.32l-17.84-4.05l-16.33,3.29l-2.01,5.06l2.51,0.76l-0.25,3.8l-15.83,1.77l1.01,5.06l-14.58-2.53l3.52-6.58l-14.83-0.76l1.26,6.84l-4.77,2.28l-4.02-3.8l-16.33,2.79l-6.28,5.82l-0.25,3.54l-4.02,0.25l-0.5-4.05l12.82-11.14v-7.6l-8.29-2.28l-10.81,3.54l-4.52-4.56h-2.01l-2.51,5.06l2.01,2.28l-14.33,7.85l-12.31,9.37l-7.54,10.38v4.3l8.04,3.29l-4.02,3.04l-8.54-3.04l-3.52,3.04l-5.28-6.08l-1.01,2.28l5.78,18.23l1.51,0.51l4.02-2.03l2.01,1.52v3.29l-3.77-1.52l-2.26,1.77l1.51,3.29l-1.26,8.61l-7.79,0.76l-0.5-2.79l4.52-2.79l1.01-7.6l-5.03-6.58l-1.76-11.39l-8.04-1.27l-0.75,4.05l1.51,2.03l-3.27,2.79l1.26,7.6l4.77,2.03l1.01,5.57l-4.78-3.04l-12.31-2.28l-1.51,4.05l-9.8,3.54l-1.51-2.53l-12.82,7.09l-0.25,4.81l-5.03,0.76l1.51-3.54v-3.54l-5.03-1.77l-3.27,1.27l2.76,5.32l2.01,3.54v2.79l-3.77-0.76l-0.75-0.76l-3.77,4.05l2.01,3.54l-8.54-0.25l2.76,3.55l-0.75,1.52h-4.52l-3.27-2.28l-0.75-6.33l-5.28-2.03v-2.53l11.06,2.28l6.03,0.51l2.51-3.8l-2.26-4.05l-16.08-6.33l-5.55,1.38l-1.9,1.63l0.59,3.75l2.36,0.41l-0.55,5.9l7.28,17.1l-5.26,8.34l-0.36,1.88l2.67,1.88l-2.41,1.59l-1.6,0.03l0.3,7.35l2.21,3.13l0.03,3.04l2.83,0.26l4.33,1.65l4.58,6.3l0.05,1.66l-1.49,2.55l3.42-0.19l3.33,0.96l4.5,6.37l11.08,1.01l-0.48,7.58l-3.82,3.27l0.79,1.28l-3.77,4.05l-1,3.8l2.26,3.29l7.29,2.53l3.02-1.77l19.35,7.34l0.75-2.03l-4.02-3.8v-4.81l-2.51-0.76l0.5-4.05l4.02-4.81l-7.21-5.4l0.5-7.51l7.71-5.07l9.05,0.51l1.51,2.79l9.3,0.51l6.79-3.8l-3.52-3.8l0.75-7.09l17.59-8.61l13.53,6.1l4.52-4.05l13.32,12.66l10.05-1.01l3.52,3.54l9.55,1.01l6.28-8.61l8.04,3.55l4.27,0.76l4.27-3.8l-3.77-2.53l3.27-5.06l9.3,3.04l2.01,4.05l4.02,0.25l2.51-1.77l6.79-0.25l0.75,1.77l7.79,0.51l5.28-5.57l10.81,1.27l3.27-1.27l1-6.08l-3.27-7.34l3.27-2.79h10.3l9.8,11.65l12.56,7.09h3.77l0.5-3.04l4.52-2.79l0.5,16.46l-4.02,0.25v4.05l2.26,2.79l-0.42,3.62l1.67,0.69l1.01-2.53l1.51,0.51l1,1.01l4.52-1.01l4.52-13.17l0.5-16.46l-5.78-13.17l-7.29-8.86l-3.52,0.51v2.79l-8.54-3.29l3.27-7.09l2.76-18.74l11.56-3.54l5.53-3.54h6.03L805.86,96l1.51,2.53l5.28-5.57l3.02,0.25l-0.5-3.29l-4.78-1.01l3.27-11.9L817.97,72.93L817.97,72.93z", "name": "Russian Federation" }, "us": { "path": "M69.17,53.35l3.46,6.47l2.22-0.5v-2.24L69.17,53.35L69.17,53.35M49.66,110.26l-0.17,3.01l2.16-0.5v-1.34L49.66,110.26L49.66,110.26M46.34,111.6l-4.32,2.18l0.67,2.34l1.66-1.34l3.32-1.51L46.34,111.6L46.34,111.6M28.39,114.44l-2.99-0.67l-0.5,1.34l0.33,2.51L28.39,114.44L28.39,114.44M22.07,114.28l-2.83-1.17l-1,1.84l1.83,1.84L22.07,114.28L22.07,114.28M12.27,111.6l-1.33-1.84l-1.33,0.5v2.51l1.5,1L12.27,111.6L12.27,111.6M1.47,99.71l1.66,1.17l-0.5,1.34H1.47V99.71L1.47,99.71M10,248.7l-0.14,2.33l2.04,1.37l1.22-1.09L10,248.7L10,248.7M15.29,252.13l-1.9,1.37l1.63,2.05l1.9-1.64L15.29,252.13L15.29,252.13M19.1,255.41l-1.63,2.19l0.54,1.37l2.31-1.09L19.1,255.41L19.1,255.41M21.81,259.65l-0.95,5.47l0.95,2.05l3.12-0.96l1.63-2.74l-3.4-3.15L21.81,259.65L21.81,259.65M271.05,281.06l-2.64-0.89l-2.12,1.33l1.06,1.24l3.61,0.53L271.05,281.06L271.05,281.06M93.11,44.89l-8.39,1.99l1.73,9.45l9.13,2.49l0.49,1.99L82.5,65.04l-7.65,12.68l2.71,13.43L82,94.13l3.46-3.23l0.99,1.99l-4.2,4.97l-16.29,7.46l-10.37,2.49l-0.25,3.73l23.94-6.96l9.87-2.74l9.13-11.19l10.12-6.71l-5.18,8.7l5.68,0.75l9.63-4.23l1.73,6.96l6.66,1.49l6.91,6.71l0.49,4.97l-0.99,1.24l1.23,4.72h1.73l0.25-7.96h1.97l0.49,19.64l4.94-4.23l-3.46-20.39h-5.18l-5.68-7.21l27.89-47.25l-27.64-21.63l-30.85,5.97l-1.23,9.45l6.66,3.98l-2.47,6.47L93.11,44.89L93.11,44.89M148.76,158.34l-1,4.02l-3.49-2.26h-1.74l-1,4.27l-12.21,27.36l3.24,23.84l3.99,2.01l0.75,6.53h8.22l7.97,6.02l15.69,1.51l1.74,8.03l2.49,1.76l3.49-3.51l2.74,1.25l2.49,11.54l4.23,2.76l3.49-6.53l10.71-7.78l6.97,3.26l5.98,0.5l0.25-3.76l12.45,0.25l2.49,2.76l0.5,6.27l-1.49,3.51l1.74,6.02h3.74l3.74-5.77l-1.49-2.76l-1.49-6.02l2.24-6.78l10.21-8.78l7.72-2.26l-1-7.28l10.71-11.55l10.71-1.76L272.8,199l10.46-6.02v-8.03l-1-0.5l-3.74,1.25l-0.5,4.92l-12.43,0.15l-9.74,6.47l-15.29,5l-2.44-2.99l6.94-10.5l-3.43-3.27l-2.33-4.44l-4.83-3.88l-5.25-0.44l-9.92-6.77L148.76,158.34L148.76,158.34z", "name": "United States of America" }, "mu": { "path": "M613.01,398.99l-1.52,1.99l0.3,2.15l3.2-2.61L613.01,398.99L613.01,398.99z", "name": "Mauritius" }, "re": { "path": "M607.38,402.37l-2.28,0.15l-0.15,1.99l1.52,0.31l2.28-1.07L607.38,402.37L607.38,402.37z", "name": "Reunion" }, "mg": { "path": "M592.3,372.92l-2.13,5.06l-3.65,6.44l-6.39,0.46l-2.74,3.22l0.46,9.82l-3.96,4.6l0.46,7.82l3.35,3.83l3.96-0.46l3.96-2.92l-0.91-4.6l9.13-15.8l-1.83-1.99l1.83-3.83l1.98,0.61l0.61-1.53l-1.83-7.82l-1.07-3.22L592.3,372.92L592.3,372.92z", "name": "Madagascar" }, "km": { "path": "M577.69,371.23l0.46,1.53l1.98,0.31l0.76-1.99L577.69,371.23L577.69,371.23M580.58,374.3l0.76,1.69h1.22l0.61-2.15L580.58,374.3L580.58,374.3z", "name": "Comoros" }, "sc": { "path": "M602.35,358.34l-0.61,1.23l1.67,1.38l1.22-1.38L602.35,358.34L602.35,358.34M610.88,349.14l-1.83,1.23l1.37,2.15h1.83L610.88,349.14L610.88,349.14M611.64,354.51l-1.22,1.38l0.91,1.38l1.67,0.31l0.15-2.92L611.64,354.51L611.64,354.51z", "name": "Seychelles" }, "mv": { "path": "M656.4,320.76l0.3,2.61l1.67,0.61l0.3-2.3L656.4,320.76L656.4,320.76M658.53,326.28l-0.15,3.22l1.22,0.61l1.07-2.15L658.53,326.28L658.53,326.28M658.84,332.57l-1.07,1.07l1.22,1.07l1.52-1.07L658.84,332.57L658.84,332.57z", "name": "Maldives" }, "pt": { "path": "M372.64,217.02l-1.36,1.37l2.44,1.37l0.27-1.91L372.64,217.02L372.64,217.02M379.97,216.2l-1.63,1.09l1.36,1.09l2.17-0.55L379.97,216.2L379.97,216.2M381.05,220.03l-0.81,2.19l1.08,1.37l1.36-1.09L381.05,220.03L381.05,220.03M387.56,224.4l-0.54,1.37l0.81,0.82l2.17-1.37L387.56,224.4L387.56,224.4M408.18,236.42l-1.08,1.37l1.08,1.37l1.63-0.82L408.18,236.42L408.18,236.42M430.93,211.24l-0.62,8.65l-1.77,1.6l0.18,0.98l1.24,2.05l-0.8,2.5l1.33,0.45l3.1-0.36l-0.18-2.5l2.03-11.59l-0.44-1.6L430.93,211.24L430.93,211.24z", "name": "Portugal" }, "es": { "path": "M415.62,253.73l-1.75,1.01l0.81,0.82L415.62,253.73L415.62,253.73M409.54,253.92l-2.17,0.55l1.08,1.64h1.63L409.54,253.92L409.54,253.92M404.38,252.28l-1.36,1.37l1.9,1.64l1.08-2.46L404.38,252.28L404.38,252.28M448.36,205h-12.74l-2.57-1.16l-1.24,0.09l-1.5,3.12l0.53,3.21l4.87,0.45l0.62,2.05l-2.12,11.95l0.09,2.14l3.45,1.87l3.98,0.27l7.96-1.96l3.89-4.9l0.09-4.99l6.9-6.24l0.35-2.76l-6.28-0.09L448.36,205L448.36,205M461.1,217.21l-1.59,0.54l0.35,1.43h2.3l0.97-1.07L461.1,217.21L461.1,217.21z", "name": "Spain" }, "cv": { "path": "M387.56,290.54l-1.9,1.09l1.36,1.09l1.63-0.82L387.56,290.54L387.56,290.54M392.23,292.74l-1.24,1.1l0.88,1.63l2.12-0.95L392.23,292.74L392.23,292.74M389.52,295.83l-1.59,0.95l1.71,2.29l1.35-0.71L389.52,295.83L389.52,295.83z", "name": "Cape Verde" }, "pf": { "path": "M27.25,402.68l-1.9-0.14l-0.14,1.78l1.49,0.96l1.77-1.09L27.25,402.68L27.25,402.68M33.77,404.6l-2.72,1.78l2.04,2.46l1.77-0.41l0.95-1.23L33.77,404.6L33.77,404.6z", "name": "French Polynesia" }, "kn": { "path": "M276.6,283.37l-1.5,0.62l0.53,1.33l1.76-1.15l-0.35-0.36L276.6,283.37L276.6,283.37z", "name": "Saint Kitts and Nevis" }, "ag": { "path": "M279.07,284.88l-0.88,1.87l1.06,1.42l1.32-1.15L279.07,284.88L279.07,284.88z", "name": "Antigua and Barbuda" }, "dm": { "path": "M282.07,290.03l-1.06,0.98l0.79,1.6l1.5-0.44L282.07,290.03L282.07,290.03z", "name": "Dominica" }, "lc": { "path": "M281.98,294.03l-0.71,1.51l1.15,1.24l1.5-0.8L281.98,294.03L281.98,294.03z", "name": "Saint Lucia" }, "bb": { "path": "M282.07,297.85l-1.23,0.89l0.97,1.78l1.59-0.89L282.07,297.85L282.07,297.85z", "name": "Barbados" }, "gd": { "path": "M280.57,301.31l-1.15,1.15l0.44,0.71h1.41l0.44-1.16L280.57,301.31L280.57,301.31z", "name": "Grenada" }, "tt": { "path": "M282.24,304.78l-1.06,0.98l-1.15,0.18v1.42l2.12,1.95l0.88-1.42l0.53-1.6l-0.18-1.33L282.24,304.78L282.24,304.78z", "name": "Trinidad and Tobago" }, "do": { "path": "M263.11,280.44l-5.29-3.46l-2.5-0.85l-0.84,6l0.88,1.69l1.15-1.33l3.35-0.89l2.91,0.62L263.11,280.44L263.11,280.44z", "name": "Dominican Republic" }, "ht": { "path": "M250.86,275.38l3.44,0.36l-0.41,4.22l-0.34,2.22l-4.01-0.22l-0.71,1.07l-1.23-0.09l-0.44-2.31l4.23-0.35l-0.26-2.4l-1.94-0.8L250.86,275.38L250.86,275.38z", "name": "Haiti" }, "fk": { "path": "M307.95,508.18l-2.63-0.29l-2.62,1.76l1.9,2.06L307.95,508.18L307.95,508.18M310.57,506.86l-0.87,2.79l-2.48,2.2l0.15,0.73l4.23-1.62l1.75-2.2L310.57,506.86L310.57,506.86z", "name": "Falkland Islands" }, "is": { "path": "M406.36,117.31l-1.96-1.11l-2.64,1.67l-2.27,2.1l0.06,1.17l2.94,0.37l-0.18,2.1l-1.04,1.05l0.25,0.68l2.94,0.19v3.4l4.23,0.74l2.51,1.42l2.82,0.12l4.84-2.41l3.74-4.94l0.06-3.34l-2.27-1.92l-1.9-1.61l-0.86,0.62l-1.29,1.67l-1.47-0.19l-1.47-1.61l-1.9,0.18l-2.76,2.29l-1.66,1.79l-0.92-0.8l-0.06-1.98l0.92-0.62L406.36,117.31L406.36,117.31z", "name": "Iceland" }, "no": { "path": "M488.26,53.96l-1.65-1.66l-3.66,1.78h-6.72L475.17,58l3.77,3.33l1.65-0.24l2.36-4.04l2,1.43l-1.42,2.85l-0.71,4.16l1.65,2.61l3.54-5.94l4.6-5.59l-1.77-1.54L488.26,53.96L488.26,53.96M490.26,46.83l-2.95,2.73l1.77,2.73h3.18l1.3,1.78l3.89,2.02l4.48-2.61l3.07-2.61l-1.06-2.14l-3.07-1.78l-2.24,2.02l-1.53-1.9l-1.18,0.12l-1.53,3.33l-2.24-2.26l-0.24-1.54L490.26,46.83L490.26,46.83M496.98,59.07l-2.36,2.14l-2,1.54l0.94,1.66l1.89,0.59l3.07-1.43l1.42-1.78l-1.3-2.14L496.98,59.07L496.98,59.07M515.46,102.14l2.02-1.48L517.3,99l-1.28-0.74l0.18-2.03h1.1v-1.11l-4.77-1.29l-7.15,0.74l-0.73,3.14L503,97.16l-1.1-1.85l-3.49,0.18L498.04,99l-1.65,0.74l-0.92-1.85l-7.34,5.91l1.47,1.66l-2.75,1.29l-6.24,12.38l-2.2,1.48l0.18,1.11l2.2,1.11l-0.55,2.4l-3.67-0.19l-1.1-1.29l-2.38,2.77l-1.47,1.11l-0.37,2.59l-1.28,0.74l-3.3,0.74l-1.65,5.18l1.1,8.5l1.28,3.88l1.47,1.48l3.3-0.18l4.77-4.62l1.83-3.14l0.55,4.62l3.12-5.54l0.18-15.53l2.54-1.6l0.76-8.57l7.7-11.09l3.67-1.29l1.65-2.03l5.5,1.29l2.75,1.66l0.92-4.62l4.59-2.77L515.46,102.14L515.46,102.14z", "name": "Norway" }, "lk": { "path": "M680.54,308.05l0.25,2.72l0.25,1.98l-1.47,0.25l0.74,4.45l2.21,1.24l3.43-1.98l-0.98-4.69l0.25-1.73l-3.19-2.96L680.54,308.05L680.54,308.05z", "name": "Sri Lanka" }, "cu": { "path": "M220.85,266.92v1.27l5.32,0.1l2.51-1.46l0.39,1.07l5.22,1.27l4.64,4.19l-1.06,1.46l0.19,1.66l3.87,0.97l3.87-1.75l1.74-1.75l-2.51-1.27l-12.95-7.6l-4.54-0.49L220.85,266.92L220.85,266.92z", "name": "Cuba" }, "bs": { "path": "M239.61,259.13l-1.26-0.39l-0.1,2.43l1.55,1.56l1.06-1.56L239.61,259.13L239.61,259.13M242.12,262.93l-1.74,0.97l1.64,2.34l0.87-1.17L242.12,262.93L242.12,262.93M247.73,264.68l-1.84-0.1l0.19,1.17l1.35,1.95l1.16-1.27L247.73,264.68L247.73,264.68M246.86,262.35l-3-1.27l-0.58-3.02l1.16-0.49l1.16,2.34l1.16,0.88L246.86,262.35L246.86,262.35M243.96,256.21l-1.55-0.39l-0.29-1.95l-1.64-0.58l1.06-1.07l1.93,0.68l1.45,0.88L243.96,256.21L243.96,256.21z", "name": "Bahamas" }, "jm": { "path": "M238.93,279.59l-3.48,0.88v0.97l2.03,1.17h2.13l1.35-1.56L238.93,279.59L238.93,279.59z", "name": "Jamaica" }, "ec": { "path": "M230.2,335.85l-4.73,2.94l-0.34,4.36l-0.95,1.43l2.98,2.86l-1.29,1.41l0.3,3.6l5.33,1.27l8.07-9.55l-0.02-3.33l-3.87-0.25L230.2,335.85L230.2,335.85z", "name": "Ecuador" }, "ca": { "path": "M203.73,35.89l0.22,4.02l-7.98,8.27l2,6.7l5.76-1.56l3.33-4.92l8.42-3.13l6.87-0.45l-5.32-5.81l-2.66,2.01l-2-0.67l-1.11-2.46l-2.44-2.46L203.73,35.89L203.73,35.89M214.15,24.05l-1.77,3.13l8.65,3.13l3.1-4.69l1.33,3.13h2.22l4.21-4.69l-5.1-1.34l-2-1.56l-2.66,2.68L214.15,24.05L214.15,24.05M229.23,30.31l-6.87,2.9v2.23l8.87,3.35l-2,2.23l1.33,2.9l5.54-2.46h4.66l2.22,3.57l3.77-3.8l-0.89-3.58l-3.1,1.12l-0.44-4.47l1.55-2.68h-1.55l-2.44,1.56l-1.11,0.89l0.67,3.13l-1.77,1.34l-2.66-0.22l-0.67-4.02L229.23,30.31L229.23,30.31M238.32,23.38l-0.67,2.23l4.21,2.01l3.1-1.79l-0.22-1.34L238.32,23.38L238.32,23.38M241.64,19.58l-3.1,1.12l0.22,1.56l6.87-0.45l-0.22-1.56L241.64,19.58L241.64,19.58M256.5,23.38l-0.44,1.56l-1.11,1.56v2.23l4.21-0.67l4.43,3.8h1.55v-3.8l-4.43-4.92L256.5,23.38L256.5,23.38M267.81,27.85l1.77,2.01l-1.55,2.68l1.11,2.9l4.88-2.68v-2.01l-2.88-3.35L267.81,27.85L267.81,27.85M274.24,22.71l0.22,3.57h5.99l1.55,1.34l-0.22,1.56l-5.32,0.67l3.77,5.14l5.1,0.89l7.09-3.13l-10.2-15.42l-3.1,2.01l0.22,2.68l-3.55-1.34L274.24,22.71L274.24,22.71M222.58,47.96l-8.42,2.23l-4.88,4.25l0.44,4.69l8.87,2.68l-2,4.47l-6.43-4.02l-1.77,3.35l4.21,2.9l-0.22,4.69l6.43,1.79l7.76-0.45l1.33-2.46l5.76,6.48l3.99-1.34l0.67-4.47l2.88,2.01l0.44-4.47l-3.55-2.23l0.22-14.07l-3.1-2.46L231.89,56L222.58,47.96L222.58,47.96M249.63,57.79l-2.88-1.34l-1.55,2.01l3.1,4.92l0.22,4.69l6.65-4.02v-5.81l2.44-2.46l-2.44-1.79h-3.99L249.63,57.79L249.63,57.79M263.82,55.78l-4.66,3.8l1.11,4.69h2.88l1.33-2.46l2,2.01l2-0.22l5.32-4.47L263.82,55.78L263.82,55.78M263.37,48.4l-1.11,2.23l4.88,1.79l1.33-2.01L263.37,48.4L263.37,48.4M260.49,39.91l-4.88,0.67l-2.88,2.68l5.32,0.22l-1.55,4.02l1.11,1.79l1.55-0.22l3.77-6.03L260.49,39.91L260.49,39.91M268.92,38.35l-2.66,0.89l0.44,3.57l4.43,2.9l0.22,2.23l-1.33,1.34l0.67,4.47l17.07,5.58l4.66,1.56l4.66-4.02l-5.54-4.47l-5.1,1.34l-7.09-0.67l-2.66-2.68l-0.67-7.37l-4.43-2.23L268.92,38.35L268.92,38.35M282.88,61.59L278,61.14l-5.76,2.23l-3.1,4.24l0.89,11.62l9.53,0.45l9.09,4.47l6.43,7.37l4.88-0.22l-1.33,6.92l-4.43,7.37l-4.88,2.23l-3.55-0.67l-1.77-1.56l-2.66,3.57l1.11,3.57l3.77,0.22l4.66-2.23l3.99,10.28l9.98,6.48l6.87-8.71l-5.76-9.38l3.33-3.8l4.66,7.82l8.42-7.37l-1.55-3.35l-5.76,1.79l-3.99-10.95l3.77-6.25l-7.54-8.04l-4.21,2.9l-3.99-8.71l-8.42,1.12l-2.22-10.5l-6.87,4.69l-0.67,5.81h-3.77l0.44-5.14L282.88,61.59L282.88,61.59M292.86,65.61l-1.77,1.79l1.55,2.46l7.32,0.89l-4.66-4.92L292.86,65.61L292.86,65.61M285.77,40.36v2.01l-4.88,1.12l1.33,2.23l5.54,2.23l6.21,0.67l4.43,3.13l4.43-2.46l-3.1-3.13h3.99l2.44-2.68l5.99-0.89v-1.34l-3.33-2.23l0.44-2.46l9.31,1.56l13.75-5.36l-5.1-1.56l1.33-1.79h10.64l1.77-1.79l-21.51-7.6l-5.1-1.79l-5.54,4.02l-6.21-5.14l-3.33-0.22l-0.67,4.25l-4.21-3.8l-4.88,1.56l0.89,2.46l7.32,1.56l-0.44,3.57l3.99,2.46l9.76-2.46l0.22,3.35l-7.98,3.8l-4.88-3.8l-4.43,0.45l4.43,6.26l-2.22,1.12l-3.33-2.9l-2.44,1.56l2.22,4.24h3.77l-0.89,4.02l-3.1-0.45l-3.99-4.25L285.77,40.36L285.77,40.36M266.01,101.85l-4.23,5.32l-0.26,5.86l3.7-2.13h4.49l3.17,2.93l2.91-2.4L266.01,101.85L266.01,101.85M317.52,171.05l-10.57,10.12l1.06,2.4l12.94,4.79l1.85-3.19l-1.06-5.32l-4.23,0.53l-2.38-2.66l3.96-3.99L317.52,171.05L317.52,171.05M158.22,48.66l1.99,3.01l1,4.02l4.98,1.25l3.49-3.76l2.99,1.51l8.47,0.75l5.98-2.51l1,8.28h3.49V57.7l3.49,0.25l8.72,10.29l5.73,3.51l-2.99,4.77l1.25,1.25L219,80.03l0.25,5.02l2.99,0.5l0.75-7.53l4.73-1.25l3.49,5.27l7.47,3.51l3.74,0.75l2.49-3.01l0.25-4.77l4.48-2.76l1.49,4.02l-3.99,7.03l0.5,3.51l2.24-3.51l4.48-4.02l0.25-5.27l-2.49-4.02l0.75-3.26l5.98-3.01l2.74,2.01l0.5,17.57l4.23-3.76l2.49,1.51l-3.49,6.02l4.48,1l6.48-10.04l5.48,5.77l-2.24,10.29l-5.48,3.01l-5.23-2.51l-9.46,2.01l1,3.26l-2.49,4.02l-7.72,1.76l-8.72,6.78l-7.72,10.29l-1,3.26l5.23,2.01l1.99,5.02l7.22,7.28l11.46,5.02l-2.49,11.54l-0.25,3.26l2.99,2.01l3.99-5.27l0.5-10.04l6.23-0.25l2.99-5.77l0.5-8.78l7.97-15.56l9.96,3.51l5.23,7.28l-2.24,7.28l3.99,2.26l9.71-6.53l2.74,17.82l8.97,10.79l0.25,5.52l-9.96,2.51l-4.73,5.02l-9.96-2.26l-4.98-0.25l-8.72,6.78l5.23-1.25l6.48-1.25l1.25,1.51l-1.74,5.52l0.25,5.02l2.99,2.01l2.99-0.75l1.5-2.26h1.99l-3.24,6.02l-6.23,0.25l-2.74,4.02h-3.49l-1-3.01l4.98-5.02l-5.98,2.01l-0.27-8.53l-1.72-1l-5.23,2.26l-0.5,4.27h-11.96l-10.21,7.03l-13.7,4.52l-1.49-2.01l6.9-10.3l-3.92-3.77l-2.49-4.78l-5.07-3.87l-5.44-0.45l-9.75-6.83l-70.71-11.62l-1.17-4.79l-6.48-6.02v-5.02l1-4.52l-0.5-2.51l-2.49-2.51l-0.5-4.02l6.48-4.52l-3.99-21.58l-5.48-0.25l-4.98-6.53L158.22,48.66L158.22,48.66M133.83,128.41l-1.7,3.26l0.59,2.31l1.11,0.69l-0.26,0.94l-1.19,0.34l0.34,3.43l1.28,1.29l1.02-1.11l-1.28-3.34l0.76-2.66l1.87-2.49l-1.36-2.31L133.83,128.41L133.83,128.41M139.45,147.95l-1.53,0.6l2.81,3.26l0.68,3.86l2.81,3l2.38-0.43v-3.94l-2.89-1.8L139.45,147.95L139.45,147.95z", "name": "Canada" }, "gt": { "path": "M194.88,291.52l5.93,4.34l5.98-7.43l-1.02-1.54l-2.04-0.07v-4.35l-1.53-0.93l-4.63,1.38l1.77,4.08L194.88,291.52L194.88,291.52z", "name": "Guatemala" }, "hn": { "path": "M207.55,288.78l9.24-0.35l2.74,3.26l-1.71-0.39l-3.29,0.14l-4.3,4.04l-1.84,4.09l-1.21-0.64l-0.01-4.48l-2.66-1.78L207.55,288.78L207.55,288.78z", "name": "Honduras" }, "sv": { "path": "M201.65,296.27l4.7,2.34l-0.07-3.71l-2.41-1.47L201.65,296.27L201.65,296.27z", "name": "El Salvador" }, "ni": { "path": "M217.74,292.11l2.19,0.44l0.07,4.49l-2.55,7.28l-6.87-0.68l-1.53-3.51l2.04-4.26l3.87-3.6L217.74,292.11L217.74,292.11z", "name": "Nicaragua" }, "cr": { "path": "M217.38,304.98l1.39,2.72l1.13,1.5l-1.52,4.51l-2.9-2.04l-4.74-4.34v-2.87L217.38,304.98L217.38,304.98z", "name": "Costa Rica" }, "pa": { "path": "M220.59,309.61l-1.46,4.56l4.82,1.25l2.99,0.59l0.51-3.53l3.21-1.62l2.85,1.47l1.12,1.79l1.36-0.16l1.07-3.25l-3.56-1.47l-2.7-1.47l-2.7,1.84l-3.21,1.62l-3.28-1.32L220.59,309.61L220.59,309.61z", "name": "Panama" }, "co": { "path": "M253.73,299.78l-2.06-0.21l-13.62,11.23l-1.44,3.95l-1.86,0.21l0.83,8.73l-4.75,11.65l5.16,4.37l6.61,0.42l4.54,6.66l6.6,0.21l-0.21,4.99H256l2.68-9.15l-2.48-3.12l0.62-5.82l5.16-0.42l-0.62-13.52l-11.56-3.74l-2.68-7.28L253.73,299.78L253.73,299.78z", "name": "Colombia" }, "ve": { "path": "M250.46,305.92l0.44,2.59l3.25,1.03l0.74-4.77l3.43-3.55l3.43,4.02l7.89,2.15l6.68-1.4l4.55,5.61l3.43,2.15l-3.76,5.73l1.26,4.34l-2.15,2.66l-2.23,1.87l-4.83-2.43l-1.11,1.12v3.46l3.53,1.68l-2.6,2.81l-2.6,2.81l-3.43-0.28l-3.45-3.79l-0.73-14.26l-11.78-4.02l-2.14-6.27L250.46,305.92L250.46,305.92z", "name": "Venezuela" }, "gy": { "path": "M285.05,314.13l7.22,6.54l-2.87,3.32l-0.23,1.97l3.77,3.89l-0.09,3.74l-6.56,2.5l-3.93-5.31l0.84-6.38l-1.68-4.75L285.05,314.13L285.05,314.13z", "name": "Guyana" }, "sr": { "path": "M293.13,321.14l2.04,1.87l3.16-1.96l2.88,0.09l-0.37,1.12l-1.21,2.52l-0.19,6.27l-5.75,2.34l0.28-4.02l-3.71-3.46l0.19-1.78L293.13,321.14L293.13,321.14z", "name": "Suriname" }, "gf": { "path": "M302.13,321.8l5.85,3.65l-3.06,6.08l-1.11,1.4l-3.25-1.87l0.09-6.55L302.13,321.8L302.13,321.8z", "name": "French Guiana" }, "pe": { "path": "M225.03,349.52l-1.94,1.96l0.13,3.13l16.94,30.88l17.59,11.34l2.72-4.56l0.65-10.03l-1.42-6.25l-4.79-8.08l-2.85,0.91l-1.29,1.43l-5.69-6.52l1.42-7.69l6.6-4.3l-0.52-4.04l-6.72-0.26l-3.49-5.86l-1.94-0.65l0.13,3.52l-8.66,10.29l-6.47-1.56L225.03,349.52L225.03,349.52z", "name": "Peru" }, "bo": { "path": "M258.71,372.79l8.23-3.59l2.72,0.26l1.81,7.56l12.54,4.17l2.07,6.39l5.17,0.65l2.2,5.47l-1.55,4.95l-8.41,0.65l-3.1,7.95l-6.6-0.13l-2.07-0.39l-3.81,3.7l-1.88-0.18l-6.47-14.99l1.79-2.68l0.63-10.6l-1.6-6.31L258.71,372.79L258.71,372.79z", "name": "Bolivia" }, "py": { "path": "M291.76,399.51l2.2,2.4l-0.26,5.08l6.34-0.39l4.79,6.13l-0.39,5.47l-3.1,4.69l-6.34,0.26l-0.26-2.61l1.81-4.3l-6.21-3.91h-5.17l-3.88-4.17l2.82-8.06L291.76,399.51L291.76,399.51z", "name": "Paraguay" }, "uy": { "path": "M300.36,431.93l-2.05,2.19l0.85,11.78l6.44,1.87l8.19-8.21L300.36,431.93L300.36,431.93z", "name": "Uruguay" }, "ar": { "path": "M305.47,418.2l1.94,1.82l-7.37,10.95l-2.59,2.87l0.9,12.51l5.69,6.91l-4.78,8.34l-3.62,1.56h-4.14l1.16,6.51l-6.47,2.22l1.55,5.47l-3.88,12.38l4.79,3.91l-2.59,6.38l-4.4,6.91l2.33,4.82l-5.69,0.91l-4.66-5.73l-0.78-17.85l-7.24-30.32l2.19-10.6l-4.66-13.55l3.1-17.59l2.85-3.39l-0.7-2.57l3.66-3.34l8.16,0.56l4.56,4.87l5.27,0.09l5.4,3.3l-1.59,3.72l0.38,3.76l7.65-0.36L305.47,418.2L305.47,418.2M288.92,518.79l0.26,5.73l4.4-0.39l3.75-2.48l-6.34-1.3L288.92,518.79L288.92,518.79z", "name": "Argentina" }, "cl": { "path": "M285.04,514.1l-4.27,9.38l7.37,0.78l0.13-6.25L285.04,514.1L285.04,514.1M283.59,512.63l-3.21,3.55l-0.39,4.17l-6.21-3.52l-6.6-9.51l-1.94-3.39l2.72-3.52l-0.26-4.43l-3.1-1.3l-2.46-1.82l0.52-2.48l3.23-0.91l0.65-14.33l-5.04-2.87l-3.29-74.59l0.85-1.48l6.44,14.85l2.06,0.04l0.67,2.37l-2.74,3.32l-3.15,17.87l4.48,13.76l-2.07,10.42l7.3,30.64l0.77,17.92l5.23,6.05L283.59,512.63L283.59,512.63M262.28,475.14l-1.29,1.95l0.65,3.39l1.29,0.13l0.65-4.3L262.28,475.14L262.28,475.14z", "name": "Chile" }, "br": { "path": "M314.24,438.85l6.25-12.02l0.23-10.1l11.66-7.52h6.53l5.13-8.69l0.93-16.68l-2.1-4.46l12.36-11.28l0.47-12.45l-16.79-8.22l-20.28-6.34l-9.56-0.94l2.57-5.4l-0.7-8.22l-2.09-0.69l-3.09,6.14l-1.62,2.03l-4.16-1.84l-13.99,4.93l-4.66-5.87l0.75-6.13l-4.4,4.48l-4.86-2.62l-0.49,0.69l0.01,2.13l4.19,2.25l-6.29,6.63l-3.97-0.04l-4.02-4.09l-4.55,0.14l-0.56,4.86l2.61,3.17l-3.08,9.87l-3.6,0.28l-5.73,3.62l-1.4,7.11l4.97,5.32l0.91-1.03l3.49-0.94l2.98,5.02l8.53-3.66l3.31,0.19l2.28,8.07l12.17,3.86l2.1,6.44l5.18,0.62l2.47,6.15l-1.67,5.47l2.18,2.86l-0.32,4.26l5.84-0.55l5.35,6.76l-0.42,4.75l3.17,2.68l-7.6,11.51L314.24,438.85L314.24,438.85z", "name": "Brazil" }, "bz": { "path": "M204.56,282.4l-0.05,3.65h0.84l2.86-5.34h-1.94L204.56,282.4L204.56,282.4z", "name": "Belize" }, "mn": { "path": "M673.8,170.17l5.82-7.72l6.99,3.23l4.75,1.27l5.82-5.34l-3.95-2.91l2.6-3.67l7.76,2.74l2.69,4.41l4.86,0.13l2.54-1.89l5.23-0.21l1.14,1.94l8.69,0.44l5.5-5.61l7.61,0.8l-0.44,7.64l3.33,0.76l4.09-1.86l4.33,2.14l-0.1,1.08l-3.14,0.09l-3.27,6.86l-2.54,0.25l-9.88,12.91l-10.09,4.45l-6.31,0.49l-5.24-3.38l-6.7,3.58l-6.6-2.05l-1.87-4.79l-12.5-0.88l-6.4-10.85l-3.11-0.2L673.8,170.17L673.8,170.17z", "name": "Mongolia" }, "kp": { "path": "M778.28,194.27l1.84,0.77l0.56,6.44l3.65,0.21l3.44-4.03l-1.19-1.06l0.14-4.32l3.16-3.82l-1.61-2.9l1.05-1.2l0.58-3l-1.83-0.83l-1.56,0.79l-1.93,5.86l-3.12-0.27l-3.61,4.26L778.28,194.27L778.28,194.27z", "name": "North Korea" }, "kr": { "path": "M788.34,198.2l6.18,5.04l1.05,4.88l-0.21,2.62l-3.02,3.4l-2.6,0.14l-2.95-6.37l-1.12-3.04l1.19-0.92l-0.28-1.27l-1.47-0.66L788.34,198.2L788.34,198.2z", "name": "South Korea" }, "kz": { "path": "M576.69,188.62l4.1-1.75l4.58-0.16l0.32,7h-2.68l-2.05,3.34l2.68,4.45l3.95,2.23l0.36,2.55l1.45-0.48l1.34-1.59l2.21,0.48l1.11,2.23h2.84v-2.86l-1.74-5.09l-0.79-4.13l5.05-2.23l6.79,1.11l4.26,4.29l9.63-0.95l5.37,7.63l6.31,0.32l1.74-2.86l2.21-0.48l0.32-3.18l3.31-0.16l1.74,2.07l1.74-4.13l14.99,2.07l2.52-3.34l-4.26-5.25l5.68-12.4l4.58,0.32l3.16-7.63l-6.31-0.64l-3.63-3.5l-10,1.16l-12.88-12.45l-4.54,4.03l-13.77-6.25l-16.89,8.27l-0.47,5.88l3.95,4.61l-7.7,4.35l-9.99-0.22l-2.09-3.07l-7.83-0.43l-7.42,4.77l-0.16,6.52L576.69,188.62L576.69,188.62z", "name": "Kazakhstan" }, "tm": { "path": "M593.85,207.59l-0.62,2.63h-4.15v3.56l4.46,2.94l-1.38,4.03v1.86l1.85,0.31l2.46-3.25l5.54-1.24l11.84,4.49l0.15,3.25l6.61,0.62l7.38-7.75l-0.92-2.48l-4.92-1.08l-13.84-8.99l-0.62-3.25h-5.23l-2.31,4.34h-2.31L593.85,207.59L593.85,207.59z", "name": "Turkmenistan" }, "uz": { "path": "M628.92,219.06l3.08,0.16v-5.27l-2.92-1.7l4.92-6.2h2l2,2.33l5.23-2.01l-7.23-2.48l-0.28-1.5l-1.72,0.42l-1.69,2.94l-7.29-0.24l-5.35-7.57l-9.4,0.93l-4.48-4.44l-6.2-1.05l-4.5,1.83l2.61,8.68l0.03,2.92l1.9,0.04l2.33-4.44l6.2,0.08l0.92,3.41l13.29,8.82l5.14,1.18L628.92,219.06L628.92,219.06z", "name": "Uzbekistan" }, "tj": { "path": "M630.19,211.84l4.11-5.1h1.55l0.54,1.14l-1.9,1.38v1.14l1.25,0.9l6.01,0.36l1.96-0.84l0.89,0.18l0.6,1.92l3.57,0.36l1.79,3.78l-0.54,1.14l-0.71,0.06l-0.71-1.44l-1.55-0.12l-2.68,0.36l-0.18,2.52l-2.68-0.18l0.12-3.18l-1.96-1.92l-2.98,2.46l0.06,1.62l-2.62,0.9h-1.55l0.12-5.58L630.19,211.84L630.19,211.84z", "name": "Tajikistan" }, "kg": { "path": "M636.81,199.21l-0.31,2.53l0.25,1.56l8.7,2.92l-7.64,3.08l-0.87-0.72l-1.65,1.06l0.08,0.58l0.88,0.4l5.36,0.14l2.72-0.82l3.49-4.4l4.37,0.76l5.27-7.3l-14.1-1.92l-1.95,4.73l-2.46-2.64L636.81,199.21L636.81,199.21z", "name": "Kyrgyz Republic" }, "af": { "path": "M614.12,227.05l1.59,12.46l3.96,0.87l0.37,2.24l-2.84,2.37l5.29,4.27l10.28-3.7l0.82-4.38l6.47-4.04l2.48-9.36l1.85-1.99l-1.92-3.34l6.26-3.87l-0.8-1.12l-2.89,0.18l-0.26,2.66l-3.88-0.04l-0.07-3.55l-1.25-1.49l-2.1,1.91l0.06,1.75l-3.17,1.2l-5.85-0.37l-7.6,7.96L614.12,227.05L614.12,227.05z", "name": "Afghanistan" }, "pk": { "path": "M623.13,249.84l2.6,3.86l-0.25,1.99l-3.46,1.37l-0.25,3.24h3.96l1.36-1.12h7.54l6.8,5.98l0.87-2.87h5.07l0.12-3.61l-5.19-4.98l1.11-2.74l5.32-0.37l7.17-14.95l-3.96-3.11l-1.48-5.23l9.64-0.87l-5.69-8.1l-3.03-0.82l-1.24,1.5l-0.93,0.07l-5.69,3.61l1.86,3.12l-2.1,2.24l-2.6,9.59l-6.43,4.11l-0.87,4.49L623.13,249.84L623.13,249.84z", "name": "Pakistan" }, "in": { "path": "M670.98,313.01l4.58-2.24l2.72-9.84l-0.12-12.08l15.58-16.82v-3.99l3.21-1.25l-0.12-4.61l-3.46-6.73l1.98-3.61l4.33,3.99l5.56,0.25v2.24l-1.73,1.87l0.37,1l2.97,0.12l0.62,3.36h0.87l2.23-3.99l1.11-10.46l3.71-2.62l0.12-3.61l-1.48-2.87l-2.35-0.12l-9.2,6.08l0.58,3.91l-6.46-0.02l-2.28-2.79l-1.24,0.16l0.42,3.88l-13.97-1l-8.66-3.86l-0.46-4.75l-5.77-3.58l-0.07-7.37l-3.96-4.53l-9.1,0.87l0.99,3.96l4.46,3.61l-7.71,15.78l-5.16,0.39l-0.85,1.9l5.08,4.7l-0.25,4.75l-5.19-0.08l-0.56,2.36l4.31-0.19l0.12,1.87l-3.09,1.62l1.98,3.74l3.83,1.25l2.35-1.74l1.11-3.11l1.36-0.62l1.61,1.62l-0.49,3.99l-1.11,1.87l0.25,3.24L670.98,313.01L670.98,313.01z", "name": "India" }, "np": { "path": "M671.19,242.56l0.46,4.27l8.08,3.66l12.95,0.96l-0.49-3.13l-8.65-2.38l-7.34-4.37L671.19,242.56L671.19,242.56z", "name": "Nepal" }, "bt": { "path": "M695.4,248.08l1.55,2.12l5.24,0.04l-0.53-2.9L695.4,248.08L695.4,248.08z", "name": "Bhutan" }, "bd": { "path": "M695.57,253.11l-1.31,2.37l3.4,6.46l0.1,5.04l0.62,1.35l3.99,0.07l2.26-2.17l1.64,0.99l0.33,3.07l1.31-0.82l0.08-3.92l-1.1-0.13l-0.69-3.33l-2.78-0.1l-0.69-1.85l1.7-2.27l0.03-1.12h-4.94L695.57,253.11L695.57,253.11z", "name": "Bangladesh" }, "mm": { "path": "M729.44,303.65l-2.77-4.44l2.01-2.82l-1.9-3.49l-1.79-0.34l-0.34-5.86l-2.68-5.19l-0.78,1.24l-1.79,3.04l-2.24,0.34l-1.12-1.47l-0.56-3.95l-1.68-3.16l-6.84-6.45l1.68-1.11l0.31-4.67l2.5-4.2l1.08-10.45l3.62-2.47l0.12-3.81l2.17,0.72l3.42,4.95l-2.54,5.44l1.71,4.27l4.23,1.66l0.77,4.65l5.68,0.88l-1.57,2.71l-7.16,2.82l-0.78,4.62l5.26,6.76l0.22,3.61l-1.23,1.24l0.11,1.13l3.92,5.75l0.11,5.97L729.44,303.65L729.44,303.65z", "name": "Myanmar" }, "th": { "path": "M730.03,270.47l3.24,4.17v5.07l1.12,0.56l5.15-2.48l1.01,0.34l6.15,7.1l-0.22,4.85l-2.01-0.34l-1.79-1.13l-1.34,0.11l-2.35,3.94l0.45,2.14l1.9,1.01l-0.11,2.37l-1.34,0.68l-4.59-3.16v-2.82l-1.9-0.11l-0.78,1.24l-0.4,12.62l2.97,5.42l5.26,5.07l-0.22,1.47l-2.8-0.11l-2.57-3.83h-2.69l-3.36-2.71l-1.01-2.82l1.45-2.37l0.5-2.14l1.58-2.8l-0.07-6.44l-3.86-5.58l-0.16-0.68l1.25-1.26l-0.29-4.43l-5.14-6.51l0.6-3.75L730.03,270.47L730.03,270.47z", "name": "Thailand" }, "kh": { "path": "M740.48,299.47l4.09,4.37l7.61-5.64l0.67-8.9l-3.93,2.71l-2.04-1.14l-2.77-0.37l-1.55-1.09l-0.75,0.04l-2.03,3.33l0.33,1.54l2.06,1.15l-0.25,3.13L740.48,299.47L740.48,299.47z", "name": "Cambodia" }, "la": { "path": "M735.47,262.93l-2.42,1.23l-2.01,5.86l3.36,4.28l-0.56,4.73l0.56,0.23l5.59-2.71l7.5,8.38l-0.18,5.28l1.63,0.88l4.03-3.27l-0.33-2.59l-11.63-11.05l0.11-1.69l1.45-1.01l-1.01-2.82l-4.81-0.79L735.47,262.93L735.47,262.93z", "name": "Lao People's Democratic Republic" }, "vn": { "path": "M745.06,304.45l1.19,1.87l0.22,2.14l3.13,0.34l3.8-5.07l3.58-1.01l1.9-5.18l-0.89-8.34l-3.69-5.07l-3.89-3.11l-4.95-8.5l3.55-5.94l-5.08-5.83l-4.07-0.18l-3.66,1.97l1.09,4.71l4.88,0.86l1.31,3.63l-1.72,1.12l0.11,0.9l11.45,11.2l0.45,3.29l-0.69,10.4L745.06,304.45L745.06,304.45z", "name": "Vietnam" }, "ge": { "path": "M555.46,204.16l3.27,4.27l4.08,1.88l2.51-0.01l4.31-1.17l1.08-1.69l-12.75-4.77L555.46,204.16L555.46,204.16z", "name": "Georgia" }, "am": { "path": "M569.72,209.89l4.8,6.26l-1.41,1.65l-3.4-0.59l-4.22-3.78l0.23-2.48L569.72,209.89L569.72,209.89z", "name": "Armenia" }, "az": { "path": "M571.41,207.72l-1.01,1.72l4.71,6.18l1.64-0.53l2.7,2.83l1.17-4.96l2.93,0.47l-0.12-1.42l-4.82-4.22l-0.92,2.48L571.41,207.72L571.41,207.72z", "name": "Azerbaijan" }, "ir": { "path": "M569.65,217.95l-1.22,1.27l0.12,2.01l1.52,2.13l5.39,5.9l-0.82,2.36h-0.94l-0.47,2.36l3.05,3.9l2.81,0.24l5.63,7.79l3.16,0.24l2.46,1.77l0.12,3.54l9.73,5.67h3.63l2.23-1.89l2.81-0.12l1.64,3.78l10.51,1.46l0.31-3.86l3.48-1.26l0.16-1.38l-2.77-3.78l-6.17-4.96l3.24-2.95l-0.23-1.3l-4.06-0.63l-1.72-13.7l-0.2-3.15l-11.01-4.21l-4.88,1.1l-2.73,3.35l-2.42-0.16l-0.7,0.59l-5.39-0.35l-6.8-4.96l-2.53-2.77l-1.16,0.28l-2.09,2.39L569.65,217.95L569.65,217.95z", "name": "Iran" }, "tr": { "path": "M558.7,209.19l-2.23,2.36l-8.2-0.24l-4.92-2.95l-4.8-0.12l-5.51,3.9l-5.16,0.24l-0.47,2.95h-5.86l-2.34,2.13v1.18l1.41,1.18v1.3l-0.59,1.54l0.59,1.3l1.88-0.94l1.88,2.01l-0.47,1.42l-0.7,0.95l1.05,1.18l5.16,1.06l3.63-1.54v-2.24l1.76,0.35l4.22,2.48l4.57-0.71l1.99-1.89l1.29,0.47v2.13h1.76l1.52-2.95l13.36-1.42l5.83-0.71l-1.54-2.02l-0.03-2.73l1.17-1.4l-4.26-3.42l0.23-2.95h-2.34L558.7,209.19L558.7,209.19M523.02,209.7l-0.16,3.55l3.1-0.95l1.42-0.95l-0.42-1.54l-1.47-1.17L523.02,209.7L523.02,209.7z", "name": "Turkey" }, "om": { "path": "M598.38,280.84l7.39-4.26l1.31-6.25l-1.62-0.93l0.67-6.7l1.41-0.82l1.51,2.37l8.99,4.7v2.61l-10.89,16.03l-5.01,0.17L598.38,280.84L598.38,280.84z", "name": "Oman" }, "ae": { "path": "M594.01,264.94l0.87,3.48l9.86,0.87l0.69-7.14l1.9-1.04l0.52-2.61l-3.11,0.87l-3.46,5.23L594.01,264.94L594.01,264.94z", "name": "United Arab Emirates" }, "qa": { "path": "M592.63,259.02l-0.52,4.01l1.54,1.17l1.4-0.13l0.52-5.05l-1.21-0.87L592.63,259.02L592.63,259.02z", "name": "Qatar" }, "kw": { "path": "M583.29,247.17l-2.25-1.22l-1.56,1.57l0.17,3.14l3.63,1.39L583.29,247.17L583.29,247.17z", "name": "Kuwait" }, "sa": { "path": "M584,253.24l7.01,9.77l2.26,1.8l1.01,4.38l10.79,0.85l1.22,0.64l-1.21,5.4l-7.09,4.18l-10.37,3.14l-5.53,5.4l-6.57-3.83l-3.98,3.48L566,279.4l-3.8-1.74l-1.38-2.09v-4.53l-13.83-16.72l-0.52-2.96h3.98l4.84-4.18l0.17-2.09l-1.38-1.39l2.77-2.26l5.88,0.35l10.03,8.36l5.92-0.27l0.38,1.46L584,253.24L584,253.24z", "name": "Saudi Arabia" }, "sy": { "path": "M546.67,229.13l-0.35,2.54l2.82,1.18l-0.12,7.04l2.82-0.06l2.82-2.13l1.06-0.18l6.4-5.09l1.29-7.39l-12.79,1.3l-1.35,2.96L546.67,229.13L546.67,229.13z", "name": "Syrian Arab Republic" }, "iq": { "path": "M564.31,225.03l-1.56,7.71l-6.46,5.38l0.41,2.54l6.31,0.43l10.05,8.18l5.62-0.16l0.15-1.89l2.06-2.21l2.88,1.63l0.38-0.36l-5.57-7.41l-2.64-0.16l-3.51-4.51l0.7-3.32l1.07-0.14l0.37-1.47l-4.78-5.03L564.31,225.03L564.31,225.03z", "name": "Iraq" }, "jo": { "path": "M548.9,240.78l-2.46,8.58l-0.11,1.31h3.87l4.33-3.82l0.11-1.45l-1.77-1.81l3.17-2.63l-0.46-2.44l-0.87,0.2l-2.64,1.89L548.9,240.78L548.9,240.78z", "name": "Jordan" }, "lb": { "path": "M546.2,232.44l0.06,1.95l-0.82,2.96l2.82,0.24l0.18-4.2L546.2,232.44L546.2,232.44z", "name": "Lebanon" }, "il": { "path": "M545.32,238.06l-1.58,5.03l2.05,6.03l2.35-8.81v-1.89L545.32,238.06L545.32,238.06z", "name": "Israel" }, "cy": { "path": "M543.21,229.84l1.23,0.89l-3.81,3.61l-1.82-0.06l-1.35-0.95l0.18-1.77l2.76-0.18L543.21,229.84L543.21,229.84z", "name": "Cyprus" }, "gb": { "path": "M446.12,149.08l-1.83,2.77l0.73,1.11h4.22v1.85l-1.1,1.48l0.73,3.88l2.38,4.62l1.83,4.25l2.93,1.11l1.28,2.22l-0.18,2.03l-1.83,1.11l-0.18,0.92l1.28,0.74l-1.1,1.48l-2.57,1.11l-4.95-0.55l-7.71,3.51l-2.57-1.29l7.34-4.25l-0.92-0.55l-3.85-0.37l2.38-3.51l0.37-2.96l3.12-0.37l-0.55-5.73l-3.67-0.18l-1.1-1.29l0.18-4.25l-2.2,0.18l2.2-7.39l4.04-2.96L446.12,149.08L446.12,149.08M438.42,161.47l-3.3,0.37l-0.18,2.96l2.2,1.48l2.38-0.55l0.92-1.66L438.42,161.47L438.42,161.47z", "name": "United Kingdom" }, "ie": { "path": "M439.51,166.55l-0.91,6l-8.07,2.96h-2.57l-1.83-1.29v-1.11l4.04-2.59l-1.1-2.22l0.18-3.14l3.49,0.18l1.6-3.76l-0.21,3.34l2.71,2.15L439.51,166.55L439.51,166.55z", "name": "Ireland" }, "se": { "path": "M497.72,104.58l1.96,1.81h3.67l2.02,3.88l0.55,6.65l-4.95,3.51v3.51l-3.49,4.81l-2.02,0.18l-2.75,4.62l0.18,4.44l4.77,3.51l-0.37,2.03l-1.83,2.77l-2.75,2.4l0.18,7.95l-4.22,1.48l-1.47,3.14h-2.02l-1.1-5.54l-4.59-7.04l3.77-6.31l0.26-15.59l2.6-1.43l0.63-8.92l7.41-10.61L497.72,104.58L497.72,104.58M498.49,150.17l-2.11,1.67l1.06,2.45l1.87-1.82L498.49,150.17L498.49,150.17z", "name": "Sweden" }, "fi": { "path": "M506.79,116.94l2.07,0.91l1.28,2.4l-1.28,1.66l-6.42,7.02l-1.1,3.7l1.47,5.36l4.95,3.7l6.6-3.14l5.32-0.74l4.95-7.95l-3.67-8.69l-3.49-8.32l0.55-5.36l-2.2-0.37l-0.57-3.91l-2.96-4.83l-3.28,2.27l-1.29,5.27l-3.48-2.09l-4.84-1.18l-1.08,1.26l1.86,1.68l3.39-0.06l2.73,4.41L506.79,116.94L506.79,116.94z", "name": "Finland" }, "lv": { "path": "M518.07,151.37l-6.85-1.11l0.15,3.83l6.35,3.88l2.6-0.76l-0.15-2.92L518.07,151.37L518.07,151.37z", "name": "Latvia" }, "lt": { "path": "M510.81,154.7l-2.15-0.05l-2.95,2.82h-2.5l0.15,3.53l-1.5,2.77l5.4,0.05l1.55-0.2l1.55,1.87l3.55-0.15l3.4-4.33l-0.2-2.57L510.81,154.7L510.81,154.7z", "name": "Lithuania" }, "by": { "path": "M510.66,166.29l1.5,2.47l-0.6,1.97l0.1,1.56l0.55,1.87l3.1-1.76l3.85,0.1l2.7,1.11h6.85l2-4.79l1.2-1.81v-1.21l-4.3-6.05l-3.8-1.51l-3.1-0.35l-2.7,0.86l0.1,2.72l-3.75,4.74L510.66,166.29L510.66,166.29z", "name": "Belarus" }, "pl": { "path": "M511.46,174.76l0.85,1.56l0.2,1.66l-0.7,1.61l-1.6,3.08l-1.35,0.61l-1.75-0.76l-1.05,0.05l-2.55,0.96l-2.9-0.86l-4.7-3.33l-4.6-2.47l-1.85-2.82l-0.35-6.65l3.6-3.13l4.7-1.56l1.75-0.2l-0.7,1.41l0.45,0.55l7.91,0.15l1.7-0.05l2.8,4.29l-0.7,1.76l0.3,2.07L511.46,174.76L511.46,174.76z", "name": "Poland" }, "it": { "path": "M477.56,213.38l-2.65,1.34l0.35,5.17l2.12,0.36l1.59-1.52v-4.9L477.56,213.38L477.56,213.38M472.27,196.98l-0.62,1.57l0.17,1.71l2.39,2.79l3.76-0.13l8.3,9.64l5.18,1.5l3.06,2.89l0.73,6.59l1.64-0.96l1.42-3.59l-0.35-2.58l2.43-0.22l0.35-1.46l-6.85-3.28l-6.5-6.39l-2.59-3.82l-0.63-3.63l3.31-0.79l-0.85-2.39l-2.03-1.71l-1.75-0.08l-2.44,0.67l-2.3,3.22l-1.39,0.92l-2.15-1.32L472.27,196.98L472.27,196.98M492.44,223.02l-1.45-0.78l-4.95,0.78l0.17,1.34l4.45,2.24l0.67,0.73l1.17,0.17L492.44,223.02L492.44,223.02z", "name": "Italy" }, "fr": { "path": "M477.83,206.96l-1.95,1.96l-0.18,1.78l1.59,0.98l0.62-0.09l0.35-2.59L477.83,206.96L477.83,206.96M460.4,178.7l-2.21,0.54l-4.42,4.81l-1.33,0.09l-1.77-1.25l-1.15,0.27l-0.88,2.76l-6.46,0.18l0.18,1.43l4.42,2.94l5.13,4.1l-0.09,4.9l-2.74,4.81l5.93,2.85l6.02,0.18l1.86-2.14l3.8,0.09l1.06,0.98l3.8-0.27l1.95-2.5l-2.48-2.94l-0.18-1.87l0.53-2.05l-1.24-1.78l-2.12,0.62l-0.27-1.6l4.69-5.17v-3.12l-3.1-1.78l-1.59-0.27L460.4,178.7L460.4,178.7z", "name": "France" }, "nl": { "path": "M470.09,168.27l-4.53,2.23l0.96,0.87l0.1,2.23l-0.96-0.19l-1.06-1.65l-2.53,4.01l3.89,0.81l1.45,1.53l0.77,0.02l0.51-3.46l2.45-1.03L470.09,168.27L470.09,168.27z", "name": "Netherlands" }, "be": { "path": "M461.61,176.52l-0.64,1.6l6.88,4.54l1.98,0.47l0.07-2.15l-1.73-1.94h-1.06l-1.45-1.65L461.61,176.52L461.61,176.52z", "name": "Belgium" }, "de": { "path": "M471.14,167.88l3.57-0.58v-2.52l2.99-0.49l1.64,1.65l1.73,0.19l2.7-1.17l2.41,0.68l2.12,1.84l0.29,6.89l2.12,2.82l-2.79,0.39l-4.63,2.91l0.39,0.97l4.14,3.88l-0.29,1.94l-3.85,1.94l-3.57,0.1l-0.87,1.84h-1.83l-0.87-1.94l-3.18-0.78l-0.1-3.2l-2.7-1.84l0.29-2.33l-1.83-2.52l0.48-3.3l2.5-1.17L471.14,167.88L471.14,167.88z", "name": "Germany" }, "dk": { "path": "M476.77,151.5l-4.15,4.59l-0.15,2.99l1.89,4.93l2.96-0.56l-0.37-4.03l2.04-2.28l-0.04-1.79l-1.44-3.73L476.77,151.5L476.77,151.5M481.44,159.64l-0.93-0.04l-1.22,1.12l0.15,1.75l2.89,0.08l0.15-1.98L481.44,159.64L481.44,159.64z", "name": "Denmark" }, "ch": { "path": "M472.91,189.38l-4.36,4.64l0.09,0.47l1.79-0.56l1.61,2.24l2.72-0.96l1.88,1.46l0.77-0.44l2.32-3.64l-0.59-0.56l-2.29-0.06l-1.11-2.27L472.91,189.38L472.91,189.38z", "name": "Switzerland" }, "cz": { "path": "M488.43,184.87h2.97h1.46l2.37,1.69l4.39-3.65l-4.26-3.04l-4.22-2.04l-2.89,0.52l-3.92,2.52L488.43,184.87L488.43,184.87z", "name": "Czech Republic" }, "sk": { "path": "M495.84,187.13l0.69,0.61l0.09,1.04l7.63-0.17l5.64-2.43l-0.09-2.47l-1.08,0.48l-1.55-0.83l-0.95-0.04l-2.5,1l-3.4-0.82L495.84,187.13L495.84,187.13z", "name": "Slovakia" }, "at": { "path": "M480.63,190.12l-0.65,1.35l0.56,0.96l2.33-0.48h1.98l2.15,1.82l4.57-0.83l3.36-2l0.86-1.35l-0.13-1.74l-3.02-2.26l-4.05,0.04l-0.34,2.3l-4.26,2.08L480.63,190.12L480.63,190.12z", "name": "Austria" }, "hu": { "path": "M496.74,189.6l-1.16,1.82l0.09,2.78l1.85,0.95l5.69,0.17l7.93-6.68l0.04-1.48l-0.86-0.43l-5.73,2.6L496.74,189.6L496.74,189.6z", "name": "Hungary" }, "si": { "path": "M494.8,191.99l-2.54,1.52l-4.74,1.04l0.95,2.74l3.32,0.04l3.06-2.56L494.8,191.99L494.8,191.99z", "name": "Slovenia" }, "hr": { "path": "M495.62,195.16l-3.53,2.91h-3.58l-0.43,2.52l1.64,0.43l0.82-1.22l1.29,1.13l1.03,3.6l7.07,3.3l0.7-0.8l-7.17-7.4l0.73-1.35l6.81-0.26l0.69-2.17l-4.44,0.13L495.62,195.16L495.62,195.16z", "name": "Croatia" }, "ba": { "path": "M494.8,198.94l-0.37,0.61l6.71,6.92l2.46-3.62l-0.09-1.43l-2.15-2.61L494.8,198.94L494.8,198.94z", "name": "Bosnia and Herzegovina" }, "mt": { "path": "M492.61,230.47l-1.67,0.34l0.06,1.85l1.5,0.5l0.67-0.56L492.61,230.47L492.61,230.47z", "name": "Malta" }, "ua": { "path": "M515.57,173.15l-2.9,1.63l0.72,3.08l-2.68,5.65l0.02,2.49l1.26,0.8l8.08,0.4l2.26-1.87l2.42,0.81l3.47,4.63l-2.54,4.56l3.02,0.88l3.95-4.55l2.26,0.41l2.1,1.46l-1.85,2.44l2.5,3.9h2.66l1.37-2.6l2.82-0.57l0.08-2.11l-5.24-0.81l0.16-2.27h5.08l5.48-4.39l2.42-2.11l0.4-6.66l-10.8-0.97l-4.43-6.25l-3.06-1.05l-3.71,0.16l-1.67,4.13l-7.6,0.1l-2.47-1.14L515.57,173.15L515.57,173.15z", "name": "Ukraine" }, "md": { "path": "M520.75,187.71l3.1,4.77l-0.26,2.7l1.11,0.05l2.63-4.45l-3.16-3.92l-1.79-0.74L520.75,187.71L520.75,187.71z", "name": "Moldova" }, "ro": { "path": "M512.18,187.6l-0.26,1.48l-5.79,4.82l4.84,7.1l3.1,2.17h5.58l1.84-1.54l2.47-0.32l1.84,1.11l3.26-3.71l-0.63-1.86l-3.31-0.85l-2.26-0.11l0.11-3.18l-3-4.72L512.18,187.6L512.18,187.6z", "name": "Romania" }, "rs": { "path": "M505.55,194.54l-2.05,1.54h-1l-0.68,2.12l2.42,2.81l0.16,2.23l-3,4.24l0.42,1.27l1.74,0.32l1.37-1.86l0.74-0.05l1.26,1.22l3.84-1.17l-0.32-5.46L505.55,194.54L505.55,194.54z", "name": "Serbia" }, "bg": { "path": "M511.44,202.39l0.16,4.98l1.68,3.5l6.31,0.11l2.84-2.01l2.79-1.11l-0.68-3.18l0.63-1.7l-1.42-0.74l-1.95,0.16l-1.53,1.54l-6.42,0.05L511.44,202.39L511.44,202.39z", "name": "Bulgaria" }, "al": { "path": "M504.02,209.76v4.61l1.32,2.49l0.95-0.11l1.63-2.97l-0.95-1.33l-0.37-3.29l-1.26-1.17L504.02,209.76L504.02,209.76z", "name": "Albania" }, "mk": { "path": "M510.92,208.01l-3.37,1.11l0.16,2.86l0.79,1.01l4-1.86L510.92,208.01L510.92,208.01z", "name": "Macedonia" }, "gr": { "path": "M506.71,217.6l-0.11,1.33l4.63,2.33l2.21,0.85l-1.16,1.22l-2.58,0.26l-0.37,1.17l0.89,2.01l2.89,1.54l1.26,0.11l0.16-3.45l1.89-2.28l-5.16-6.1l0.68-2.07l1.21-0.05l1.84,1.48l1.16-0.58l0.37-2.07l5.42,0.05l0.21-3.18l-2.26,1.59l-6.63-0.16l-4.31,2.23L506.71,217.6L506.71,217.6M516.76,230.59l1.63,0.05l0.68,1.01h2.37l1.58-0.58l0.53,0.64l-1.05,1.38l-4.63,0.16l-0.84-1.11l-0.89-0.53L516.76,230.59L516.76,230.59z", "name": "Greece" } } });
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 var sample_data = { "af": "16.63", "al": "11.58", "dz": "158.97", "ao": "85.81", "ag": "1.1", "ar": "351.02", "am": "8.83", "au": "1219.72", "at": "366.26", "az": "52.17", "bs": "7.54", "bh": "21.73", "bd": "105.4", "bb": "3.96", "by": "52.89", "be": "461.33", "bz": "1.43", "bj": "6.49", "bt": "1.4", "bo": "19.18", "ba": "16.2", "bw": "12.5", "br": "2023.53", "bn": "11.96", "bg": "44.84", "bf": "8.67", "bi": "1.47", "kh": "11.36", "cm": "21.88", "ca": "1563.66", "cv": "1.57", "cf": "2.11", "td": "7.59", "cl": "199.18", "cn": "5745.13", "co": "283.11", "km": "0.56", "cd": "12.6", "cg": "11.88", "cr": "35.02", "ci": "22.38", "hr": "59.92", "cy": "22.75", "cz": "195.23", "dk": "304.56", "dj": "1.14", "dm": "0.38", "do": "50.87", "ec": "61.49", "eg": "216.83", "sv": "21.8", "gq": "14.55", "er": "2.25", "ee": "19.22", "et": "30.94", "fj": "3.15", "fi": "231.98", "fr": "2555.44", "ga": "12.56", "gm": "1.04", "ge": "11.23", "de": "3305.9", "gh": "18.06", "gr": "305.01", "gd": "0.65", "gt": "40.77", "gn": "4.34", "gw": "0.83", "gy": "2.2", "ht": "6.5", "hn": "15.34", "hk": "226.49", "hu": "132.28", "is": "12.77", "in": "1430.02", "id": "695.06", "ir": "337.9", "iq": "84.14", "ie": "204.14", "il": "201.25", "it": "2036.69", "jm": "13.74", "jp": "5390.9", "jo": "27.13", "kz": "129.76", "ke": "32.42", "ki": "0.15", "kr": "986.26", "undefined": "5.73", "kw": "117.32", "kg": "4.44", "la": "6.34", "lv": "23.39", "lb": "39.15", "ls": "1.8", "lr": "0.98", "ly": "77.91", "lt": "35.73", "lu": "52.43", "mk": "9.58", "mg": "8.33", "mw": "5.04", "my": "218.95", "mv": "1.43", "ml": "9.08", "mt": "7.8", "mr": "3.49", "mu": "9.43", "mx": "1004.04", "md": "5.36", "mn": "5.81", "me": "3.88", "ma": "91.7", "mz": "10.21", "mm": "35.65", "na": "11.45", "np": "15.11", "nl": "770.31", "nz": "138", "ni": "6.38", "ne": "5.6", "ng": "206.66", "no": "413.51", "om": "53.78", "pk": "174.79", "pa": "27.2", "pg": "8.81", "py": "17.17", "pe": "153.55", "ph": "189.06", "pl": "438.88", "pt": "223.7", "qa": "126.52", "ro": "158.39", "ru": "1476.91", "rw": "5.69", "ws": "0.55", "st": "0.19", "sa": "434.44", "sn": "12.66", "rs": "38.92", "sc": "0.92", "sl": "1.9", "sg": "217.38", "sk": "86.26", "si": "46.44", "sb": "0.67", "za": "354.41", "es": "1374.78", "lk": "48.24", "kn": "0.56", "lc": "1", "vc": "0.58", "sd": "65.93", "sr": "3.3", "sz": "3.17", "se": "444.59", "ch": "522.44", "sy": "59.63", "tw": "426.98", "tj": "5.58", "tz": "22.43", "th": "312.61", "tl": "0.62", "tg": "3.07", "to": "0.3", "tt": "21.2", "tn": "43.86", "tr": "729.05", "tm": 0, "ug": "17.12", "ua": "136.56", "ae": "239.65", "gb": "2258.57", "us": "14624.18", "uy": "40.71", "uz": "37.72", "vu": "0.72", "ve": "285.21", "vn": "101.99", "ye": "30.02", "zm": "15.69", "zw": "5.57" };
 
 /***/ }),
-/* 57 */,
 /* 58 */
+/***/ (function(module, exports) {
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/**
+ * Resize function without multiple trigger
+ * 
+ * Usage:
+ * $(window).smartresize(function(){  
+ *     // code here
+ * });
+ */
+(function ($, sr) {
+	// debouncing function from John Hann
+	// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+	var debounce = function debounce(func, threshold, execAsap) {
+		var timeout;
+
+		return function debounced() {
+			var obj = this,
+			    args = arguments;
+			function delayed() {
+				if (!execAsap) func.apply(obj, args);
+				timeout = null;
+			}
+
+			if (timeout) clearTimeout(timeout);else if (execAsap) func.apply(obj, args);
+
+			timeout = setTimeout(delayed, threshold || 100);
+		};
+	};
+
+	// smartresize 
+	jQuery.fn[sr] = function (fn) {
+		return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
+	};
+})(jQuery, 'smartresize');
+/**
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
+    $BODY = $('body'),
+    $MENU_TOGGLE = $('#menu_toggle'),
+    $SIDEBAR_MENU = $('#sidebar-menu'),
+    $SIDEBAR_FOOTER = $('.sidebar-footer'),
+    $LEFT_COL = $('.left_col'),
+    $RIGHT_COL = $('.right_col'),
+    $NAV_MENU = $('.nav_menu'),
+    $FOOTER = $('footer');
+
+// Sidebar
+function init_sidebar() {
+	// TODO: This is some kind of easy fix, maybe we can improve this
+	var setContentHeight = function setContentHeight() {
+		// reset height
+		$RIGHT_COL.css('min-height', $(window).height());
+
+		var bodyHeight = $BODY.outerHeight(),
+		    footerHeight = $BODY.hasClass('footer_fixed') ? -10 : $FOOTER.height(),
+		    leftColHeight = $LEFT_COL.eq(1).height() + $SIDEBAR_FOOTER.height(),
+		    contentHeight = bodyHeight < leftColHeight ? leftColHeight : bodyHeight;
+
+		// normalize content
+		contentHeight -= $NAV_MENU.height() + footerHeight;
+
+		$RIGHT_COL.css('min-height', contentHeight);
+	};
+
+	$SIDEBAR_MENU.find('a').on('click', function (ev) {
+		console.log('clicked - sidebar_menu');
+		var $li = $(this).parent();
+
+		if ($li.is('.active')) {
+			$li.removeClass('active active-sm');
+			$('ul:first', $li).slideUp(function () {
+				setContentHeight();
+			});
+		} else {
+			// prevent closing menu if we are on child menu
+			if (!$li.parent().is('.child_menu')) {
+				$SIDEBAR_MENU.find('li').removeClass('active active-sm');
+				$SIDEBAR_MENU.find('li ul').slideUp();
+			} else {
+				if ($BODY.is(".nav-sm")) {
+					$li.parent().find("li").removeClass("active active-sm");
+					$li.parent().find("li ul").slideUp();
+				}
+			}
+			$li.addClass('active');
+
+			$('ul:first', $li).slideDown(function () {
+				setContentHeight();
+			});
+		}
+	});
+
+	// toggle small or large menu 
+	$MENU_TOGGLE.on('click', function () {
+		console.log('clicked - menu toggle');
+
+		if ($BODY.hasClass('nav-md')) {
+			$SIDEBAR_MENU.find('li.active ul').hide();
+			$SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
+		} else {
+			$SIDEBAR_MENU.find('li.active-sm ul').show();
+			$SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
+		}
+
+		$BODY.toggleClass('nav-md nav-sm');
+
+		setContentHeight();
+
+		$('.dataTable').each(function () {
+			$(this).dataTable().fnDraw();
+		});
+	});
+
+	// check active menu
+	$SIDEBAR_MENU.find('a[href="' + CURRENT_URL + '"]').parent('li').addClass('current-page');
+
+	$SIDEBAR_MENU.find('a').filter(function () {
+		return this.href == CURRENT_URL;
+	}).parent('li').addClass('current-page').parents('ul').slideDown(function () {
+		setContentHeight();
+	}).parent().addClass('active');
+
+	// recompute content when resizing
+	$(window).smartresize(function () {
+		setContentHeight();
+	});
+
+	setContentHeight();
+
+	// fixed sidebar
+	if ($.fn.mCustomScrollbar) {
+		$('.menu_fixed').mCustomScrollbar({
+			autoHideScrollbar: true,
+			theme: 'minimal',
+			mouseWheel: { preventDefault: true }
+		});
+	}
+};
+// /Sidebar
+
+var randNum = function randNum() {
+	return Math.floor(Math.random() * (1 + 40 - 20)) + 20;
+};
+
+// Panel toolbox
+$(document).ready(function () {
+	$('.collapse-link').on('click', function () {
+		var $BOX_PANEL = $(this).closest('.x_panel'),
+		    $ICON = $(this).find('i'),
+		    $BOX_CONTENT = $BOX_PANEL.find('.x_content');
+
+		// fix for some div with hardcoded fix class
+		if ($BOX_PANEL.attr('style')) {
+			$BOX_CONTENT.slideToggle(200, function () {
+				$BOX_PANEL.removeAttr('style');
+			});
+		} else {
+			$BOX_CONTENT.slideToggle(200);
+			$BOX_PANEL.css('height', 'auto');
+		}
+
+		$ICON.toggleClass('fa-chevron-up fa-chevron-down');
+	});
+
+	$('.close-link').click(function () {
+		var $BOX_PANEL = $(this).closest('.x_panel');
+
+		$BOX_PANEL.remove();
+	});
+});
+// /Panel toolbox
+
+// Tooltip
+$(document).ready(function () {
+	$('[data-toggle="tooltip"]').tooltip({
+		container: 'body'
+	});
+});
+// /Tooltip
+
+// Progressbar
+if ($(".progress .progress-bar")[0]) {
+	$('.progress .progress-bar').progressbar();
+}
+// /Progressbar
+
+// Switchery
+$(document).ready(function () {
+	if ($(".js-switch")[0]) {
+		var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+		elems.forEach(function (html) {
+			var switchery = new Switchery(html, {
+				color: '#26B99A'
+			});
+		});
+	}
+});
+// /Switchery
+
+
+// iCheck
+$(document).ready(function () {
+	if ($("input.flat")[0]) {
+		$(document).ready(function () {
+			$('input.flat').iCheck({
+				checkboxClass: 'icheckbox_flat-green',
+				radioClass: 'iradio_flat-green'
+			});
+		});
+	}
+});
+// /iCheck
+
+// Table
+$('table input').on('ifChecked', function () {
+	checkState = '';
+	$(this).parent().parent().parent().addClass('selected');
+	countChecked();
+});
+$('table input').on('ifUnchecked', function () {
+	checkState = '';
+	$(this).parent().parent().parent().removeClass('selected');
+	countChecked();
+});
+
+var checkState = '';
+
+$('.bulk_action input').on('ifChecked', function () {
+	checkState = '';
+	$(this).parent().parent().parent().addClass('selected');
+	countChecked();
+});
+$('.bulk_action input').on('ifUnchecked', function () {
+	checkState = '';
+	$(this).parent().parent().parent().removeClass('selected');
+	countChecked();
+});
+$('.bulk_action input#check-all').on('ifChecked', function () {
+	checkState = 'all';
+	countChecked();
+});
+$('.bulk_action input#check-all').on('ifUnchecked', function () {
+	checkState = 'none';
+	countChecked();
+});
+
+function countChecked() {
+	if (checkState === 'all') {
+		$(".bulk_action input[name='table_records']").iCheck('check');
+	}
+	if (checkState === 'none') {
+		$(".bulk_action input[name='table_records']").iCheck('uncheck');
+	}
+
+	var checkCount = $(".bulk_action input[name='table_records']:checked").length;
+
+	if (checkCount) {
+		$('.column-title').hide();
+		$('.bulk-actions').show();
+		$('.action-cnt').html(checkCount + ' Records Selected');
+	} else {
+		$('.column-title').show();
+		$('.bulk-actions').hide();
+	}
+}
+
+// Accordion
+$(document).ready(function () {
+	$(".expand").on("click", function () {
+		$(this).next().slideToggle(200);
+		$expand = $(this).find(">:first-child");
+
+		if ($expand.text() == "+") {
+			$expand.text("-");
+		} else {
+			$expand.text("+");
+		}
+	});
+});
+
+// NProgress
+if (typeof NProgress != 'undefined') {
+	$(document).ready(function () {
+		NProgress.start();
+	});
+
+	$(window).load(function () {
+		NProgress.done();
+	});
+}
+
+//hover and retain popover when on popover content
+var originalLeave = $.fn.popover.Constructor.prototype.leave;
+$.fn.popover.Constructor.prototype.leave = function (obj) {
+	var self = obj instanceof this.constructor ? obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
+	var container, timeout;
+
+	originalLeave.call(this, obj);
+
+	if (obj.currentTarget) {
+		container = $(obj.currentTarget).siblings('.popover');
+		timeout = self.timeout;
+		container.one('mouseenter', function () {
+			//We entered the actual popover – call off the dogs
+			clearTimeout(timeout);
+			//Let's monitor popover content instead
+			container.one('mouseleave', function () {
+				$.fn.popover.Constructor.prototype.leave.call(self, self);
+			});
+		});
+	}
+};
+
+$('body').popover({
+	selector: '[data-popover]',
+	trigger: 'click hover',
+	delay: {
+		show: 50,
+		hide: 400
+	}
+});
+
+function gd(year, month, day) {
+	return new Date(year, month - 1, day).getTime();
+}
+
+function init_flot_chart() {
+
+	if (typeof $.plot === 'undefined') {
+		return;
+	}
+
+	console.log('init_flot_chart');
+
+	var arr_data1 = [[gd(2012, 1, 1), 17], [gd(2012, 1, 2), 74], [gd(2012, 1, 3), 6], [gd(2012, 1, 4), 39], [gd(2012, 1, 5), 20], [gd(2012, 1, 6), 85], [gd(2012, 1, 7), 7]];
+
+	var arr_data2 = [[gd(2012, 1, 1), 82], [gd(2012, 1, 2), 23], [gd(2012, 1, 3), 66], [gd(2012, 1, 4), 9], [gd(2012, 1, 5), 119], [gd(2012, 1, 6), 6], [gd(2012, 1, 7), 9]];
+
+	var arr_data3 = [[0, 1], [1, 9], [2, 6], [3, 10], [4, 5], [5, 17], [6, 6], [7, 10], [8, 7], [9, 11], [10, 35], [11, 9], [12, 12], [13, 5], [14, 3], [15, 4], [16, 9]];
+
+	var chart_plot_02_data = [];
+
+	var chart_plot_03_data = [[0, 1], [1, 9], [2, 6], [3, 10], [4, 5], [5, 17], [6, 6], [7, 10], [8, 7], [9, 11], [10, 35], [11, 9], [12, 12], [13, 5], [14, 3], [15, 4], [16, 9]];
+
+	for (var i = 0; i < 30; i++) {
+		chart_plot_02_data.push([new Date(Date.today().add(i).days()).getTime(), randNum() + i + i + 10]);
+	}
+
+	var chart_plot_01_settings = {
+		series: {
+			lines: {
+				show: false,
+				fill: true
+			},
+			splines: {
+				show: true,
+				tension: 0.4,
+				lineWidth: 1,
+				fill: 0.4
+			},
+			points: {
+				radius: 0,
+				show: true
+			},
+			shadowSize: 2
+		},
+		grid: {
+			verticalLines: true,
+			hoverable: true,
+			clickable: true,
+			tickColor: "#d5d5d5",
+			borderWidth: 1,
+			color: '#fff'
+		},
+		colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)"],
+		xaxis: {
+			tickColor: "rgba(51, 51, 51, 0.06)",
+			mode: "time",
+			tickSize: [1, "day"],
+			//tickLength: 10,
+			axisLabel: "Date",
+			axisLabelUseCanvas: true,
+			axisLabelFontSizePixels: 12,
+			axisLabelFontFamily: 'Verdana, Arial',
+			axisLabelPadding: 10
+		},
+		yaxis: {
+			ticks: 8,
+			tickColor: "rgba(51, 51, 51, 0.06)"
+		},
+		tooltip: false
+	};
+
+	var chart_plot_02_settings = {
+		grid: {
+			show: true,
+			aboveData: true,
+			color: "#3f3f3f",
+			labelMargin: 10,
+			axisMargin: 0,
+			borderWidth: 0,
+			borderColor: null,
+			minBorderMargin: 5,
+			clickable: true,
+			hoverable: true,
+			autoHighlight: true,
+			mouseActiveRadius: 100
+		},
+		series: {
+			lines: {
+				show: true,
+				fill: true,
+				lineWidth: 2,
+				steps: false
+			},
+			points: {
+				show: true,
+				radius: 4.5,
+				symbol: "circle",
+				lineWidth: 3.0
+			}
+		},
+		legend: {
+			position: "ne",
+			margin: [0, -25],
+			noColumns: 0,
+			labelBoxBorderColor: null,
+			labelFormatter: function labelFormatter(label, series) {
+				return label + '&nbsp;&nbsp;';
+			},
+			width: 40,
+			height: 1
+		},
+		colors: ['#96CA59', '#3F97EB', '#72c380', '#6f7a8a', '#f7cb38', '#5a8022', '#2c7282'],
+		shadowSize: 0,
+		tooltip: true,
+		tooltipOpts: {
+			content: "%s: %y.0",
+			xDateFormat: "%d/%m",
+			shifts: {
+				x: -30,
+				y: -50
+			},
+			defaultTheme: false
+		},
+		yaxis: {
+			min: 0
+		},
+		xaxis: {
+			mode: "time",
+			minTickSize: [1, "day"],
+			timeformat: "%d/%m/%y",
+			min: chart_plot_02_data[0][0],
+			max: chart_plot_02_data[20][0]
+		}
+	};
+
+	var chart_plot_03_settings = {
+		series: {
+			curvedLines: {
+				apply: true,
+				active: true,
+				monotonicFit: true
+			}
+		},
+		colors: ["#26B99A"],
+		grid: {
+			borderWidth: {
+				top: 0,
+				right: 0,
+				bottom: 1,
+				left: 1
+			},
+			borderColor: {
+				bottom: "#7F8790",
+				left: "#7F8790"
+			}
+		}
+	};
+
+	if ($("#chart_plot_01").length) {
+		console.log('Plot1');
+
+		$.plot($("#chart_plot_01"), [arr_data1, arr_data2], chart_plot_01_settings);
+	}
+
+	if ($("#chart_plot_02").length) {
+		console.log('Plot2');
+
+		$.plot($("#chart_plot_02"), [{
+			label: "Email Sent",
+			data: chart_plot_02_data,
+			lines: {
+				fillColor: "rgba(150, 202, 89, 0.12)"
+			},
+			points: {
+				fillColor: "#fff" }
+		}], chart_plot_02_settings);
+	}
+
+	if ($("#chart_plot_03").length) {
+		console.log('Plot3');
+
+		$.plot($("#chart_plot_03"), [{
+			label: "Registrations",
+			data: chart_plot_03_data,
+			lines: {
+				fillColor: "rgba(150, 202, 89, 0.12)"
+			},
+			points: {
+				fillColor: "#fff"
+			}
+		}], chart_plot_03_settings);
+	};
+}
+
+/* STARRR */
+
+function init_starrr() {
+
+	if (typeof starrr === 'undefined') {
+		return;
+	}
+	console.log('init_starrr');
+
+	$(".stars").starrr();
+
+	$('.stars-existing').starrr({
+		rating: 4
+	});
+
+	$('.stars').on('starrr:change', function (e, value) {
+		$('.stars-count').html(value);
+	});
+
+	$('.stars-existing').on('starrr:change', function (e, value) {
+		$('.stars-count-existing').html(value);
+	});
+};
+
+function init_JQVmap() {
+
+	//console.log('check init_JQVmap [' + typeof (VectorCanvas) + '][' + typeof (jQuery.fn.vectorMap) + ']' );	
+
+	if (typeof jQuery.fn.vectorMap === 'undefined') {
+		return;
+	}
+
+	console.log('init_JQVmap');
+
+	if ($('#world-map-gdp').length) {
+
+		$('#world-map-gdp').vectorMap({
+			map: 'world_en',
+			backgroundColor: null,
+			color: '#ffffff',
+			hoverOpacity: 0.7,
+			selectedColor: '#666666',
+			enableZoom: true,
+			showTooltip: true,
+			values: sample_data,
+			scaleColors: ['#E6F2F0', '#149B7E'],
+			normalizeFunction: 'polynomial'
+		});
+	}
+
+	if ($('#usa_map').length) {
+
+		$('#usa_map').vectorMap({
+			map: 'usa_en',
+			backgroundColor: null,
+			color: '#ffffff',
+			hoverOpacity: 0.7,
+			selectedColor: '#666666',
+			enableZoom: true,
+			showTooltip: true,
+			values: sample_data,
+			scaleColors: ['#E6F2F0', '#149B7E'],
+			normalizeFunction: 'polynomial'
+		});
+	}
+};
+
+function init_skycons() {
+
+	if (typeof Skycons === 'undefined') {
+		return;
+	}
+	console.log('init_skycons');
+
+	var icons = new Skycons({
+		"color": "#73879C"
+	}),
+	    list = ["clear-day", "clear-night", "partly-cloudy-day", "partly-cloudy-night", "cloudy", "rain", "sleet", "snow", "wind", "fog"],
+	    i;
+
+	for (i = list.length; i--;) {
+		icons.set(list[i], list[i]);
+	}icons.play();
+}
+
+function init_chart_doughnut() {
+
+	if (typeof Chart === 'undefined') {
+		return;
+	}
+
+	console.log('init_chart_doughnut');
+
+	if ($('.canvasDoughnut').length) {
+
+		var chart_doughnut_settings = {
+			type: 'doughnut',
+			tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+			data: {
+				labels: ["Symbian", "Blackberry", "Other", "Android", "IOS"],
+				datasets: [{
+					data: [15, 20, 30, 10, 30],
+					backgroundColor: ["#BDC3C7", "#9B59B6", "#E74C3C", "#26B99A", "#3498DB"],
+					hoverBackgroundColor: ["#CFD4D8", "#B370CF", "#E95E4F", "#36CAAB", "#49A9EA"]
+				}]
+			},
+			options: {
+				legend: false,
+				responsive: false
+			}
+		};
+
+		$('.canvasDoughnut').each(function () {
+
+			var chart_element = $(this);
+			var chart_doughnut = new Chart(chart_element, chart_doughnut_settings);
+		});
+	}
+}
+
+function init_gauge() {
+
+	if (typeof Gauge === 'undefined') {
+		return;
+	}
+
+	console.log('init_gauge [' + $('.gauge-chart').length + ']');
+
+	console.log('init_gauge');
+
+	var chart_gauge_settings = {
+		lines: 12,
+		angle: 0,
+		lineWidth: 0.4,
+		pointer: {
+			length: 0.75,
+			strokeWidth: 0.042,
+			color: '#1D212A'
+		},
+		limitMax: 'false',
+		colorStart: '#1ABC9C',
+		colorStop: '#1ABC9C',
+		strokeColor: '#F0F3F3',
+		generateGradient: true
+	};
+
+	if ($('#chart_gauge_01').length) {
+
+		var chart_gauge_01_elem = document.getElementById('chart_gauge_01');
+		var chart_gauge_01 = new Gauge(chart_gauge_01_elem).setOptions(chart_gauge_settings);
+	}
+
+	if ($('#gauge-text').length) {
+
+		chart_gauge_01.maxValue = 6000;
+		chart_gauge_01.animationSpeed = 32;
+		chart_gauge_01.set(3200);
+		chart_gauge_01.setTextField(document.getElementById("gauge-text"));
+	}
+
+	if ($('#chart_gauge_02').length) {
+
+		var chart_gauge_02_elem = document.getElementById('chart_gauge_02');
+		var chart_gauge_02 = new Gauge(chart_gauge_02_elem).setOptions(chart_gauge_settings);
+	}
+
+	if ($('#gauge-text2').length) {
+
+		chart_gauge_02.maxValue = 9000;
+		chart_gauge_02.animationSpeed = 32;
+		chart_gauge_02.set(2400);
+		chart_gauge_02.setTextField(document.getElementById("gauge-text2"));
+	}
+}
+
+/* SPARKLINES */
+
+function init_sparklines() {
+
+	if (typeof jQuery.fn.sparkline === 'undefined') {
+		return;
+	}
+	console.log('init_sparklines');
+
+	$(".sparkline_one").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 4, 5, 6, 3, 5, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
+		type: 'bar',
+		height: '125',
+		barWidth: 13,
+		colorMap: {
+			'7': '#a1a1a1'
+		},
+		barSpacing: 2,
+		barColor: '#26B99A'
+	});
+
+	$(".sparkline_two").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
+		type: 'bar',
+		height: '40',
+		barWidth: 9,
+		colorMap: {
+			'7': '#a1a1a1'
+		},
+		barSpacing: 2,
+		barColor: '#26B99A'
+	});
+
+	$(".sparkline_three").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
+		type: 'line',
+		width: '200',
+		height: '40',
+		lineColor: '#26B99A',
+		fillColor: 'rgba(223, 223, 223, 0.57)',
+		lineWidth: 2,
+		spotColor: '#26B99A',
+		minSpotColor: '#26B99A'
+	});
+
+	$(".sparkline11").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 6, 2, 4, 3, 4, 5, 4, 5, 4, 3], {
+		type: 'bar',
+		height: '40',
+		barWidth: 8,
+		colorMap: {
+			'7': '#a1a1a1'
+		},
+		barSpacing: 2,
+		barColor: '#26B99A'
+	});
+
+	$(".sparkline22").sparkline([2, 4, 3, 4, 7, 5, 4, 3, 5, 6, 2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 6], {
+		type: 'line',
+		height: '40',
+		width: '200',
+		lineColor: '#26B99A',
+		fillColor: '#ffffff',
+		lineWidth: 3,
+		spotColor: '#34495E',
+		minSpotColor: '#34495E'
+	});
+
+	$(".sparkline_bar").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 4, 5, 6, 3, 5], {
+		type: 'bar',
+		colorMap: {
+			'7': '#a1a1a1'
+		},
+		barColor: '#26B99A'
+	});
+
+	$(".sparkline_area").sparkline([5, 6, 7, 9, 9, 5, 3, 2, 2, 4, 6, 7], {
+		type: 'line',
+		lineColor: '#26B99A',
+		fillColor: '#26B99A',
+		spotColor: '#4578a0',
+		minSpotColor: '#728fb2',
+		maxSpotColor: '#6d93c4',
+		highlightSpotColor: '#ef5179',
+		highlightLineColor: '#8ba8bf',
+		spotRadius: 2.5,
+		width: 85
+	});
+
+	$(".sparkline_line").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 4, 5, 6, 3, 5], {
+		type: 'line',
+		lineColor: '#26B99A',
+		fillColor: '#ffffff',
+		width: 85,
+		spotColor: '#34495E',
+		minSpotColor: '#34495E'
+	});
+
+	$(".sparkline_pie").sparkline([1, 1, 2, 1], {
+		type: 'pie',
+		sliceColors: ['#26B99A', '#ccc', '#75BCDD', '#D66DE2']
+	});
+
+	$(".sparkline_discreet").sparkline([4, 6, 7, 7, 4, 3, 2, 1, 4, 4, 2, 4, 3, 7, 8, 9, 7, 6, 4, 3], {
+		type: 'discrete',
+		barWidth: 3,
+		lineColor: '#26B99A',
+		width: '85'
+	});
+};
+
+/* AUTOCOMPLETE */
+
+function init_autocomplete() {
+
+	if (typeof $.fn.autocomplete === 'undefined') {
+		return;
+	}
+	console.log('init_autocomplete');
+
+	var countries = { AD: "Andorra", A2: "Andorra Test", AE: "United Arab Emirates", AF: "Afghanistan", AG: "Antigua and Barbuda", AI: "Anguilla", AL: "Albania", AM: "Armenia", AN: "Netherlands Antilles", AO: "Angola", AQ: "Antarctica", AR: "Argentina", AS: "American Samoa", AT: "Austria", AU: "Australia", AW: "Aruba", AX: "Åland Islands", AZ: "Azerbaijan", BA: "Bosnia and Herzegovina", BB: "Barbados", BD: "Bangladesh", BE: "Belgium", BF: "Burkina Faso", BG: "Bulgaria", BH: "Bahrain", BI: "Burundi", BJ: "Benin", BL: "Saint Barthélemy", BM: "Bermuda", BN: "Brunei", BO: "Bolivia", BQ: "British Antarctic Territory", BR: "Brazil", BS: "Bahamas", BT: "Bhutan", BV: "Bouvet Island", BW: "Botswana", BY: "Belarus", BZ: "Belize", CA: "Canada", CC: "Cocos [Keeling] Islands", CD: "Congo - Kinshasa", CF: "Central African Republic", CG: "Congo - Brazzaville", CH: "Switzerland", CI: "Côte d’Ivoire", CK: "Cook Islands", CL: "Chile", CM: "Cameroon", CN: "China", CO: "Colombia", CR: "Costa Rica", CS: "Serbia and Montenegro", CT: "Canton and Enderbury Islands", CU: "Cuba", CV: "Cape Verde", CX: "Christmas Island", CY: "Cyprus", CZ: "Czech Republic", DD: "East Germany", DE: "Germany", DJ: "Djibouti", DK: "Denmark", DM: "Dominica", DO: "Dominican Republic", DZ: "Algeria", EC: "Ecuador", EE: "Estonia", EG: "Egypt", EH: "Western Sahara", ER: "Eritrea", ES: "Spain", ET: "Ethiopia", FI: "Finland", FJ: "Fiji", FK: "Falkland Islands", FM: "Micronesia", FO: "Faroe Islands", FQ: "French Southern and Antarctic Territories", FR: "France", FX: "Metropolitan France", GA: "Gabon", GB: "United Kingdom", GD: "Grenada", GE: "Georgia", GF: "French Guiana", GG: "Guernsey", GH: "Ghana", GI: "Gibraltar", GL: "Greenland", GM: "Gambia", GN: "Guinea", GP: "Guadeloupe", GQ: "Equatorial Guinea", GR: "Greece", GS: "South Georgia and the South Sandwich Islands", GT: "Guatemala", GU: "Guam", GW: "Guinea-Bissau", GY: "Guyana", HK: "Hong Kong SAR China", HM: "Heard Island and McDonald Islands", HN: "Honduras", HR: "Croatia", HT: "Haiti", HU: "Hungary", ID: "Indonesia", IE: "Ireland", IL: "Israel", IM: "Isle of Man", IN: "India", IO: "British Indian Ocean Territory", IQ: "Iraq", IR: "Iran", IS: "Iceland", IT: "Italy", JE: "Jersey", JM: "Jamaica", JO: "Jordan", JP: "Japan", JT: "Johnston Island", KE: "Kenya", KG: "Kyrgyzstan", KH: "Cambodia", KI: "Kiribati", KM: "Comoros", KN: "Saint Kitts and Nevis", KP: "North Korea", KR: "South Korea", KW: "Kuwait", KY: "Cayman Islands", KZ: "Kazakhstan", LA: "Laos", LB: "Lebanon", LC: "Saint Lucia", LI: "Liechtenstein", LK: "Sri Lanka", LR: "Liberia", LS: "Lesotho", LT: "Lithuania", LU: "Luxembourg", LV: "Latvia", LY: "Libya", MA: "Morocco", MC: "Monaco", MD: "Moldova", ME: "Montenegro", MF: "Saint Martin", MG: "Madagascar", MH: "Marshall Islands", MI: "Midway Islands", MK: "Macedonia", ML: "Mali", MM: "Myanmar [Burma]", MN: "Mongolia", MO: "Macau SAR China", MP: "Northern Mariana Islands", MQ: "Martinique", MR: "Mauritania", MS: "Montserrat", MT: "Malta", MU: "Mauritius", MV: "Maldives", MW: "Malawi", MX: "Mexico", MY: "Malaysia", MZ: "Mozambique", NA: "Namibia", NC: "New Caledonia", NE: "Niger", NF: "Norfolk Island", NG: "Nigeria", NI: "Nicaragua", NL: "Netherlands", NO: "Norway", NP: "Nepal", NQ: "Dronning Maud Land", NR: "Nauru", NT: "Neutral Zone", NU: "Niue", NZ: "New Zealand", OM: "Oman", PA: "Panama", PC: "Pacific Islands Trust Territory", PE: "Peru", PF: "French Polynesia", PG: "Papua New Guinea", PH: "Philippines", PK: "Pakistan", PL: "Poland", PM: "Saint Pierre and Miquelon", PN: "Pitcairn Islands", PR: "Puerto Rico", PS: "Palestinian Territories", PT: "Portugal", PU: "U.S. Miscellaneous Pacific Islands", PW: "Palau", PY: "Paraguay", PZ: "Panama Canal Zone", QA: "Qatar", RE: "Réunion", RO: "Romania", RS: "Serbia", RU: "Russia", RW: "Rwanda", SA: "Saudi Arabia", SB: "Solomon Islands", SC: "Seychelles", SD: "Sudan", SE: "Sweden", SG: "Singapore", SH: "Saint Helena", SI: "Slovenia", SJ: "Svalbard and Jan Mayen", SK: "Slovakia", SL: "Sierra Leone", SM: "San Marino", SN: "Senegal", SO: "Somalia", SR: "Suriname", ST: "São Tomé and Príncipe", SU: "Union of Soviet Socialist Republics", SV: "El Salvador", SY: "Syria", SZ: "Swaziland", TC: "Turks and Caicos Islands", TD: "Chad", TF: "French Southern Territories", TG: "Togo", TH: "Thailand", TJ: "Tajikistan", TK: "Tokelau", TL: "Timor-Leste", TM: "Turkmenistan", TN: "Tunisia", TO: "Tonga", TR: "Turkey", TT: "Trinidad and Tobago", TV: "Tuvalu", TW: "Taiwan", TZ: "Tanzania", UA: "Ukraine", UG: "Uganda", UM: "U.S. Minor Outlying Islands", US: "United States", UY: "Uruguay", UZ: "Uzbekistan", VA: "Vatican City", VC: "Saint Vincent and the Grenadines", VD: "North Vietnam", VE: "Venezuela", VG: "British Virgin Islands", VI: "U.S. Virgin Islands", VN: "Vietnam", VU: "Vanuatu", WF: "Wallis and Futuna", WK: "Wake Island", WS: "Samoa", YD: "People's Democratic Republic of Yemen", YE: "Yemen", YT: "Mayotte", ZA: "South Africa", ZM: "Zambia", ZW: "Zimbabwe", ZZ: "Unknown or Invalid Region" };
+
+	var countriesArray = $.map(countries, function (value, key) {
+		return {
+			value: value,
+			data: key
+		};
+	});
+
+	// initialize autocomplete with custom appendTo
+	$('#autocomplete-custom-append').autocomplete({
+		lookup: countriesArray
+	});
+};
+
+/* AUTOSIZE */
+
+function init_autosize() {
+
+	if (typeof $.fn.autosize !== 'undefined') {
+
+		autosize($('.resizable_textarea'));
+	}
+};
+
+/* PARSLEY */
+
+function init_parsley() {
+
+	if (typeof parsley === 'undefined') {
+		return;
+	}
+	console.log('init_parsley');
+
+	$ /*.listen*/('parsley:field:validate', function () {
+		validateFront();
+	});
+	$('#demo-form .btn').on('click', function () {
+		$('#demo-form').parsley().validate();
+		validateFront();
+	});
+	var validateFront = function validateFront() {
+		if (true === $('#demo-form').parsley().isValid()) {
+			$('.bs-callout-info').removeClass('hidden');
+			$('.bs-callout-warning').addClass('hidden');
+		} else {
+			$('.bs-callout-info').addClass('hidden');
+			$('.bs-callout-warning').removeClass('hidden');
+		}
+	};
+
+	$ /*.listen*/('parsley:field:validate', function () {
+		validateFront();
+	});
+	$('#demo-form2 .btn').on('click', function () {
+		$('#demo-form2').parsley().validate();
+		validateFront();
+	});
+	var validateFront = function validateFront() {
+		if (true === $('#demo-form2').parsley().isValid()) {
+			$('.bs-callout-info').removeClass('hidden');
+			$('.bs-callout-warning').addClass('hidden');
+		} else {
+			$('.bs-callout-info').addClass('hidden');
+			$('.bs-callout-warning').removeClass('hidden');
+		}
+	};
+
+	try {
+		hljs.initHighlightingOnLoad();
+	} catch (err) {}
+};
+
+/* INPUTS */
+
+function onAddTag(tag) {
+	alert("Added a tag: " + tag);
+}
+
+function onRemoveTag(tag) {
+	alert("Removed a tag: " + tag);
+}
+
+function onChangeTag(input, tag) {
+	alert("Changed a tag: " + tag);
+}
+
+//tags input
+function init_TagsInput() {
+
+	if (typeof $.fn.tagsInput !== 'undefined') {
+
+		$('#tags_1').tagsInput({
+			width: 'auto'
+		});
+	}
+};
+
+/* SELECT2 */
+
+function init_select2() {
+
+	if (typeof select2 === 'undefined') {
+		return;
+	}
+	console.log('init_toolbox');
+
+	$(".select2_single").select2({
+		placeholder: "Select a state",
+		allowClear: true
+	});
+	$(".select2_group").select2({});
+	$(".select2_multiple").select2({
+		maximumSelectionLength: 4,
+		placeholder: "With Max Selection limit 4",
+		allowClear: true
+	});
+};
+
+/* WYSIWYG EDITOR */
+
+function init_wysiwyg() {
+
+	if (typeof $.fn.wysiwyg === 'undefined') {
+		return;
+	}
+	console.log('init_wysiwyg');
+
+	function init_ToolbarBootstrapBindings() {
+		var fonts = ['Serif', 'Sans', 'Arial', 'Arial Black', 'Courier', 'Courier New', 'Comic Sans MS', 'Helvetica', 'Impact', 'Lucida Grande', 'Lucida Sans', 'Tahoma', 'Times', 'Times New Roman', 'Verdana'],
+		    fontTarget = $('[title=Font]').siblings('.dropdown-menu');
+		$.each(fonts, function (idx, fontName) {
+			fontTarget.append($('<li><a data-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
+		});
+		$('a[title]').tooltip({
+			container: 'body'
+		});
+		$('.dropdown-menu input').click(function () {
+			return false;
+		}).change(function () {
+			$(this).parent('.dropdown-menu').siblings('.dropdown-toggle').dropdown('toggle');
+		}).keydown('esc', function () {
+			this.value = '';
+			$(this).change();
+		});
+
+		$('[data-role=magic-overlay]').each(function () {
+			var overlay = $(this),
+			    target = $(overlay.data('target'));
+			overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
+		});
+
+		if ("onwebkitspeechchange" in document.createElement("input")) {
+			var editorOffset = $('#editor').offset();
+
+			$('.voiceBtn').css('position', 'absolute').offset({
+				top: editorOffset.top,
+				left: editorOffset.left + $('#editor').innerWidth() - 35
+			});
+		} else {
+			$('.voiceBtn').hide();
+		}
+	}
+
+	function showErrorAlert(reason, detail) {
+		var msg = '';
+		if (reason === 'unsupported-file-type') {
+			msg = "Unsupported format " + detail;
+		} else {
+			console.log("error uploading file", reason, detail);
+		}
+		$('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' + '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
+	}
+
+	$('.editor-wrapper').each(function () {
+		var id = $(this).attr('id'); //editor-one
+
+		$(this).wysiwyg({
+			toolbarSelector: '[data-target="#' + id + '"]',
+			fileUploadError: showErrorAlert
+		});
+	});
+
+	window.prettyPrint;
+	prettyPrint();
+};
+
+/* CROPPER */
+
+function init_cropper() {
+
+	if (typeof $.fn.cropper === 'undefined') {
+		return;
+	}
+	console.log('init_cropper');
+
+	var $image = $('#image');
+	var $download = $('#download');
+	var $dataX = $('#dataX');
+	var $dataY = $('#dataY');
+	var $dataHeight = $('#dataHeight');
+	var $dataWidth = $('#dataWidth');
+	var $dataRotate = $('#dataRotate');
+	var $dataScaleX = $('#dataScaleX');
+	var $dataScaleY = $('#dataScaleY');
+	var options = {
+		aspectRatio: 16 / 9,
+		preview: '.img-preview',
+		crop: function crop(e) {
+			$dataX.val(Math.round(e.x));
+			$dataY.val(Math.round(e.y));
+			$dataHeight.val(Math.round(e.height));
+			$dataWidth.val(Math.round(e.width));
+			$dataRotate.val(e.rotate);
+			$dataScaleX.val(e.scaleX);
+			$dataScaleY.val(e.scaleY);
+		}
+	};
+
+	// Tooltip
+	$('[data-toggle="tooltip"]').tooltip();
+
+	// Cropper
+	$image.on({
+		'build.cropper': function buildCropper(e) {
+			console.log(e.type);
+		},
+		'built.cropper': function builtCropper(e) {
+			console.log(e.type);
+		},
+		'cropstart.cropper': function cropstartCropper(e) {
+			console.log(e.type, e.action);
+		},
+		'cropmove.cropper': function cropmoveCropper(e) {
+			console.log(e.type, e.action);
+		},
+		'cropend.cropper': function cropendCropper(e) {
+			console.log(e.type, e.action);
+		},
+		'crop.cropper': function cropCropper(e) {
+			console.log(e.type, e.x, e.y, e.width, e.height, e.rotate, e.scaleX, e.scaleY);
+		},
+		'zoom.cropper': function zoomCropper(e) {
+			console.log(e.type, e.ratio);
+		}
+	}).cropper(options);
+
+	// Buttons
+	if (!$.isFunction(document.createElement('canvas').getContext)) {
+		$('button[data-method="getCroppedCanvas"]').prop('disabled', true);
+	}
+
+	if (typeof document.createElement('cropper').style.transition === 'undefined') {
+		$('button[data-method="rotate"]').prop('disabled', true);
+		$('button[data-method="scale"]').prop('disabled', true);
+	}
+
+	// Download
+	if (typeof $download[0].download === 'undefined') {
+		$download.addClass('disabled');
+	}
+
+	// Options
+	$('.docs-toggles').on('change', 'input', function () {
+		var $this = $(this);
+		var name = $this.attr('name');
+		var type = $this.prop('type');
+		var cropBoxData;
+		var canvasData;
+
+		if (!$image.data('cropper')) {
+			return;
+		}
+
+		if (type === 'checkbox') {
+			options[name] = $this.prop('checked');
+			cropBoxData = $image.cropper('getCropBoxData');
+			canvasData = $image.cropper('getCanvasData');
+
+			options.built = function () {
+				$image.cropper('setCropBoxData', cropBoxData);
+				$image.cropper('setCanvasData', canvasData);
+			};
+		} else if (type === 'radio') {
+			options[name] = $this.val();
+		}
+
+		$image.cropper('destroy').cropper(options);
+	});
+
+	// Methods
+	$('.docs-buttons').on('click', '[data-method]', function () {
+		var $this = $(this);
+		var data = $this.data();
+		var $target;
+		var result;
+
+		if ($this.prop('disabled') || $this.hasClass('disabled')) {
+			return;
+		}
+
+		if ($image.data('cropper') && data.method) {
+			data = $.extend({}, data); // Clone a new one
+
+			if (typeof data.target !== 'undefined') {
+				$target = $(data.target);
+
+				if (typeof data.option === 'undefined') {
+					try {
+						data.option = JSON.parse($target.val());
+					} catch (e) {
+						console.log(e.message);
+					}
+				}
+			}
+
+			result = $image.cropper(data.method, data.option, data.secondOption);
+
+			switch (data.method) {
+				case 'scaleX':
+				case 'scaleY':
+					$(this).data('option', -data.option);
+					break;
+
+				case 'getCroppedCanvas':
+					if (result) {
+
+						// Bootstrap's Modal
+						$('#getCroppedCanvasModal').modal().find('.modal-body').html(result);
+
+						if (!$download.hasClass('disabled')) {
+							$download.attr('href', result.toDataURL());
+						}
+					}
+
+					break;
+			}
+
+			if ($.isPlainObject(result) && $target) {
+				try {
+					$target.val(JSON.stringify(result));
+				} catch (e) {
+					console.log(e.message);
+				}
+			}
+		}
+	});
+
+	// Keyboard
+	$(document.body).on('keydown', function (e) {
+		if (!$image.data('cropper') || this.scrollTop > 300) {
+			return;
+		}
+
+		switch (e.which) {
+			case 37:
+				e.preventDefault();
+				$image.cropper('move', -1, 0);
+				break;
+
+			case 38:
+				e.preventDefault();
+				$image.cropper('move', 0, -1);
+				break;
+
+			case 39:
+				e.preventDefault();
+				$image.cropper('move', 1, 0);
+				break;
+
+			case 40:
+				e.preventDefault();
+				$image.cropper('move', 0, 1);
+				break;
+		}
+	});
+
+	// Import image
+	var $inputImage = $('#inputImage');
+	var URL = window.URL || window.webkitURL;
+	var blobURL;
+
+	if (URL) {
+		$inputImage.change(function () {
+			var files = this.files;
+			var file;
+
+			if (!$image.data('cropper')) {
+				return;
+			}
+
+			if (files && files.length) {
+				file = files[0];
+
+				if (/^image\/\w+$/.test(file.type)) {
+					blobURL = URL.createObjectURL(file);
+					$image.one('built.cropper', function () {
+
+						// Revoke when load complete
+						URL.revokeObjectURL(blobURL);
+					}).cropper('reset').cropper('replace', blobURL);
+					$inputImage.val('');
+				} else {
+					window.alert('Please choose an image file.');
+				}
+			}
+		});
+	} else {
+		$inputImage.prop('disabled', true).parent().addClass('disabled');
+	}
+};
+
+/* CROPPER --- end */
+
+/* KNOB */
+
+function init_knob() {
+
+	if (typeof $.fn.knob === 'undefined') {
+		return;
+	}
+	console.log('init_knob');
+
+	$(".knob").knob({
+		change: function change(value) {
+			//console.log("change : " + value);
+		},
+		release: function release(value) {
+			//console.log(this.$.attr('value'));
+			console.log("release : " + value);
+		},
+		cancel: function cancel() {
+			console.log("cancel : ", this);
+		},
+		/*format : function (value) {
+   return value + '%';
+   },*/
+		draw: function draw() {
+
+			// "tron" case
+			if (this.$.data('skin') == 'tron') {
+
+				this.cursorExt = 0.3;
+
+				var a = this.arc(this.cv) // Arc
+
+				,
+				    pa // Previous arc
+				,
+				    r = 1;
+
+				this.g.lineWidth = this.lineWidth;
+
+				if (this.o.displayPrevious) {
+					pa = this.arc(this.v);
+					this.g.beginPath();
+					this.g.strokeStyle = this.pColor;
+					this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, pa.s, pa.e, pa.d);
+					this.g.stroke();
+				}
+
+				this.g.beginPath();
+				this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
+				this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, a.s, a.e, a.d);
+				this.g.stroke();
+
+				this.g.lineWidth = 2;
+				this.g.beginPath();
+				this.g.strokeStyle = this.o.fgColor;
+				this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+				this.g.stroke();
+
+				return false;
+			}
+		}
+
+	});
+
+	// Example of infinite knob, iPod click wheel
+	var v,
+	    up = 0,
+	    down = 0,
+	    i = 0,
+	    $idir = $("div.idir"),
+	    $ival = $("div.ival"),
+	    incr = function incr() {
+		i++;
+		$idir.show().html("+").fadeOut();
+		$ival.html(i);
+	},
+	    decr = function decr() {
+		i--;
+		$idir.show().html("-").fadeOut();
+		$ival.html(i);
+	};
+	$("input.infinite").knob({
+		min: 0,
+		max: 20,
+		stopper: false,
+		change: function change() {
+			if (v > this.cv) {
+				if (up) {
+					decr();
+					up = 0;
+				} else {
+					up = 1;
+					down = 0;
+				}
+			} else {
+				if (v < this.cv) {
+					if (down) {
+						incr();
+						down = 0;
+					} else {
+						down = 1;
+						up = 0;
+					}
+				}
+			}
+			v = this.cv;
+		}
+	});
+};
+
+/* INPUT MASK */
+
+function init_InputMask() {
+
+	if (typeof $.fn.inputmask === 'undefined') {
+		return;
+	}
+	console.log('init_InputMask');
+
+	$(":input").inputmask();
+};
+
+/* COLOR PICKER */
+
+function init_ColorPicker() {
+
+	if (typeof $.fn.colorpicker === 'undefined') {
+		return;
+	}
+	console.log('init_ColorPicker');
+
+	$('.demo1').colorpicker();
+	$('.demo2').colorpicker();
+
+	$('#demo_forceformat').colorpicker({
+		format: 'rgba',
+		horizontal: true
+	});
+
+	$('#demo_forceformat3').colorpicker({
+		format: 'rgba'
+	});
+
+	$('.demo-auto').colorpicker();
+};
+
+/* ION RANGE SLIDER */
+
+function init_IonRangeSlider() {
+
+	if (typeof $.fn.ionRangeSlider === 'undefined') {
+		return;
+	}
+	console.log('init_IonRangeSlider');
+
+	$("#range_27").ionRangeSlider({
+		type: "double",
+		min: 1000000,
+		max: 2000000,
+		grid: true,
+		force_edges: true
+	});
+	$("#range").ionRangeSlider({
+		hide_min_max: true,
+		keyboard: true,
+		min: 0,
+		max: 5000,
+		from: 1000,
+		to: 4000,
+		type: 'double',
+		step: 1,
+		prefix: "$",
+		grid: true
+	});
+	$("#range_25").ionRangeSlider({
+		type: "double",
+		min: 1000000,
+		max: 2000000,
+		grid: true
+	});
+	$("#range_26").ionRangeSlider({
+		type: "double",
+		min: 0,
+		max: 10000,
+		step: 500,
+		grid: true,
+		grid_snap: true
+	});
+	$("#range_31").ionRangeSlider({
+		type: "double",
+		min: 0,
+		max: 100,
+		from: 30,
+		to: 70,
+		from_fixed: true
+	});
+	$(".range_min_max").ionRangeSlider({
+		type: "double",
+		min: 0,
+		max: 100,
+		from: 30,
+		to: 70,
+		max_interval: 50
+	});
+	$(".range_time24").ionRangeSlider({
+		min: +moment().subtract(12, "hours").format("X"),
+		max: +moment().format("X"),
+		from: +moment().subtract(6, "hours").format("X"),
+		grid: true,
+		force_edges: true,
+		prettify: function prettify(num) {
+			var m = moment(num, "X");
+			return m.format("Do MMMM, HH:mm");
+		}
+	});
+};
+
+/* DATERANGEPICKER */
+
+function init_daterangepicker() {
+
+	if (typeof $.fn.daterangepicker === 'undefined') {
+		return;
+	}
+	console.log('init_daterangepicker');
+
+	var cb = function cb(start, end, label) {
+		console.log(start.toISOString(), end.toISOString(), label);
+		$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+	};
+
+	var optionSet1 = {
+		startDate: moment().subtract(29, 'days'),
+		endDate: moment(),
+		minDate: '01/01/2012',
+		maxDate: '12/31/2015',
+		dateLimit: {
+			days: 60
+		},
+		showDropdowns: true,
+		showWeekNumbers: true,
+		timePicker: false,
+		timePickerIncrement: 1,
+		timePicker12Hour: true,
+		ranges: {
+			'Today': [moment(), moment()],
+			'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+			'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+			'This Month': [moment().startOf('month'), moment().endOf('month')],
+			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+		},
+		opens: 'left',
+		buttonClasses: ['btn btn-default'],
+		applyClass: 'btn-small btn-primary',
+		cancelClass: 'btn-small',
+		format: 'MM/DD/YYYY',
+		separator: ' to ',
+		locale: {
+			applyLabel: 'Submit',
+			cancelLabel: 'Clear',
+			fromLabel: 'From',
+			toLabel: 'To',
+			customRangeLabel: 'Custom',
+			daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+			monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+			firstDay: 1
+		}
+	};
+
+	$('#reportrange span').html(moment().subtract(29, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+	$('#reportrange').daterangepicker(optionSet1, cb);
+	$('#reportrange').on('show.daterangepicker', function () {
+		console.log("show event fired");
+	});
+	$('#reportrange').on('hide.daterangepicker', function () {
+		console.log("hide event fired");
+	});
+	$('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+		console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+	});
+	$('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
+		console.log("cancel event fired");
+	});
+	$('#options1').click(function () {
+		$('#reportrange').data('daterangepicker').setOptions(optionSet1, cb);
+	});
+	$('#options2').click(function () {
+		$('#reportrange').data('daterangepicker').setOptions(optionSet2, cb);
+	});
+	$('#destroy').click(function () {
+		$('#reportrange').data('daterangepicker').remove();
+	});
+}
+
+function init_daterangepicker_right() {
+
+	if (typeof $.fn.daterangepicker === 'undefined') {
+		return;
+	}
+	console.log('init_daterangepicker_right');
+
+	var cb = function cb(start, end, label) {
+		console.log(start.toISOString(), end.toISOString(), label);
+		$('#reportrange_right span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+	};
+
+	var optionSet1 = {
+		startDate: moment().subtract(29, 'days'),
+		endDate: moment(),
+		minDate: '01/01/2012',
+		maxDate: '12/31/2020',
+		dateLimit: {
+			days: 60
+		},
+		showDropdowns: true,
+		showWeekNumbers: true,
+		timePicker: false,
+		timePickerIncrement: 1,
+		timePicker12Hour: true,
+		ranges: {
+			'Today': [moment(), moment()],
+			'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+			'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+			'This Month': [moment().startOf('month'), moment().endOf('month')],
+			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+		},
+		opens: 'right',
+		buttonClasses: ['btn btn-default'],
+		applyClass: 'btn-small btn-primary',
+		cancelClass: 'btn-small',
+		format: 'MM/DD/YYYY',
+		separator: ' to ',
+		locale: {
+			applyLabel: 'Submit',
+			cancelLabel: 'Clear',
+			fromLabel: 'From',
+			toLabel: 'To',
+			customRangeLabel: 'Custom',
+			daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+			monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+			firstDay: 1
+		}
+	};
+
+	$('#reportrange_right span').html(moment().subtract(29, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+
+	$('#reportrange_right').daterangepicker(optionSet1, cb);
+
+	$('#reportrange_right').on('show.daterangepicker', function () {
+		console.log("show event fired");
+	});
+	$('#reportrange_right').on('hide.daterangepicker', function () {
+		console.log("hide event fired");
+	});
+	$('#reportrange_right').on('apply.daterangepicker', function (ev, picker) {
+		console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+	});
+	$('#reportrange_right').on('cancel.daterangepicker', function (ev, picker) {
+		console.log("cancel event fired");
+	});
+
+	$('#options1').click(function () {
+		$('#reportrange_right').data('daterangepicker').setOptions(optionSet1, cb);
+	});
+
+	$('#options2').click(function () {
+		$('#reportrange_right').data('daterangepicker').setOptions(optionSet2, cb);
+	});
+
+	$('#destroy').click(function () {
+		$('#reportrange_right').data('daterangepicker').remove();
+	});
+}
+
+function init_daterangepicker_single_call() {
+
+	if (typeof $.fn.daterangepicker === 'undefined') {
+		return;
+	}
+	console.log('init_daterangepicker_single_call');
+
+	$('#single_cal1').daterangepicker({
+		singleDatePicker: true,
+		singleClasses: "picker_1"
+	}, function (start, end, label) {
+		console.log(start.toISOString(), end.toISOString(), label);
+	});
+	$('#single_cal2').daterangepicker({
+		singleDatePicker: true,
+		singleClasses: "picker_2"
+	}, function (start, end, label) {
+		console.log(start.toISOString(), end.toISOString(), label);
+	});
+	$('#single_cal3').daterangepicker({
+		singleDatePicker: true,
+		singleClasses: "picker_3"
+	}, function (start, end, label) {
+		console.log(start.toISOString(), end.toISOString(), label);
+	});
+	$('#single_cal4').daterangepicker({
+		singleDatePicker: true,
+		singleClasses: "picker_4"
+	}, function (start, end, label) {
+		console.log(start.toISOString(), end.toISOString(), label);
+	});
+}
+
+function init_daterangepicker_reservation() {
+
+	if (typeof $.fn.daterangepicker === 'undefined') {
+		return;
+	}
+	console.log('init_daterangepicker_reservation');
+
+	$('#reservation').daterangepicker(null, function (start, end, label) {
+		console.log(start.toISOString(), end.toISOString(), label);
+	});
+
+	$('#reservation-time').daterangepicker({
+		timePicker: true,
+		timePickerIncrement: 30,
+		locale: {
+			format: 'MM/DD/YYYY h:mm A'
+		}
+	});
+}
+
+/* SMART WIZARD */
+
+function init_SmartWizard() {
+
+	if (typeof $.fn.smartWizard === 'undefined') {
+		return;
+	}
+	console.log('init_SmartWizard');
+
+	$('#wizard').smartWizard();
+
+	$('#wizard_verticle').smartWizard({
+		transitionEffect: 'slide'
+	});
+
+	$('.buttonNext').addClass('btn btn-success');
+	$('.buttonPrevious').addClass('btn btn-primary');
+	$('.buttonFinish').addClass('btn btn-default');
+};
+
+/* VALIDATOR */
+
+function init_validator() {
+
+	if (typeof validator === 'undefined') {
+		return;
+	}
+	console.log('init_validator');
+
+	// initialize the validator function
+	validator.message.date = 'not a real date';
+
+	// validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
+	$('form').on('blur', 'input[required], input.optional, select.required', validator.checkField).on('change', 'select.required', validator.checkField).on('keypress', 'input[required][pattern]', validator.keypress);
+
+	$('.multi.required').on('keyup blur', 'input', function () {
+		validator.checkField.apply($(this).siblings().last()[0]);
+	});
+
+	$('form').submit(function (e) {
+		e.preventDefault();
+		var submit = true;
+
+		// evaluate the form using generic validaing
+		if (!validator.checkAll($(this))) {
+			submit = false;
+		}
+
+		if (submit) this.submit();
+
+		return false;
+	});
+};
+
+/* PNotify */
+
+function init_PNotify() {
+
+	if (typeof PNotify === 'undefined') {
+		return;
+	}
+	console.log('init_PNotify');
+};
+
+/* CUSTOM NOTIFICATION */
+
+function init_CustomNotification() {
+
+	console.log('run_customtabs');
+
+	if (typeof CustomTabs === 'undefined') {
+		return;
+	}
+	console.log('init_CustomTabs');
+
+	var cnt = 10;
+
+	TabbedNotification = function TabbedNotification(options) {
+		var message = "<div id='ntf" + cnt + "' class='text alert-" + options.type + "' style='display:none'><h2><i class='fa fa-bell'></i> " + options.title + "</h2><div class='close'><a href='javascript:;' class='notification_close'><i class='fa fa-close'></i></a></div><p>" + options.text + "</p></div>";
+
+		if (!document.getElementById('custom_notifications')) {
+			alert('doesnt exists');
+		} else {
+			$('#custom_notifications ul.notifications').append("<li><a id='ntlink" + cnt + "' class='alert-" + options.type + "' href='#ntf" + cnt + "'><i class='fa fa-bell animated shake'></i></a></li>");
+			$('#custom_notifications #notif-group').append(message);
+			cnt++;
+			CustomTabs(options);
+		}
+	};
+
+	CustomTabs = function CustomTabs(options) {
+		$('.tabbed_notifications > div').hide();
+		$('.tabbed_notifications > div:first-of-type').show();
+		$('#custom_notifications').removeClass('dsp_none');
+		$('.notifications a').click(function (e) {
+			e.preventDefault();
+			var $this = $(this),
+			    tabbed_notifications = '#' + $this.parents('.notifications').data('tabbed_notifications'),
+			    others = $this.closest('li').siblings().children('a'),
+			    target = $this.attr('href');
+			others.removeClass('active');
+			$this.addClass('active');
+			$(tabbed_notifications).children('div').hide();
+			$(target).show();
+		});
+	};
+
+	CustomTabs();
+
+	var tabid = idname = '';
+
+	$(document).on('click', '.notification_close', function (e) {
+		idname = $(this).parent().parent().attr("id");
+		tabid = idname.substr(-2);
+		$('#ntf' + tabid).remove();
+		$('#ntlink' + tabid).parent().remove();
+		$('.notifications a').first().addClass('active');
+		$('#notif-group div').first().css('display', 'block');
+	});
+};
+
+/* EASYPIECHART */
+
+function init_EasyPieChart() {
+
+	if (typeof $.fn.easyPieChart === 'undefined') {
+		return;
+	}
+	console.log('init_EasyPieChart');
+
+	$('.chart').easyPieChart({
+		easing: 'easeOutElastic',
+		delay: 3000,
+		barColor: '#26B99A',
+		trackColor: '#fff',
+		scaleColor: false,
+		lineWidth: 20,
+		trackWidth: 16,
+		lineCap: 'butt',
+		onStep: function onStep(from, to, percent) {
+			$(this.el).find('.percent').text(Math.round(percent));
+		}
+	});
+	var chart = window.chart = $('.chart').data('easyPieChart');
+	$('.js_update').on('click', function () {
+		chart.update(Math.random() * 200 - 100);
+	});
+
+	//hover and retain popover when on popover content
+	var originalLeave = $.fn.popover.Constructor.prototype.leave;
+	$.fn.popover.Constructor.prototype.leave = function (obj) {
+		var self = obj instanceof this.constructor ? obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
+		var container, timeout;
+
+		originalLeave.call(this, obj);
+
+		if (obj.currentTarget) {
+			container = $(obj.currentTarget).siblings('.popover');
+			timeout = self.timeout;
+			container.one('mouseenter', function () {
+				//We entered the actual popover – call off the dogs
+				clearTimeout(timeout);
+				//Let's monitor popover content instead
+				container.one('mouseleave', function () {
+					$.fn.popover.Constructor.prototype.leave.call(self, self);
+				});
+			});
+		}
+	};
+
+	$('body').popover({
+		selector: '[data-popover]',
+		trigger: 'click hover',
+		delay: {
+			show: 50,
+			hide: 400
+		}
+	});
+};
+
+function init_charts() {
+
+	console.log('run_charts  typeof [' + (typeof Chart === 'undefined' ? 'undefined' : _typeof(Chart)) + ']');
+
+	if (typeof Chart === 'undefined') {
+		return;
+	}
+
+	console.log('init_charts');
+
+	Chart.defaults.global.legend = {
+		enabled: false
+	};
+
+	if ($('#canvas_line').length) {
+
+		var canvas_line_00 = new Chart(document.getElementById("canvas_line"), {
+			type: 'line',
+			data: {
+				labels: ["January", "February", "March", "April", "May", "June", "July"],
+				datasets: [{
+					label: "My First dataset",
+					backgroundColor: "rgba(38, 185, 154, 0.31)",
+					borderColor: "rgba(38, 185, 154, 0.7)",
+					pointBorderColor: "rgba(38, 185, 154, 0.7)",
+					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(220,220,220,1)",
+					pointBorderWidth: 1,
+					data: [31, 74, 6, 39, 20, 85, 7]
+				}, {
+					label: "My Second dataset",
+					backgroundColor: "rgba(3, 88, 106, 0.3)",
+					borderColor: "rgba(3, 88, 106, 0.70)",
+					pointBorderColor: "rgba(3, 88, 106, 0.70)",
+					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(151,187,205,1)",
+					pointBorderWidth: 1,
+					data: [82, 23, 66, 9, 99, 4, 2]
+				}]
+			}
+		});
+	}
+
+	if ($('#canvas_line1').length) {
+
+		var canvas_line_01 = new Chart(document.getElementById("canvas_line1"), {
+			type: 'line',
+			data: {
+				labels: ["January", "February", "March", "April", "May", "June", "July"],
+				datasets: [{
+					label: "My First dataset",
+					backgroundColor: "rgba(38, 185, 154, 0.31)",
+					borderColor: "rgba(38, 185, 154, 0.7)",
+					pointBorderColor: "rgba(38, 185, 154, 0.7)",
+					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(220,220,220,1)",
+					pointBorderWidth: 1,
+					data: [31, 74, 6, 39, 20, 85, 7]
+				}, {
+					label: "My Second dataset",
+					backgroundColor: "rgba(3, 88, 106, 0.3)",
+					borderColor: "rgba(3, 88, 106, 0.70)",
+					pointBorderColor: "rgba(3, 88, 106, 0.70)",
+					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(151,187,205,1)",
+					pointBorderWidth: 1,
+					data: [82, 23, 66, 9, 99, 4, 2]
+				}]
+			}
+		});
+	}
+
+	if ($('#canvas_line2').length) {
+
+		var canvas_line_02 = new Chart(document.getElementById("canvas_line2"), {
+			type: 'line',
+			data: {
+				labels: ["January", "February", "March", "April", "May", "June", "July"],
+				datasets: [{
+					label: "My First dataset",
+					backgroundColor: "rgba(38, 185, 154, 0.31)",
+					borderColor: "rgba(38, 185, 154, 0.7)",
+					pointBorderColor: "rgba(38, 185, 154, 0.7)",
+					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(220,220,220,1)",
+					pointBorderWidth: 1,
+					data: [31, 74, 6, 39, 20, 85, 7]
+				}, {
+					label: "My Second dataset",
+					backgroundColor: "rgba(3, 88, 106, 0.3)",
+					borderColor: "rgba(3, 88, 106, 0.70)",
+					pointBorderColor: "rgba(3, 88, 106, 0.70)",
+					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(151,187,205,1)",
+					pointBorderWidth: 1,
+					data: [82, 23, 66, 9, 99, 4, 2]
+				}]
+			}
+		});
+	}
+
+	if ($('#canvas_line3').length) {
+
+		var canvas_line_03 = new Chart(document.getElementById("canvas_line3"), {
+			type: 'line',
+			data: {
+				labels: ["January", "February", "March", "April", "May", "June", "July"],
+				datasets: [{
+					label: "My First dataset",
+					backgroundColor: "rgba(38, 185, 154, 0.31)",
+					borderColor: "rgba(38, 185, 154, 0.7)",
+					pointBorderColor: "rgba(38, 185, 154, 0.7)",
+					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(220,220,220,1)",
+					pointBorderWidth: 1,
+					data: [31, 74, 6, 39, 20, 85, 7]
+				}, {
+					label: "My Second dataset",
+					backgroundColor: "rgba(3, 88, 106, 0.3)",
+					borderColor: "rgba(3, 88, 106, 0.70)",
+					pointBorderColor: "rgba(3, 88, 106, 0.70)",
+					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(151,187,205,1)",
+					pointBorderWidth: 1,
+					data: [82, 23, 66, 9, 99, 4, 2]
+				}]
+			}
+		});
+	}
+
+	if ($('#canvas_line4').length) {
+
+		var canvas_line_04 = new Chart(document.getElementById("canvas_line4"), {
+			type: 'line',
+			data: {
+				labels: ["January", "February", "March", "April", "May", "June", "July"],
+				datasets: [{
+					label: "My First dataset",
+					backgroundColor: "rgba(38, 185, 154, 0.31)",
+					borderColor: "rgba(38, 185, 154, 0.7)",
+					pointBorderColor: "rgba(38, 185, 154, 0.7)",
+					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(220,220,220,1)",
+					pointBorderWidth: 1,
+					data: [31, 74, 6, 39, 20, 85, 7]
+				}, {
+					label: "My Second dataset",
+					backgroundColor: "rgba(3, 88, 106, 0.3)",
+					borderColor: "rgba(3, 88, 106, 0.70)",
+					pointBorderColor: "rgba(3, 88, 106, 0.70)",
+					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(151,187,205,1)",
+					pointBorderWidth: 1,
+					data: [82, 23, 66, 9, 99, 4, 2]
+				}]
+			}
+		});
+	}
+
+	// Line chart
+
+	if ($('#lineChart').length) {
+
+		var ctx = document.getElementById("lineChart");
+		var lineChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: ["January", "February", "March", "April", "May", "June", "July"],
+				datasets: [{
+					label: "My First dataset",
+					backgroundColor: "rgba(38, 185, 154, 0.31)",
+					borderColor: "rgba(38, 185, 154, 0.7)",
+					pointBorderColor: "rgba(38, 185, 154, 0.7)",
+					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(220,220,220,1)",
+					pointBorderWidth: 1,
+					data: [31, 74, 6, 39, 20, 85, 7]
+				}, {
+					label: "My Second dataset",
+					backgroundColor: "rgba(3, 88, 106, 0.3)",
+					borderColor: "rgba(3, 88, 106, 0.70)",
+					pointBorderColor: "rgba(3, 88, 106, 0.70)",
+					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
+					pointHoverBackgroundColor: "#fff",
+					pointHoverBorderColor: "rgba(151,187,205,1)",
+					pointBorderWidth: 1,
+					data: [82, 23, 66, 9, 99, 4, 2]
+				}]
+			}
+		});
+	}
+
+	// Bar chart
+
+	if ($('#mybarChart').length) {
+
+		var ctx = document.getElementById("mybarChart");
+		var mybarChart = new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: ["January", "February", "March", "April", "May", "June", "July"],
+				datasets: [{
+					label: '# of Votes',
+					backgroundColor: "#26B99A",
+					data: [51, 30, 40, 28, 92, 50, 45]
+				}, {
+					label: '# of Votes',
+					backgroundColor: "#03586A",
+					data: [41, 56, 25, 48, 72, 34, 12]
+				}]
+			},
+
+			options: {
+				scales: {
+					yAxes: [{
+						ticks: {
+							beginAtZero: true
+						}
+					}]
+				}
+			}
+		});
+	}
+
+	// Doughnut chart
+
+	if ($('#canvasDoughnut').length) {
+
+		var ctx = document.getElementById("canvasDoughnut");
+		var data = {
+			labels: ["Dark Grey", "Purple Color", "Gray Color", "Green Color", "Blue Color"],
+			datasets: [{
+				data: [120, 50, 140, 180, 100],
+				backgroundColor: ["#455C73", "#9B59B6", "#BDC3C7", "#26B99A", "#3498DB"],
+				hoverBackgroundColor: ["#34495E", "#B370CF", "#CFD4D8", "#36CAAB", "#49A9EA"]
+
+			}]
+		};
+
+		var canvasDoughnut = new Chart(ctx, {
+			type: 'doughnut',
+			tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+			data: data
+		});
+	}
+
+	// Radar chart
+
+	if ($('#canvasRadar').length) {
+
+		var ctx = document.getElementById("canvasRadar");
+		var data = {
+			labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding", "Cycling", "Running"],
+			datasets: [{
+				label: "My First dataset",
+				backgroundColor: "rgba(3, 88, 106, 0.2)",
+				borderColor: "rgba(3, 88, 106, 0.80)",
+				pointBorderColor: "rgba(3, 88, 106, 0.80)",
+				pointBackgroundColor: "rgba(3, 88, 106, 0.80)",
+				pointHoverBackgroundColor: "#fff",
+				pointHoverBorderColor: "rgba(220,220,220,1)",
+				data: [65, 59, 90, 81, 56, 55, 40]
+			}, {
+				label: "My Second dataset",
+				backgroundColor: "rgba(38, 185, 154, 0.2)",
+				borderColor: "rgba(38, 185, 154, 0.85)",
+				pointColor: "rgba(38, 185, 154, 0.85)",
+				pointStrokeColor: "#fff",
+				pointHighlightFill: "#fff",
+				pointHighlightStroke: "rgba(151,187,205,1)",
+				data: [28, 48, 40, 19, 96, 27, 100]
+			}]
+		};
+
+		var canvasRadar = new Chart(ctx, {
+			type: 'radar',
+			data: data
+		});
+	}
+
+	// Pie chart
+	if ($('#pieChart').length) {
+
+		var ctx = document.getElementById("pieChart");
+		var data = {
+			datasets: [{
+				data: [120, 50, 140, 180, 100],
+				backgroundColor: ["#455C73", "#9B59B6", "#BDC3C7", "#26B99A", "#3498DB"],
+				label: 'My dataset' // for legend
+			}],
+			labels: ["Dark Gray", "Purple", "Gray", "Green", "Blue"]
+		};
+
+		var pieChart = new Chart(ctx, {
+			data: data,
+			type: 'pie',
+			otpions: {
+				legend: false
+			}
+		});
+	}
+
+	// PolarArea chart
+
+	if ($('#polarArea').length) {
+
+		var ctx = document.getElementById("polarArea");
+		var data = {
+			datasets: [{
+				data: [120, 50, 140, 180, 100],
+				backgroundColor: ["#455C73", "#9B59B6", "#BDC3C7", "#26B99A", "#3498DB"],
+				label: 'My dataset'
+			}],
+			labels: ["Dark Gray", "Purple", "Gray", "Green", "Blue"]
+		};
+
+		var polarArea = new Chart(ctx, {
+			data: data,
+			type: 'polarArea',
+			options: {
+				scale: {
+					ticks: {
+						beginAtZero: true
+					}
+				}
+			}
+		});
+	}
+}
+
+/* COMPOSE */
+
+function init_compose() {
+
+	if (typeof $.fn.slideToggle === 'undefined') {
+		return;
+	}
+	console.log('init_compose');
+
+	$('#compose, .compose-close').click(function () {
+		$('.compose').slideToggle();
+	});
+};
+
+/* CALENDAR */
+
+function init_calendar() {
+
+	if (typeof $.fn.fullCalendar === 'undefined') {
+		return;
+	}
+	console.log('init_calendar');
+
+	var date = new Date(),
+	    d = date.getDate(),
+	    m = date.getMonth(),
+	    y = date.getFullYear(),
+	    started,
+	    categoryClass;
+
+	var calendar = $('#calendar').fullCalendar({
+		header: {
+			left: 'prev,next today',
+			center: 'title',
+			right: 'month,agendaWeek,agendaDay,listMonth'
+		},
+		selectable: true,
+		selectHelper: true,
+		select: function select(start, end, allDay) {
+			$('#fc_create').click();
+
+			started = start;
+			ended = end;
+
+			$(".antosubmit").on("click", function () {
+				var title = $("#title").val();
+				if (end) {
+					ended = end;
+				}
+
+				categoryClass = $("#event_type").val();
+
+				if (title) {
+					calendar.fullCalendar('renderEvent', {
+						title: title,
+						start: started,
+						end: end,
+						allDay: allDay
+					}, true // make the event "stick"
+					);
+				}
+
+				$('#title').val('');
+
+				calendar.fullCalendar('unselect');
+
+				$('.antoclose').click();
+
+				return false;
+			});
+		},
+		eventClick: function eventClick(calEvent, jsEvent, view) {
+			$('#fc_edit').click();
+			$('#title2').val(calEvent.title);
+
+			categoryClass = $("#event_type").val();
+
+			$(".antosubmit2").on("click", function () {
+				calEvent.title = $("#title2").val();
+
+				calendar.fullCalendar('updateEvent', calEvent);
+				$('.antoclose2').click();
+			});
+
+			calendar.fullCalendar('unselect');
+		},
+		editable: true,
+		events: [{
+			title: 'All Day Event',
+			start: new Date(y, m, 1)
+		}, {
+			title: 'Long Event',
+			start: new Date(y, m, d - 5),
+			end: new Date(y, m, d - 2)
+		}, {
+			title: 'Meeting',
+			start: new Date(y, m, d, 10, 30),
+			allDay: false
+		}, {
+			title: 'Lunch',
+			start: new Date(y, m, d + 14, 12, 0),
+			end: new Date(y, m, d, 14, 0),
+			allDay: false
+		}, {
+			title: 'Birthday Party',
+			start: new Date(y, m, d + 1, 19, 0),
+			end: new Date(y, m, d + 1, 22, 30),
+			allDay: false
+		}, {
+			title: 'Click for Google',
+			start: new Date(y, m, 28),
+			end: new Date(y, m, 29),
+			url: 'http://google.com/'
+		}]
+	});
+};
+
+/* DATA TABLES */
+
+function init_DataTables() {
+
+	console.log('run_datatables');
+
+	if (typeof $.fn.DataTable === 'undefined') {
+		return;
+	}
+	console.log('init_DataTables');
+
+	var handleDataTableButtons = function handleDataTableButtons() {
+		if ($("#datatable-buttons").length) {
+			$("#datatable-buttons").DataTable({
+				dom: "Blfrtip",
+				buttons: [{
+					extend: "copy",
+					className: "btn-sm"
+				}, {
+					extend: "csv",
+					className: "btn-sm"
+				}, {
+					extend: "excel",
+					className: "btn-sm"
+				}, {
+					extend: "pdfHtml5",
+					className: "btn-sm"
+				}, {
+					extend: "print",
+					className: "btn-sm"
+				}],
+				responsive: true
+			});
+		}
+	};
+
+	TableManageButtons = function () {
+		"use strict";
+
+		return {
+			init: function init() {
+				handleDataTableButtons();
+			}
+		};
+	}();
+
+	$('#datatable').dataTable();
+
+	$('#datatable-keytable').DataTable({
+		keys: true
+	});
+
+	$('#datatable-responsive').DataTable();
+
+	$('#datatable-scroller').DataTable({
+		ajax: "js/datatables/json/scroller-demo.json",
+		deferRender: true,
+		scrollY: 380,
+		scrollCollapse: true,
+		scroller: true
+	});
+
+	$('#datatable-fixed-header').DataTable({
+		fixedHeader: true
+	});
+
+	var $datatable = $('#datatable-checkbox');
+
+	$datatable.dataTable({
+		'order': [[1, 'asc']],
+		'columnDefs': [{ orderable: false, targets: [0] }]
+	});
+	$datatable.on('draw.dt', function () {
+		$('checkbox input').iCheck({
+			checkboxClass: 'icheckbox_flat-green'
+		});
+	});
+
+	TableManageButtons.init();
+};
+
+/* CHART - MORRIS  */
+
+function init_morris_charts() {
+
+	if (typeof Morris === 'undefined') {
+		return;
+	}
+	console.log('init_morris_charts');
+
+	if ($('#graph_bar').length) {
+
+		Morris.Bar({
+			element: 'graph_bar',
+			data: [{ device: 'iPhone 4', geekbench: 380 }, { device: 'iPhone 4S', geekbench: 655 }, { device: 'iPhone 3GS', geekbench: 275 }, { device: 'iPhone 5', geekbench: 1571 }, { device: 'iPhone 5S', geekbench: 655 }, { device: 'iPhone 6', geekbench: 2154 }, { device: 'iPhone 6 Plus', geekbench: 1144 }, { device: 'iPhone 6S', geekbench: 2371 }, { device: 'iPhone 6S Plus', geekbench: 1471 }, { device: 'Other', geekbench: 1371 }],
+			xkey: 'device',
+			ykeys: ['geekbench'],
+			labels: ['Geekbench'],
+			barRatio: 0.4,
+			barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+			xLabelAngle: 35,
+			hideHover: 'auto',
+			resize: true
+		});
+	}
+
+	if ($('#graph_bar_group').length) {
+
+		Morris.Bar({
+			element: 'graph_bar_group',
+			data: [{ "period": "2016-10-01", "licensed": 807, "sorned": 660 }, { "period": "2016-09-30", "licensed": 1251, "sorned": 729 }, { "period": "2016-09-29", "licensed": 1769, "sorned": 1018 }, { "period": "2016-09-20", "licensed": 2246, "sorned": 1461 }, { "period": "2016-09-19", "licensed": 2657, "sorned": 1967 }, { "period": "2016-09-18", "licensed": 3148, "sorned": 2627 }, { "period": "2016-09-17", "licensed": 3471, "sorned": 3740 }, { "period": "2016-09-16", "licensed": 2871, "sorned": 2216 }, { "period": "2016-09-15", "licensed": 2401, "sorned": 1656 }, { "period": "2016-09-10", "licensed": 2115, "sorned": 1022 }],
+			xkey: 'period',
+			barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+			ykeys: ['licensed', 'sorned'],
+			labels: ['Licensed', 'SORN'],
+			hideHover: 'auto',
+			xLabelAngle: 60,
+			resize: true
+		});
+	}
+
+	if ($('#graphx').length) {
+
+		Morris.Bar({
+			element: 'graphx',
+			data: [{ x: '2015 Q1', y: 2, z: 3, a: 4 }, { x: '2015 Q2', y: 3, z: 5, a: 6 }, { x: '2015 Q3', y: 4, z: 3, a: 2 }, { x: '2015 Q4', y: 2, z: 4, a: 5 }],
+			xkey: 'x',
+			ykeys: ['y', 'z', 'a'],
+			barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+			hideHover: 'auto',
+			labels: ['Y', 'Z', 'A'],
+			resize: true
+		}).on('click', function (i, row) {
+			console.log(i, row);
+		});
+	}
+
+	if ($('#graph_area').length) {
+
+		Morris.Area({
+			element: 'graph_area',
+			data: [{ period: '2014 Q1', iphone: 2666, ipad: null, itouch: 2647 }, { period: '2014 Q2', iphone: 2778, ipad: 2294, itouch: 2441 }, { period: '2014 Q3', iphone: 4912, ipad: 1969, itouch: 2501 }, { period: '2014 Q4', iphone: 3767, ipad: 3597, itouch: 5689 }, { period: '2015 Q1', iphone: 6810, ipad: 1914, itouch: 2293 }, { period: '2015 Q2', iphone: 5670, ipad: 4293, itouch: 1881 }, { period: '2015 Q3', iphone: 4820, ipad: 3795, itouch: 1588 }, { period: '2015 Q4', iphone: 15073, ipad: 5967, itouch: 5175 }, { period: '2016 Q1', iphone: 10687, ipad: 4460, itouch: 2028 }, { period: '2016 Q2', iphone: 8432, ipad: 5713, itouch: 1791 }],
+			xkey: 'period',
+			ykeys: ['iphone', 'ipad', 'itouch'],
+			lineColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+			labels: ['iPhone', 'iPad', 'iPod Touch'],
+			pointSize: 2,
+			hideHover: 'auto',
+			resize: true
+		});
+	}
+
+	if ($('#graph_donut').length) {
+
+		Morris.Donut({
+			element: 'graph_donut',
+			data: [{ label: 'Jam', value: 25 }, { label: 'Frosted', value: 40 }, { label: 'Custard', value: 25 }, { label: 'Sugar', value: 10 }],
+			colors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+			formatter: function formatter(y) {
+				return y + "%";
+			},
+			resize: true
+		});
+	}
+
+	if ($('#graph_line').length) {
+
+		Morris.Line({
+			element: 'graph_line',
+			xkey: 'year',
+			ykeys: ['value'],
+			labels: ['Value'],
+			hideHover: 'auto',
+			lineColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+			data: [{ year: '2012', value: 20 }, { year: '2013', value: 10 }, { year: '2014', value: 5 }, { year: '2015', value: 5 }, { year: '2016', value: 20 }],
+			resize: true
+		});
+
+		$MENU_TOGGLE.on('click', function () {
+			$(window).resize();
+		});
+	}
+};
+
+/* ECHRTS */
+
+function init_echarts() {
+
+	if (typeof echarts === 'undefined') {
+		return;
+	}
+	console.log('init_echarts');
+
+	var theme = {
+		color: ['#26B99A', '#34495E', '#BDC3C7', '#3498DB', '#9B59B6', '#8abb6f', '#759c6a', '#bfd3b7'],
+
+		title: {
+			itemGap: 8,
+			textStyle: {
+				fontWeight: 'normal',
+				color: '#408829'
+			}
+		},
+
+		dataRange: {
+			color: ['#1f610a', '#97b58d']
+		},
+
+		toolbox: {
+			color: ['#408829', '#408829', '#408829', '#408829']
+		},
+
+		tooltip: {
+			backgroundColor: 'rgba(0,0,0,0.5)',
+			axisPointer: {
+				type: 'line',
+				lineStyle: {
+					color: '#408829',
+					type: 'dashed'
+				},
+				crossStyle: {
+					color: '#408829'
+				},
+				shadowStyle: {
+					color: 'rgba(200,200,200,0.3)'
+				}
+			}
+		},
+
+		dataZoom: {
+			dataBackgroundColor: '#eee',
+			fillerColor: 'rgba(64,136,41,0.2)',
+			handleColor: '#408829'
+		},
+		grid: {
+			borderWidth: 0
+		},
+
+		categoryAxis: {
+			axisLine: {
+				lineStyle: {
+					color: '#408829'
+				}
+			},
+			splitLine: {
+				lineStyle: {
+					color: ['#eee']
+				}
+			}
+		},
+
+		valueAxis: {
+			axisLine: {
+				lineStyle: {
+					color: '#408829'
+				}
+			},
+			splitArea: {
+				show: true,
+				areaStyle: {
+					color: ['rgba(250,250,250,0.1)', 'rgba(200,200,200,0.1)']
+				}
+			},
+			splitLine: {
+				lineStyle: {
+					color: ['#eee']
+				}
+			}
+		},
+		timeline: {
+			lineStyle: {
+				color: '#408829'
+			},
+			controlStyle: {
+				normal: { color: '#408829' },
+				emphasis: { color: '#408829' }
+			}
+		},
+
+		k: {
+			itemStyle: {
+				normal: {
+					color: '#68a54a',
+					color0: '#a9cba2',
+					lineStyle: {
+						width: 1,
+						color: '#408829',
+						color0: '#86b379'
+					}
+				}
+			}
+		},
+		map: {
+			itemStyle: {
+				normal: {
+					areaStyle: {
+						color: '#ddd'
+					},
+					label: {
+						textStyle: {
+							color: '#c12e34'
+						}
+					}
+				},
+				emphasis: {
+					areaStyle: {
+						color: '#99d2dd'
+					},
+					label: {
+						textStyle: {
+							color: '#c12e34'
+						}
+					}
+				}
+			}
+		},
+		force: {
+			itemStyle: {
+				normal: {
+					linkStyle: {
+						strokeColor: '#408829'
+					}
+				}
+			}
+		},
+		chord: {
+			padding: 4,
+			itemStyle: {
+				normal: {
+					lineStyle: {
+						width: 1,
+						color: 'rgba(128, 128, 128, 0.5)'
+					},
+					chordStyle: {
+						lineStyle: {
+							width: 1,
+							color: 'rgba(128, 128, 128, 0.5)'
+						}
+					}
+				},
+				emphasis: {
+					lineStyle: {
+						width: 1,
+						color: 'rgba(128, 128, 128, 0.5)'
+					},
+					chordStyle: {
+						lineStyle: {
+							width: 1,
+							color: 'rgba(128, 128, 128, 0.5)'
+						}
+					}
+				}
+			}
+		},
+		gauge: {
+			startAngle: 225,
+			endAngle: -45,
+			axisLine: {
+				show: true,
+				lineStyle: {
+					color: [[0.2, '#86b379'], [0.8, '#68a54a'], [1, '#408829']],
+					width: 8
+				}
+			},
+			axisTick: {
+				splitNumber: 10,
+				length: 12,
+				lineStyle: {
+					color: 'auto'
+				}
+			},
+			axisLabel: {
+				textStyle: {
+					color: 'auto'
+				}
+			},
+			splitLine: {
+				length: 18,
+				lineStyle: {
+					color: 'auto'
+				}
+			},
+			pointer: {
+				length: '90%',
+				color: 'auto'
+			},
+			title: {
+				textStyle: {
+					color: '#333'
+				}
+			},
+			detail: {
+				textStyle: {
+					color: 'auto'
+				}
+			}
+		},
+		textStyle: {
+			fontFamily: 'Arial, Verdana, sans-serif'
+		}
+	};
+
+	//echart Bar
+
+	if ($('#mainb').length) {
+
+		var echartBar = echarts.init(document.getElementById('mainb'), theme);
+
+		echartBar.setOption({
+			title: {
+				text: 'Graph title',
+				subtext: 'Graph Sub-text'
+			},
+			tooltip: {
+				trigger: 'axis'
+			},
+			legend: {
+				data: ['sales', 'purchases']
+			},
+			toolbox: {
+				show: false
+			},
+			calculable: false,
+			xAxis: [{
+				type: 'category',
+				data: ['1?', '2?', '3?', '4?', '5?', '6?', '7?', '8?', '9?', '10?', '11?', '12?']
+			}],
+			yAxis: [{
+				type: 'value'
+			}],
+			series: [{
+				name: 'sales',
+				type: 'bar',
+				data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
+				markPoint: {
+					data: [{
+						type: 'max',
+						name: '???'
+					}, {
+						type: 'min',
+						name: '???'
+					}]
+				},
+				markLine: {
+					data: [{
+						type: 'average',
+						name: '???'
+					}]
+				}
+			}, {
+				name: 'purchases',
+				type: 'bar',
+				data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
+				markPoint: {
+					data: [{
+						name: 'sales',
+						value: 182.2,
+						xAxis: 7,
+						yAxis: 183
+					}, {
+						name: 'purchases',
+						value: 2.3,
+						xAxis: 11,
+						yAxis: 3
+					}]
+				},
+				markLine: {
+					data: [{
+						type: 'average',
+						name: '???'
+					}]
+				}
+			}]
+		});
+	}
+
+	//echart Radar
+
+	if ($('#echart_sonar').length) {
+
+		var echartRadar = echarts.init(document.getElementById('echart_sonar'), theme);
+
+		echartRadar.setOption({
+			title: {
+				text: 'Budget vs spending',
+				subtext: 'Subtitle'
+			},
+			tooltip: {
+				trigger: 'item'
+			},
+			legend: {
+				orient: 'vertical',
+				x: 'right',
+				y: 'bottom',
+				data: ['Allocated Budget', 'Actual Spending']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			polar: [{
+				indicator: [{
+					text: 'Sales',
+					max: 6000
+				}, {
+					text: 'Administration',
+					max: 16000
+				}, {
+					text: 'Information Techology',
+					max: 30000
+				}, {
+					text: 'Customer Support',
+					max: 38000
+				}, {
+					text: 'Development',
+					max: 52000
+				}, {
+					text: 'Marketing',
+					max: 25000
+				}]
+			}],
+			calculable: true,
+			series: [{
+				name: 'Budget vs spending',
+				type: 'radar',
+				data: [{
+					value: [4300, 10000, 28000, 35000, 50000, 19000],
+					name: 'Allocated Budget'
+				}, {
+					value: [5000, 14000, 28000, 31000, 42000, 21000],
+					name: 'Actual Spending'
+				}]
+			}]
+		});
+	}
+
+	//echart Funnel
+
+	if ($('#echart_pyramid').length) {
+
+		var echartFunnel = echarts.init(document.getElementById('echart_pyramid'), theme);
+
+		echartFunnel.setOption({
+			title: {
+				text: 'Echart Pyramid Graph',
+				subtext: 'Subtitle'
+			},
+			tooltip: {
+				trigger: 'item',
+				formatter: "{a} <br/>{b} : {c}%"
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			legend: {
+				data: ['Something #1', 'Something #2', 'Something #3', 'Something #4', 'Something #5'],
+				orient: 'vertical',
+				x: 'left',
+				y: 'bottom'
+			},
+			calculable: true,
+			series: [{
+				name: '漏斗图',
+				type: 'funnel',
+				width: '40%',
+				data: [{
+					value: 60,
+					name: 'Something #1'
+				}, {
+					value: 40,
+					name: 'Something #2'
+				}, {
+					value: 20,
+					name: 'Something #3'
+				}, {
+					value: 80,
+					name: 'Something #4'
+				}, {
+					value: 100,
+					name: 'Something #5'
+				}]
+			}]
+		});
+	}
+
+	//echart Gauge
+
+	if ($('#echart_gauge').length) {
+
+		var echartGauge = echarts.init(document.getElementById('echart_gauge'), theme);
+
+		echartGauge.setOption({
+			tooltip: {
+				formatter: "{a} <br/>{b} : {c}%"
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			series: [{
+				name: 'Performance',
+				type: 'gauge',
+				center: ['50%', '50%'],
+				startAngle: 140,
+				endAngle: -140,
+				min: 0,
+				max: 100,
+				precision: 0,
+				splitNumber: 10,
+				axisLine: {
+					show: true,
+					lineStyle: {
+						color: [[0.2, 'lightgreen'], [0.4, 'orange'], [0.8, 'skyblue'], [1, '#ff4500']],
+						width: 30
+					}
+				},
+				axisTick: {
+					show: true,
+					splitNumber: 5,
+					length: 8,
+					lineStyle: {
+						color: '#eee',
+						width: 1,
+						type: 'solid'
+					}
+				},
+				axisLabel: {
+					show: true,
+					formatter: function formatter(v) {
+						switch (v + '') {
+							case '10':
+								return 'a';
+							case '30':
+								return 'b';
+							case '60':
+								return 'c';
+							case '90':
+								return 'd';
+							default:
+								return '';
+						}
+					},
+					textStyle: {
+						color: '#333'
+					}
+				},
+				splitLine: {
+					show: true,
+					length: 30,
+					lineStyle: {
+						color: '#eee',
+						width: 2,
+						type: 'solid'
+					}
+				},
+				pointer: {
+					length: '80%',
+					width: 8,
+					color: 'auto'
+				},
+				title: {
+					show: true,
+					offsetCenter: ['-65%', -10],
+					textStyle: {
+						color: '#333',
+						fontSize: 15
+					}
+				},
+				detail: {
+					show: true,
+					backgroundColor: 'rgba(0,0,0,0)',
+					borderWidth: 0,
+					borderColor: '#ccc',
+					width: 100,
+					height: 40,
+					offsetCenter: ['-60%', 10],
+					formatter: '{value}%',
+					textStyle: {
+						color: 'auto',
+						fontSize: 30
+					}
+				},
+				data: [{
+					value: 50,
+					name: 'Performance'
+				}]
+			}]
+		});
+	}
+
+	//echart Line
+
+	if ($('#echart_line').length) {
+
+		var echartLine = echarts.init(document.getElementById('echart_line'), theme);
+
+		echartLine.setOption({
+			title: {
+				text: 'Line Graph',
+				subtext: 'Subtitle'
+			},
+			tooltip: {
+				trigger: 'axis'
+			},
+			legend: {
+				x: 220,
+				y: 40,
+				data: ['Intent', 'Pre-order', 'Deal']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					magicType: {
+						show: true,
+						title: {
+							line: 'Line',
+							bar: 'Bar',
+							stack: 'Stack',
+							tiled: 'Tiled'
+						},
+						type: ['line', 'bar', 'stack', 'tiled']
+					},
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			calculable: true,
+			xAxis: [{
+				type: 'category',
+				boundaryGap: false,
+				data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+			}],
+			yAxis: [{
+				type: 'value'
+			}],
+			series: [{
+				name: 'Deal',
+				type: 'line',
+				smooth: true,
+				itemStyle: {
+					normal: {
+						areaStyle: {
+							type: 'default'
+						}
+					}
+				},
+				data: [10, 12, 21, 54, 260, 830, 710]
+			}, {
+				name: 'Pre-order',
+				type: 'line',
+				smooth: true,
+				itemStyle: {
+					normal: {
+						areaStyle: {
+							type: 'default'
+						}
+					}
+				},
+				data: [30, 182, 434, 791, 390, 30, 10]
+			}, {
+				name: 'Intent',
+				type: 'line',
+				smooth: true,
+				itemStyle: {
+					normal: {
+						areaStyle: {
+							type: 'default'
+						}
+					}
+				},
+				data: [1320, 1132, 601, 234, 120, 90, 20]
+			}]
+		});
+	}
+
+	//echart Scatter
+
+	if ($('#echart_scatter').length) {
+
+		var echartScatter = echarts.init(document.getElementById('echart_scatter'), theme);
+
+		echartScatter.setOption({
+			title: {
+				text: 'Scatter Graph',
+				subtext: 'Heinz  2003'
+			},
+			tooltip: {
+				trigger: 'axis',
+				showDelay: 0,
+				axisPointer: {
+					type: 'cross',
+					lineStyle: {
+						type: 'dashed',
+						width: 1
+					}
+				}
+			},
+			legend: {
+				data: ['Data2', 'Data1']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			xAxis: [{
+				type: 'value',
+				scale: true,
+				axisLabel: {
+					formatter: '{value} cm'
+				}
+			}],
+			yAxis: [{
+				type: 'value',
+				scale: true,
+				axisLabel: {
+					formatter: '{value} kg'
+				}
+			}],
+			series: [{
+				name: 'Data1',
+				type: 'scatter',
+				tooltip: {
+					trigger: 'item',
+					formatter: function formatter(params) {
+						if (params.value.length > 1) {
+							return params.seriesName + ' :<br/>' + params.value[0] + 'cm ' + params.value[1] + 'kg ';
+						} else {
+							return params.seriesName + ' :<br/>' + params.name + ' : ' + params.value + 'kg ';
+						}
+					}
+				},
+				data: [[161.2, 51.6], [167.5, 59.0], [159.5, 49.2], [157.0, 63.0], [155.8, 53.6], [170.0, 59.0], [159.1, 47.6], [166.0, 69.8], [176.2, 66.8], [160.2, 75.2], [172.5, 55.2], [170.9, 54.2], [172.9, 62.5], [153.4, 42.0], [160.0, 50.0], [147.2, 49.8], [168.2, 49.2], [175.0, 73.2], [157.0, 47.8], [167.6, 68.8], [159.5, 50.6], [175.0, 82.5], [166.8, 57.2], [176.5, 87.8], [170.2, 72.8], [174.0, 54.5], [173.0, 59.8], [179.9, 67.3], [170.5, 67.8], [160.0, 47.0], [154.4, 46.2], [162.0, 55.0], [176.5, 83.0], [160.0, 54.4], [152.0, 45.8], [162.1, 53.6], [170.0, 73.2], [160.2, 52.1], [161.3, 67.9], [166.4, 56.6], [168.9, 62.3], [163.8, 58.5], [167.6, 54.5], [160.0, 50.2], [161.3, 60.3], [167.6, 58.3], [165.1, 56.2], [160.0, 50.2], [170.0, 72.9], [157.5, 59.8], [167.6, 61.0], [160.7, 69.1], [163.2, 55.9], [152.4, 46.5], [157.5, 54.3], [168.3, 54.8], [180.3, 60.7], [165.5, 60.0], [165.0, 62.0], [164.5, 60.3], [156.0, 52.7], [160.0, 74.3], [163.0, 62.0], [165.7, 73.1], [161.0, 80.0], [162.0, 54.7], [166.0, 53.2], [174.0, 75.7], [172.7, 61.1], [167.6, 55.7], [151.1, 48.7], [164.5, 52.3], [163.5, 50.0], [152.0, 59.3], [169.0, 62.5], [164.0, 55.7], [161.2, 54.8], [155.0, 45.9], [170.0, 70.6], [176.2, 67.2], [170.0, 69.4], [162.5, 58.2], [170.3, 64.8], [164.1, 71.6], [169.5, 52.8], [163.2, 59.8], [154.5, 49.0], [159.8, 50.0], [173.2, 69.2], [170.0, 55.9], [161.4, 63.4], [169.0, 58.2], [166.2, 58.6], [159.4, 45.7], [162.5, 52.2], [159.0, 48.6], [162.8, 57.8], [159.0, 55.6], [179.8, 66.8], [162.9, 59.4], [161.0, 53.6], [151.1, 73.2], [168.2, 53.4], [168.9, 69.0], [173.2, 58.4], [171.8, 56.2], [178.0, 70.6], [164.3, 59.8], [163.0, 72.0], [168.5, 65.2], [166.8, 56.6], [172.7, 105.2], [163.5, 51.8], [169.4, 63.4], [167.8, 59.0], [159.5, 47.6], [167.6, 63.0], [161.2, 55.2], [160.0, 45.0], [163.2, 54.0], [162.2, 50.2], [161.3, 60.2], [149.5, 44.8], [157.5, 58.8], [163.2, 56.4], [172.7, 62.0], [155.0, 49.2], [156.5, 67.2], [164.0, 53.8], [160.9, 54.4], [162.8, 58.0], [167.0, 59.8], [160.0, 54.8], [160.0, 43.2], [168.9, 60.5], [158.2, 46.4], [156.0, 64.4], [160.0, 48.8], [167.1, 62.2], [158.0, 55.5], [167.6, 57.8], [156.0, 54.6], [162.1, 59.2], [173.4, 52.7], [159.8, 53.2], [170.5, 64.5], [159.2, 51.8], [157.5, 56.0], [161.3, 63.6], [162.6, 63.2], [160.0, 59.5], [168.9, 56.8], [165.1, 64.1], [162.6, 50.0], [165.1, 72.3], [166.4, 55.0], [160.0, 55.9], [152.4, 60.4], [170.2, 69.1], [162.6, 84.5], [170.2, 55.9], [158.8, 55.5], [172.7, 69.5], [167.6, 76.4], [162.6, 61.4], [167.6, 65.9], [156.2, 58.6], [175.2, 66.8], [172.1, 56.6], [162.6, 58.6], [160.0, 55.9], [165.1, 59.1], [182.9, 81.8], [166.4, 70.7], [165.1, 56.8], [177.8, 60.0], [165.1, 58.2], [175.3, 72.7], [154.9, 54.1], [158.8, 49.1], [172.7, 75.9], [168.9, 55.0], [161.3, 57.3], [167.6, 55.0], [165.1, 65.5], [175.3, 65.5], [157.5, 48.6], [163.8, 58.6], [167.6, 63.6], [165.1, 55.2], [165.1, 62.7], [168.9, 56.6], [162.6, 53.9], [164.5, 63.2], [176.5, 73.6], [168.9, 62.0], [175.3, 63.6], [159.4, 53.2], [160.0, 53.4], [170.2, 55.0], [162.6, 70.5], [167.6, 54.5], [162.6, 54.5], [160.7, 55.9], [160.0, 59.0], [157.5, 63.6], [162.6, 54.5], [152.4, 47.3], [170.2, 67.7], [165.1, 80.9], [172.7, 70.5], [165.1, 60.9], [170.2, 63.6], [170.2, 54.5], [170.2, 59.1], [161.3, 70.5], [167.6, 52.7], [167.6, 62.7], [165.1, 86.3], [162.6, 66.4], [152.4, 67.3], [168.9, 63.0], [170.2, 73.6], [175.2, 62.3], [175.2, 57.7], [160.0, 55.4], [165.1, 104.1], [174.0, 55.5], [170.2, 77.3], [160.0, 80.5], [167.6, 64.5], [167.6, 72.3], [167.6, 61.4], [154.9, 58.2], [162.6, 81.8], [175.3, 63.6], [171.4, 53.4], [157.5, 54.5], [165.1, 53.6], [160.0, 60.0], [174.0, 73.6], [162.6, 61.4], [174.0, 55.5], [162.6, 63.6], [161.3, 60.9], [156.2, 60.0], [149.9, 46.8], [169.5, 57.3], [160.0, 64.1], [175.3, 63.6], [169.5, 67.3], [160.0, 75.5], [172.7, 68.2], [162.6, 61.4], [157.5, 76.8], [176.5, 71.8], [164.4, 55.5], [160.7, 48.6], [174.0, 66.4], [163.8, 67.3]],
+				markPoint: {
+					data: [{
+						type: 'max',
+						name: 'Max'
+					}, {
+						type: 'min',
+						name: 'Min'
+					}]
+				},
+				markLine: {
+					data: [{
+						type: 'average',
+						name: 'Mean'
+					}]
+				}
+			}, {
+				name: 'Data2',
+				type: 'scatter',
+				tooltip: {
+					trigger: 'item',
+					formatter: function formatter(params) {
+						if (params.value.length > 1) {
+							return params.seriesName + ' :<br/>' + params.value[0] + 'cm ' + params.value[1] + 'kg ';
+						} else {
+							return params.seriesName + ' :<br/>' + params.name + ' : ' + params.value + 'kg ';
+						}
+					}
+				},
+				data: [[174.0, 65.6], [175.3, 71.8], [193.5, 80.7], [186.5, 72.6], [187.2, 78.8], [181.5, 74.8], [184.0, 86.4], [184.5, 78.4], [175.0, 62.0], [184.0, 81.6], [180.0, 76.6], [177.8, 83.6], [192.0, 90.0], [176.0, 74.6], [174.0, 71.0], [184.0, 79.6], [192.7, 93.8], [171.5, 70.0], [173.0, 72.4], [176.0, 85.9], [176.0, 78.8], [180.5, 77.8], [172.7, 66.2], [176.0, 86.4], [173.5, 81.8], [178.0, 89.6], [180.3, 82.8], [180.3, 76.4], [164.5, 63.2], [173.0, 60.9], [183.5, 74.8], [175.5, 70.0], [188.0, 72.4], [189.2, 84.1], [172.8, 69.1], [170.0, 59.5], [182.0, 67.2], [170.0, 61.3], [177.8, 68.6], [184.2, 80.1], [186.7, 87.8], [171.4, 84.7], [172.7, 73.4], [175.3, 72.1], [180.3, 82.6], [182.9, 88.7], [188.0, 84.1], [177.2, 94.1], [172.1, 74.9], [167.0, 59.1], [169.5, 75.6], [174.0, 86.2], [172.7, 75.3], [182.2, 87.1], [164.1, 55.2], [163.0, 57.0], [171.5, 61.4], [184.2, 76.8], [174.0, 86.8], [174.0, 72.2], [177.0, 71.6], [186.0, 84.8], [167.0, 68.2], [171.8, 66.1], [182.0, 72.0], [167.0, 64.6], [177.8, 74.8], [164.5, 70.0], [192.0, 101.6], [175.5, 63.2], [171.2, 79.1], [181.6, 78.9], [167.4, 67.7], [181.1, 66.0], [177.0, 68.2], [174.5, 63.9], [177.5, 72.0], [170.5, 56.8], [182.4, 74.5], [197.1, 90.9], [180.1, 93.0], [175.5, 80.9], [180.6, 72.7], [184.4, 68.0], [175.5, 70.9], [180.6, 72.5], [177.0, 72.5], [177.1, 83.4], [181.6, 75.5], [176.5, 73.0], [175.0, 70.2], [174.0, 73.4], [165.1, 70.5], [177.0, 68.9], [192.0, 102.3], [176.5, 68.4], [169.4, 65.9], [182.1, 75.7], [179.8, 84.5], [175.3, 87.7], [184.9, 86.4], [177.3, 73.2], [167.4, 53.9], [178.1, 72.0], [168.9, 55.5], [157.2, 58.4], [180.3, 83.2], [170.2, 72.7], [177.8, 64.1], [172.7, 72.3], [165.1, 65.0], [186.7, 86.4], [165.1, 65.0], [174.0, 88.6], [175.3, 84.1], [185.4, 66.8], [177.8, 75.5], [180.3, 93.2], [180.3, 82.7], [177.8, 58.0], [177.8, 79.5], [177.8, 78.6], [177.8, 71.8], [177.8, 116.4], [163.8, 72.2], [188.0, 83.6], [198.1, 85.5], [175.3, 90.9], [166.4, 85.9], [190.5, 89.1], [166.4, 75.0], [177.8, 77.7], [179.7, 86.4], [172.7, 90.9], [190.5, 73.6], [185.4, 76.4], [168.9, 69.1], [167.6, 84.5], [175.3, 64.5], [170.2, 69.1], [190.5, 108.6], [177.8, 86.4], [190.5, 80.9], [177.8, 87.7], [184.2, 94.5], [176.5, 80.2], [177.8, 72.0], [180.3, 71.4], [171.4, 72.7], [172.7, 84.1], [172.7, 76.8], [177.8, 63.6], [177.8, 80.9], [182.9, 80.9], [170.2, 85.5], [167.6, 68.6], [175.3, 67.7], [165.1, 66.4], [185.4, 102.3], [181.6, 70.5], [172.7, 95.9], [190.5, 84.1], [179.1, 87.3], [175.3, 71.8], [170.2, 65.9], [193.0, 95.9], [171.4, 91.4], [177.8, 81.8], [177.8, 96.8], [167.6, 69.1], [167.6, 82.7], [180.3, 75.5], [182.9, 79.5], [176.5, 73.6], [186.7, 91.8], [188.0, 84.1], [188.0, 85.9], [177.8, 81.8], [174.0, 82.5], [177.8, 80.5], [171.4, 70.0], [185.4, 81.8], [185.4, 84.1], [188.0, 90.5], [188.0, 91.4], [182.9, 89.1], [176.5, 85.0], [175.3, 69.1], [175.3, 73.6], [188.0, 80.5], [188.0, 82.7], [175.3, 86.4], [170.5, 67.7], [179.1, 92.7], [177.8, 93.6], [175.3, 70.9], [182.9, 75.0], [170.8, 93.2], [188.0, 93.2], [180.3, 77.7], [177.8, 61.4], [185.4, 94.1], [168.9, 75.0], [185.4, 83.6], [180.3, 85.5], [174.0, 73.9], [167.6, 66.8], [182.9, 87.3], [160.0, 72.3], [180.3, 88.6], [167.6, 75.5], [186.7, 101.4], [175.3, 91.1], [175.3, 67.3], [175.9, 77.7], [175.3, 81.8], [179.1, 75.5], [181.6, 84.5], [177.8, 76.6], [182.9, 85.0], [177.8, 102.5], [184.2, 77.3], [179.1, 71.8], [176.5, 87.9], [188.0, 94.3], [174.0, 70.9], [167.6, 64.5], [170.2, 77.3], [167.6, 72.3], [188.0, 87.3], [174.0, 80.0], [176.5, 82.3], [180.3, 73.6], [167.6, 74.1], [188.0, 85.9], [180.3, 73.2], [167.6, 76.3], [183.0, 65.9], [183.0, 90.9], [179.1, 89.1], [170.2, 62.3], [177.8, 82.7], [179.1, 79.1], [190.5, 98.2], [177.8, 84.1], [180.3, 83.2], [180.3, 83.2]],
+				markPoint: {
+					data: [{
+						type: 'max',
+						name: 'Max'
+					}, {
+						type: 'min',
+						name: 'Min'
+					}]
+				},
+				markLine: {
+					data: [{
+						type: 'average',
+						name: 'Mean'
+					}]
+				}
+			}]
+		});
+	}
+
+	//echart Bar Horizontal
+
+	if ($('#echart_bar_horizontal').length) {
+
+		var echartBar = echarts.init(document.getElementById('echart_bar_horizontal'), theme);
+
+		echartBar.setOption({
+			title: {
+				text: 'Bar Graph',
+				subtext: 'Graph subtitle'
+			},
+			tooltip: {
+				trigger: 'axis'
+			},
+			legend: {
+				x: 100,
+				data: ['2015', '2016']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			calculable: true,
+			xAxis: [{
+				type: 'value',
+				boundaryGap: [0, 0.01]
+			}],
+			yAxis: [{
+				type: 'category',
+				data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+			}],
+			series: [{
+				name: '2015',
+				type: 'bar',
+				data: [18203, 23489, 29034, 104970, 131744, 630230]
+			}, {
+				name: '2016',
+				type: 'bar',
+				data: [19325, 23438, 31000, 121594, 134141, 681807]
+			}]
+		});
+	}
+
+	//echart Pie Collapse
+
+	if ($('#echart_pie2').length) {
+
+		var echartPieCollapse = echarts.init(document.getElementById('echart_pie2'), theme);
+
+		echartPieCollapse.setOption({
+			tooltip: {
+				trigger: 'item',
+				formatter: "{a} <br/>{b} : {c} ({d}%)"
+			},
+			legend: {
+				x: 'center',
+				y: 'bottom',
+				data: ['rose1', 'rose2', 'rose3', 'rose4', 'rose5', 'rose6']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					magicType: {
+						show: true,
+						type: ['pie', 'funnel']
+					},
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			calculable: true,
+			series: [{
+				name: 'Area Mode',
+				type: 'pie',
+				radius: [25, 90],
+				center: ['50%', 170],
+				roseType: 'area',
+				x: '50%',
+				max: 40,
+				sort: 'ascending',
+				data: [{
+					value: 10,
+					name: 'rose1'
+				}, {
+					value: 5,
+					name: 'rose2'
+				}, {
+					value: 15,
+					name: 'rose3'
+				}, {
+					value: 25,
+					name: 'rose4'
+				}, {
+					value: 20,
+					name: 'rose5'
+				}, {
+					value: 35,
+					name: 'rose6'
+				}]
+			}]
+		});
+	}
+
+	//echart Donut
+
+	if ($('#echart_donut').length) {
+
+		var echartDonut = echarts.init(document.getElementById('echart_donut'), theme);
+
+		echartDonut.setOption({
+			tooltip: {
+				trigger: 'item',
+				formatter: "{a} <br/>{b} : {c} ({d}%)"
+			},
+			calculable: true,
+			legend: {
+				x: 'center',
+				y: 'bottom',
+				data: ['Direct Access', 'E-mail Marketing', 'Union Ad', 'Video Ads', 'Search Engine']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					magicType: {
+						show: true,
+						type: ['pie', 'funnel'],
+						option: {
+							funnel: {
+								x: '25%',
+								width: '50%',
+								funnelAlign: 'center',
+								max: 1548
+							}
+						}
+					},
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			series: [{
+				name: 'Access to the resource',
+				type: 'pie',
+				radius: ['35%', '55%'],
+				itemStyle: {
+					normal: {
+						label: {
+							show: true
+						},
+						labelLine: {
+							show: true
+						}
+					},
+					emphasis: {
+						label: {
+							show: true,
+							position: 'center',
+							textStyle: {
+								fontSize: '14',
+								fontWeight: 'normal'
+							}
+						}
+					}
+				},
+				data: [{
+					value: 335,
+					name: 'Direct Access'
+				}, {
+					value: 310,
+					name: 'E-mail Marketing'
+				}, {
+					value: 234,
+					name: 'Union Ad'
+				}, {
+					value: 135,
+					name: 'Video Ads'
+				}, {
+					value: 1548,
+					name: 'Search Engine'
+				}]
+			}]
+		});
+	}
+
+	//echart Pie
+
+	if ($('#echart_pie').length) {
+
+		var echartPie = echarts.init(document.getElementById('echart_pie'), theme);
+
+		echartPie.setOption({
+			tooltip: {
+				trigger: 'item',
+				formatter: "{a} <br/>{b} : {c} ({d}%)"
+			},
+			legend: {
+				x: 'center',
+				y: 'bottom',
+				data: ['Direct Access', 'E-mail Marketing', 'Union Ad', 'Video Ads', 'Search Engine']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					magicType: {
+						show: true,
+						type: ['pie', 'funnel'],
+						option: {
+							funnel: {
+								x: '25%',
+								width: '50%',
+								funnelAlign: 'left',
+								max: 1548
+							}
+						}
+					},
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			calculable: true,
+			series: [{
+				name: '访问来源',
+				type: 'pie',
+				radius: '55%',
+				center: ['50%', '48%'],
+				data: [{
+					value: 335,
+					name: 'Direct Access'
+				}, {
+					value: 310,
+					name: 'E-mail Marketing'
+				}, {
+					value: 234,
+					name: 'Union Ad'
+				}, {
+					value: 135,
+					name: 'Video Ads'
+				}, {
+					value: 1548,
+					name: 'Search Engine'
+				}]
+			}]
+		});
+
+		var dataStyle = {
+			normal: {
+				label: {
+					show: false
+				},
+				labelLine: {
+					show: false
+				}
+			}
+		};
+
+		var placeHolderStyle = {
+			normal: {
+				color: 'rgba(0,0,0,0)',
+				label: {
+					show: false
+				},
+				labelLine: {
+					show: false
+				}
+			},
+			emphasis: {
+				color: 'rgba(0,0,0,0)'
+			}
+		};
+	}
+
+	//echart Mini Pie
+
+	if ($('#echart_mini_pie').length) {
+
+		var echartMiniPie = echarts.init(document.getElementById('echart_mini_pie'), theme);
+
+		echartMiniPie.setOption({
+			title: {
+				text: 'Chart #2',
+				subtext: 'From ExcelHome',
+				sublink: 'http://e.weibo.com/1341556070/AhQXtjbqh',
+				x: 'center',
+				y: 'center',
+				itemGap: 20,
+				textStyle: {
+					color: 'rgba(30,144,255,0.8)',
+					fontFamily: '微软雅黑',
+					fontSize: 35,
+					fontWeight: 'bolder'
+				}
+			},
+			tooltip: {
+				show: true,
+				formatter: "{a} <br/>{b} : {c} ({d}%)"
+			},
+			legend: {
+				orient: 'vertical',
+				x: 170,
+				y: 45,
+				itemGap: 12,
+				data: ['68%Something #1', '29%Something #2', '3%Something #3']
+			},
+			toolbox: {
+				show: true,
+				feature: {
+					mark: {
+						show: true
+					},
+					dataView: {
+						show: true,
+						title: "Text View",
+						lang: ["Text View", "Close", "Refresh"],
+						readOnly: false
+					},
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			series: [{
+				name: '1',
+				type: 'pie',
+				clockWise: false,
+				radius: [105, 130],
+				itemStyle: dataStyle,
+				data: [{
+					value: 68,
+					name: '68%Something #1'
+				}, {
+					value: 32,
+					name: 'invisible',
+					itemStyle: placeHolderStyle
+				}]
+			}, {
+				name: '2',
+				type: 'pie',
+				clockWise: false,
+				radius: [80, 105],
+				itemStyle: dataStyle,
+				data: [{
+					value: 29,
+					name: '29%Something #2'
+				}, {
+					value: 71,
+					name: 'invisible',
+					itemStyle: placeHolderStyle
+				}]
+			}, {
+				name: '3',
+				type: 'pie',
+				clockWise: false,
+				radius: [25, 80],
+				itemStyle: dataStyle,
+				data: [{
+					value: 3,
+					name: '3%Something #3'
+				}, {
+					value: 97,
+					name: 'invisible',
+					itemStyle: placeHolderStyle
+				}]
+			}]
+		});
+	}
+
+	//echart Map
+
+	if ($('#echart_world_map').length) {
+
+		var echartMap = echarts.init(document.getElementById('echart_world_map'), theme);
+
+		echartMap.setOption({
+			title: {
+				text: 'World Population (2010)',
+				subtext: 'from United Nations, Total population, both sexes combined, as of 1 July (thousands)',
+				x: 'center',
+				y: 'top'
+			},
+			tooltip: {
+				trigger: 'item',
+				formatter: function formatter(params) {
+					var value = (params.value + '').split('.');
+					value = value[0].replace(/(\d{1,3})(?=(?:\d{3})+(?!\d))/g, '$1,') + '.' + value[1];
+					return params.seriesName + '<br/>' + params.name + ' : ' + value;
+				}
+			},
+			toolbox: {
+				show: true,
+				orient: 'vertical',
+				x: 'right',
+				y: 'center',
+				feature: {
+					mark: {
+						show: true
+					},
+					dataView: {
+						show: true,
+						title: "Text View",
+						lang: ["Text View", "Close", "Refresh"],
+						readOnly: false
+					},
+					restore: {
+						show: true,
+						title: "Restore"
+					},
+					saveAsImage: {
+						show: true,
+						title: "Save Image"
+					}
+				}
+			},
+			dataRange: {
+				min: 0,
+				max: 1000000,
+				text: ['High', 'Low'],
+				realtime: false,
+				calculable: true,
+				color: ['#087E65', '#26B99A', '#CBEAE3']
+			},
+			series: [{
+				name: 'World Population (2010)',
+				type: 'map',
+				mapType: 'world',
+				roam: false,
+				mapLocation: {
+					y: 60
+				},
+				itemStyle: {
+					emphasis: {
+						label: {
+							show: true
+						}
+					}
+				},
+				data: [{
+					name: 'Afghanistan',
+					value: 28397.812
+				}, {
+					name: 'Angola',
+					value: 19549.124
+				}, {
+					name: 'Albania',
+					value: 3150.143
+				}, {
+					name: 'United Arab Emirates',
+					value: 8441.537
+				}, {
+					name: 'Argentina',
+					value: 40374.224
+				}, {
+					name: 'Armenia',
+					value: 2963.496
+				}, {
+					name: 'French Southern and Antarctic Lands',
+					value: 268.065
+				}, {
+					name: 'Australia',
+					value: 22404.488
+				}, {
+					name: 'Austria',
+					value: 8401.924
+				}, {
+					name: 'Azerbaijan',
+					value: 9094.718
+				}, {
+					name: 'Burundi',
+					value: 9232.753
+				}, {
+					name: 'Belgium',
+					value: 10941.288
+				}, {
+					name: 'Benin',
+					value: 9509.798
+				}, {
+					name: 'Burkina Faso',
+					value: 15540.284
+				}, {
+					name: 'Bangladesh',
+					value: 151125.475
+				}, {
+					name: 'Bulgaria',
+					value: 7389.175
+				}, {
+					name: 'The Bahamas',
+					value: 66402.316
+				}, {
+					name: 'Bosnia and Herzegovina',
+					value: 3845.929
+				}, {
+					name: 'Belarus',
+					value: 9491.07
+				}, {
+					name: 'Belize',
+					value: 308.595
+				}, {
+					name: 'Bermuda',
+					value: 64.951
+				}, {
+					name: 'Bolivia',
+					value: 716.939
+				}, {
+					name: 'Brazil',
+					value: 195210.154
+				}, {
+					name: 'Brunei',
+					value: 27.223
+				}, {
+					name: 'Bhutan',
+					value: 716.939
+				}, {
+					name: 'Botswana',
+					value: 1969.341
+				}, {
+					name: 'Central African Republic',
+					value: 4349.921
+				}, {
+					name: 'Canada',
+					value: 34126.24
+				}, {
+					name: 'Switzerland',
+					value: 7830.534
+				}, {
+					name: 'Chile',
+					value: 17150.76
+				}, {
+					name: 'China',
+					value: 1359821.465
+				}, {
+					name: 'Ivory Coast',
+					value: 60508.978
+				}, {
+					name: 'Cameroon',
+					value: 20624.343
+				}, {
+					name: 'Democratic Republic of the Congo',
+					value: 62191.161
+				}, {
+					name: 'Republic of the Congo',
+					value: 3573.024
+				}, {
+					name: 'Colombia',
+					value: 46444.798
+				}, {
+					name: 'Costa Rica',
+					value: 4669.685
+				}, {
+					name: 'Cuba',
+					value: 11281.768
+				}, {
+					name: 'Northern Cyprus',
+					value: 1.468
+				}, {
+					name: 'Cyprus',
+					value: 1103.685
+				}, {
+					name: 'Czech Republic',
+					value: 10553.701
+				}, {
+					name: 'Germany',
+					value: 83017.404
+				}, {
+					name: 'Djibouti',
+					value: 834.036
+				}, {
+					name: 'Denmark',
+					value: 5550.959
+				}, {
+					name: 'Dominican Republic',
+					value: 10016.797
+				}, {
+					name: 'Algeria',
+					value: 37062.82
+				}, {
+					name: 'Ecuador',
+					value: 15001.072
+				}, {
+					name: 'Egypt',
+					value: 78075.705
+				}, {
+					name: 'Eritrea',
+					value: 5741.159
+				}, {
+					name: 'Spain',
+					value: 46182.038
+				}, {
+					name: 'Estonia',
+					value: 1298.533
+				}, {
+					name: 'Ethiopia',
+					value: 87095.281
+				}, {
+					name: 'Finland',
+					value: 5367.693
+				}, {
+					name: 'Fiji',
+					value: 860.559
+				}, {
+					name: 'Falkland Islands',
+					value: 49.581
+				}, {
+					name: 'France',
+					value: 63230.866
+				}, {
+					name: 'Gabon',
+					value: 1556.222
+				}, {
+					name: 'United Kingdom',
+					value: 62066.35
+				}, {
+					name: 'Georgia',
+					value: 4388.674
+				}, {
+					name: 'Ghana',
+					value: 24262.901
+				}, {
+					name: 'Guinea',
+					value: 10876.033
+				}, {
+					name: 'Gambia',
+					value: 1680.64
+				}, {
+					name: 'Guinea Bissau',
+					value: 10876.033
+				}, {
+					name: 'Equatorial Guinea',
+					value: 696.167
+				}, {
+					name: 'Greece',
+					value: 11109.999
+				}, {
+					name: 'Greenland',
+					value: 56.546
+				}, {
+					name: 'Guatemala',
+					value: 14341.576
+				}, {
+					name: 'French Guiana',
+					value: 231.169
+				}, {
+					name: 'Guyana',
+					value: 786.126
+				}, {
+					name: 'Honduras',
+					value: 7621.204
+				}, {
+					name: 'Croatia',
+					value: 4338.027
+				}, {
+					name: 'Haiti',
+					value: 9896.4
+				}, {
+					name: 'Hungary',
+					value: 10014.633
+				}, {
+					name: 'Indonesia',
+					value: 240676.485
+				}, {
+					name: 'India',
+					value: 1205624.648
+				}, {
+					name: 'Ireland',
+					value: 4467.561
+				}, {
+					name: 'Iran',
+					value: 240676.485
+				}, {
+					name: 'Iraq',
+					value: 30962.38
+				}, {
+					name: 'Iceland',
+					value: 318.042
+				}, {
+					name: 'Israel',
+					value: 7420.368
+				}, {
+					name: 'Italy',
+					value: 60508.978
+				}, {
+					name: 'Jamaica',
+					value: 2741.485
+				}, {
+					name: 'Jordan',
+					value: 6454.554
+				}, {
+					name: 'Japan',
+					value: 127352.833
+				}, {
+					name: 'Kazakhstan',
+					value: 15921.127
+				}, {
+					name: 'Kenya',
+					value: 40909.194
+				}, {
+					name: 'Kyrgyzstan',
+					value: 5334.223
+				}, {
+					name: 'Cambodia',
+					value: 14364.931
+				}, {
+					name: 'South Korea',
+					value: 51452.352
+				}, {
+					name: 'Kosovo',
+					value: 97.743
+				}, {
+					name: 'Kuwait',
+					value: 2991.58
+				}, {
+					name: 'Laos',
+					value: 6395.713
+				}, {
+					name: 'Lebanon',
+					value: 4341.092
+				}, {
+					name: 'Liberia',
+					value: 3957.99
+				}, {
+					name: 'Libya',
+					value: 6040.612
+				}, {
+					name: 'Sri Lanka',
+					value: 20758.779
+				}, {
+					name: 'Lesotho',
+					value: 2008.921
+				}, {
+					name: 'Lithuania',
+					value: 3068.457
+				}, {
+					name: 'Luxembourg',
+					value: 507.885
+				}, {
+					name: 'Latvia',
+					value: 2090.519
+				}, {
+					name: 'Morocco',
+					value: 31642.36
+				}, {
+					name: 'Moldova',
+					value: 103.619
+				}, {
+					name: 'Madagascar',
+					value: 21079.532
+				}, {
+					name: 'Mexico',
+					value: 117886.404
+				}, {
+					name: 'Macedonia',
+					value: 507.885
+				}, {
+					name: 'Mali',
+					value: 13985.961
+				}, {
+					name: 'Myanmar',
+					value: 51931.231
+				}, {
+					name: 'Montenegro',
+					value: 620.078
+				}, {
+					name: 'Mongolia',
+					value: 2712.738
+				}, {
+					name: 'Mozambique',
+					value: 23967.265
+				}, {
+					name: 'Mauritania',
+					value: 3609.42
+				}, {
+					name: 'Malawi',
+					value: 15013.694
+				}, {
+					name: 'Malaysia',
+					value: 28275.835
+				}, {
+					name: 'Namibia',
+					value: 2178.967
+				}, {
+					name: 'New Caledonia',
+					value: 246.379
+				}, {
+					name: 'Niger',
+					value: 15893.746
+				}, {
+					name: 'Nigeria',
+					value: 159707.78
+				}, {
+					name: 'Nicaragua',
+					value: 5822.209
+				}, {
+					name: 'Netherlands',
+					value: 16615.243
+				}, {
+					name: 'Norway',
+					value: 4891.251
+				}, {
+					name: 'Nepal',
+					value: 26846.016
+				}, {
+					name: 'New Zealand',
+					value: 4368.136
+				}, {
+					name: 'Oman',
+					value: 2802.768
+				}, {
+					name: 'Pakistan',
+					value: 173149.306
+				}, {
+					name: 'Panama',
+					value: 3678.128
+				}, {
+					name: 'Peru',
+					value: 29262.83
+				}, {
+					name: 'Philippines',
+					value: 93444.322
+				}, {
+					name: 'Papua New Guinea',
+					value: 6858.945
+				}, {
+					name: 'Poland',
+					value: 38198.754
+				}, {
+					name: 'Puerto Rico',
+					value: 3709.671
+				}, {
+					name: 'North Korea',
+					value: 1.468
+				}, {
+					name: 'Portugal',
+					value: 10589.792
+				}, {
+					name: 'Paraguay',
+					value: 6459.721
+				}, {
+					name: 'Qatar',
+					value: 1749.713
+				}, {
+					name: 'Romania',
+					value: 21861.476
+				}, {
+					name: 'Russia',
+					value: 21861.476
+				}, {
+					name: 'Rwanda',
+					value: 10836.732
+				}, {
+					name: 'Western Sahara',
+					value: 514.648
+				}, {
+					name: 'Saudi Arabia',
+					value: 27258.387
+				}, {
+					name: 'Sudan',
+					value: 35652.002
+				}, {
+					name: 'South Sudan',
+					value: 9940.929
+				}, {
+					name: 'Senegal',
+					value: 12950.564
+				}, {
+					name: 'Solomon Islands',
+					value: 526.447
+				}, {
+					name: 'Sierra Leone',
+					value: 5751.976
+				}, {
+					name: 'El Salvador',
+					value: 6218.195
+				}, {
+					name: 'Somaliland',
+					value: 9636.173
+				}, {
+					name: 'Somalia',
+					value: 9636.173
+				}, {
+					name: 'Republic of Serbia',
+					value: 3573.024
+				}, {
+					name: 'Suriname',
+					value: 524.96
+				}, {
+					name: 'Slovakia',
+					value: 5433.437
+				}, {
+					name: 'Slovenia',
+					value: 2054.232
+				}, {
+					name: 'Sweden',
+					value: 9382.297
+				}, {
+					name: 'Swaziland',
+					value: 1193.148
+				}, {
+					name: 'Syria',
+					value: 7830.534
+				}, {
+					name: 'Chad',
+					value: 11720.781
+				}, {
+					name: 'Togo',
+					value: 6306.014
+				}, {
+					name: 'Thailand',
+					value: 66402.316
+				}, {
+					name: 'Tajikistan',
+					value: 7627.326
+				}, {
+					name: 'Turkmenistan',
+					value: 5041.995
+				}, {
+					name: 'East Timor',
+					value: 10016.797
+				}, {
+					name: 'Trinidad and Tobago',
+					value: 1328.095
+				}, {
+					name: 'Tunisia',
+					value: 10631.83
+				}, {
+					name: 'Turkey',
+					value: 72137.546
+				}, {
+					name: 'United Republic of Tanzania',
+					value: 44973.33
+				}, {
+					name: 'Uganda',
+					value: 33987.213
+				}, {
+					name: 'Ukraine',
+					value: 46050.22
+				}, {
+					name: 'Uruguay',
+					value: 3371.982
+				}, {
+					name: 'United States of America',
+					value: 312247.116
+				}, {
+					name: 'Uzbekistan',
+					value: 27769.27
+				}, {
+					name: 'Venezuela',
+					value: 236.299
+				}, {
+					name: 'Vietnam',
+					value: 89047.397
+				}, {
+					name: 'Vanuatu',
+					value: 236.299
+				}, {
+					name: 'West Bank',
+					value: 13.565
+				}, {
+					name: 'Yemen',
+					value: 22763.008
+				}, {
+					name: 'South Africa',
+					value: 51452.352
+				}, {
+					name: 'Zambia',
+					value: 13216.985
+				}, {
+					name: 'Zimbabwe',
+					value: 13076.978
+				}]
+			}]
+		});
+	}
+}
+
+$(document).ready(function () {
+
+	init_sparklines();
+	init_flot_chart();
+	init_sidebar();
+	init_wysiwyg();
+	init_InputMask();
+	init_JQVmap();
+	init_cropper();
+	init_knob();
+	init_IonRangeSlider();
+	init_ColorPicker();
+	init_TagsInput();
+	init_parsley();
+	init_daterangepicker();
+	init_daterangepicker_right();
+	init_daterangepicker_single_call();
+	init_daterangepicker_reservation();
+	init_SmartWizard();
+	init_EasyPieChart();
+	init_charts();
+	init_echarts();
+	init_morris_charts();
+	init_skycons();
+	init_select2();
+	init_validator();
+	init_DataTables();
+	init_chart_doughnut();
+	init_gauge();
+	init_PNotify();
+	init_starrr();
+	init_calendar();
+	init_compose();
+	init_CustomNotification();
+	init_autosize();
+	init_autocomplete();
+});
+
+/***/ }),
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 if (false) {
   module.exports = require('./vue.common.prod.js')
 } else {
-  module.exports = __webpack_require__(59)
+  module.exports = __webpack_require__(60)
 }
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46175,10 +54699,10 @@ Vue.compile = compileToFunctions;
 
 module.exports = Vue;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(60).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(61).setImmediate))
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
@@ -46234,7 +54758,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(61);
+__webpack_require__(62);
 // On some exotic environments, it's not clear which object `setimmediate` was
 // able to install onto.  Search each possibility in the same order as the
 // `setimmediate` library.
@@ -46248,7 +54772,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -46441,15 +54965,15 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(7)))
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(2)
 /* script */
-var __vue_script__ = __webpack_require__(63)
+var __vue_script__ = __webpack_require__(64)
 /* template */
-var __vue_template__ = __webpack_require__(64)
+var __vue_template__ = __webpack_require__(65)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -46488,7 +55012,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -46517,7 +55041,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -46560,19 +55084,19 @@ if (false) {
 }
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(66)
+  __webpack_require__(67)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
-var __vue_script__ = __webpack_require__(69)
+var __vue_script__ = __webpack_require__(70)
 /* template */
-var __vue_template__ = __webpack_require__(70)
+var __vue_template__ = __webpack_require__(71)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -46611,13 +55135,13 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(67);
+var content = __webpack_require__(68);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -46637,7 +55161,7 @@ if(false) {
 }
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(12)(false);
@@ -46651,7 +55175,7 @@ exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports) {
 
 /**
@@ -46684,7 +55208,7 @@ module.exports = function listToStyles (parentId, list) {
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -46900,7 +55424,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -47739,15 +56263,15 @@ if (false) {
 }
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(2)
 /* script */
-var __vue_script__ = __webpack_require__(72)
+var __vue_script__ = __webpack_require__(73)
 /* template */
-var __vue_template__ = __webpack_require__(73)
+var __vue_template__ = __webpack_require__(74)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -47786,7 +56310,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -48098,7 +56622,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -48853,19 +57377,19 @@ if (false) {
 }
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(75)
+  __webpack_require__(76)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
-var __vue_script__ = __webpack_require__(77)
+var __vue_script__ = __webpack_require__(78)
 /* template */
-var __vue_template__ = __webpack_require__(78)
+var __vue_template__ = __webpack_require__(79)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -48904,13 +57428,13 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(76);
+var content = __webpack_require__(77);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
@@ -48930,7 +57454,7 @@ if(false) {
 }
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(12)(false);
@@ -48944,7 +57468,7 @@ exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -48961,7 +57485,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -48988,8555 +57512,10 @@ if (false) {
 }
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 80 */,
-/* 81 */,
-/* 82 */,
-/* 83 */,
-/* 84 */,
-/* 85 */,
-/* 86 */,
-/* 87 */,
-/* 88 */,
-/* 89 */,
-/* 90 */,
-/* 91 */,
-/* 92 */,
-/* 93 */,
-/* 94 */,
-/* 95 */,
-/* 96 */,
-/* 97 */,
-/* 98 */,
-/* 99 */,
-/* 100 */
-/***/ (function(module, exports) {
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/**
- * Resize function without multiple trigger
- * 
- * Usage:
- * $(window).smartresize(function(){  
- *     // code here
- * });
- */
-(function ($, sr) {
-	// debouncing function from John Hann
-	// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
-	var debounce = function debounce(func, threshold, execAsap) {
-		var timeout;
-
-		return function debounced() {
-			var obj = this,
-			    args = arguments;
-			function delayed() {
-				if (!execAsap) func.apply(obj, args);
-				timeout = null;
-			}
-
-			if (timeout) clearTimeout(timeout);else if (execAsap) func.apply(obj, args);
-
-			timeout = setTimeout(delayed, threshold || 100);
-		};
-	};
-
-	// smartresize 
-	jQuery.fn[sr] = function (fn) {
-		return fn ? this.bind('resize', debounce(fn)) : this.trigger(sr);
-	};
-})(jQuery, 'smartresize');
-/**
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
-    $BODY = $('body'),
-    $MENU_TOGGLE = $('#menu_toggle'),
-    $SIDEBAR_MENU = $('#sidebar-menu'),
-    $SIDEBAR_FOOTER = $('.sidebar-footer'),
-    $LEFT_COL = $('.left_col'),
-    $RIGHT_COL = $('.right_col'),
-    $NAV_MENU = $('.nav_menu'),
-    $FOOTER = $('footer');
-
-// Sidebar
-function init_sidebar() {
-	// TODO: This is some kind of easy fix, maybe we can improve this
-	var setContentHeight = function setContentHeight() {
-		// reset height
-		$RIGHT_COL.css('min-height', $(window).height());
-
-		var bodyHeight = $BODY.outerHeight(),
-		    footerHeight = $BODY.hasClass('footer_fixed') ? -10 : $FOOTER.height(),
-		    leftColHeight = $LEFT_COL.eq(1).height() + $SIDEBAR_FOOTER.height(),
-		    contentHeight = bodyHeight < leftColHeight ? leftColHeight : bodyHeight;
-
-		// normalize content
-		contentHeight -= $NAV_MENU.height() + footerHeight;
-
-		$RIGHT_COL.css('min-height', contentHeight);
-	};
-
-	$SIDEBAR_MENU.find('a').on('click', function (ev) {
-		console.log('clicked - sidebar_menu');
-		var $li = $(this).parent();
-
-		if ($li.is('.active')) {
-			$li.removeClass('active active-sm');
-			$('ul:first', $li).slideUp(function () {
-				setContentHeight();
-			});
-		} else {
-			// prevent closing menu if we are on child menu
-			if (!$li.parent().is('.child_menu')) {
-				$SIDEBAR_MENU.find('li').removeClass('active active-sm');
-				$SIDEBAR_MENU.find('li ul').slideUp();
-			} else {
-				if ($BODY.is(".nav-sm")) {
-					$li.parent().find("li").removeClass("active active-sm");
-					$li.parent().find("li ul").slideUp();
-				}
-			}
-			$li.addClass('active');
-
-			$('ul:first', $li).slideDown(function () {
-				setContentHeight();
-			});
-		}
-	});
-
-	// toggle small or large menu 
-	$MENU_TOGGLE.on('click', function () {
-		console.log('clicked - menu toggle');
-
-		if ($BODY.hasClass('nav-md')) {
-			$SIDEBAR_MENU.find('li.active ul').hide();
-			$SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
-		} else {
-			$SIDEBAR_MENU.find('li.active-sm ul').show();
-			$SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
-		}
-
-		$BODY.toggleClass('nav-md nav-sm');
-
-		setContentHeight();
-
-		$('.dataTable').each(function () {
-			$(this).dataTable().fnDraw();
-		});
-	});
-
-	// check active menu
-	$SIDEBAR_MENU.find('a[href="' + CURRENT_URL + '"]').parent('li').addClass('current-page');
-
-	$SIDEBAR_MENU.find('a').filter(function () {
-		return this.href == CURRENT_URL;
-	}).parent('li').addClass('current-page').parents('ul').slideDown(function () {
-		setContentHeight();
-	}).parent().addClass('active');
-
-	// recompute content when resizing
-	$(window).smartresize(function () {
-		setContentHeight();
-	});
-
-	setContentHeight();
-
-	// fixed sidebar
-	if ($.fn.mCustomScrollbar) {
-		$('.menu_fixed').mCustomScrollbar({
-			autoHideScrollbar: true,
-			theme: 'minimal',
-			mouseWheel: { preventDefault: true }
-		});
-	}
-};
-// /Sidebar
-
-var randNum = function randNum() {
-	return Math.floor(Math.random() * (1 + 40 - 20)) + 20;
-};
-
-// Panel toolbox
-$(document).ready(function () {
-	$('.collapse-link').on('click', function () {
-		var $BOX_PANEL = $(this).closest('.x_panel'),
-		    $ICON = $(this).find('i'),
-		    $BOX_CONTENT = $BOX_PANEL.find('.x_content');
-
-		// fix for some div with hardcoded fix class
-		if ($BOX_PANEL.attr('style')) {
-			$BOX_CONTENT.slideToggle(200, function () {
-				$BOX_PANEL.removeAttr('style');
-			});
-		} else {
-			$BOX_CONTENT.slideToggle(200);
-			$BOX_PANEL.css('height', 'auto');
-		}
-
-		$ICON.toggleClass('fa-chevron-up fa-chevron-down');
-	});
-
-	$('.close-link').click(function () {
-		var $BOX_PANEL = $(this).closest('.x_panel');
-
-		$BOX_PANEL.remove();
-	});
-});
-// /Panel toolbox
-
-// Tooltip
-$(document).ready(function () {
-	$('[data-toggle="tooltip"]').tooltip({
-		container: 'body'
-	});
-});
-// /Tooltip
-
-// Progressbar
-if ($(".progress .progress-bar")[0]) {
-	$('.progress .progress-bar').progressbar();
-}
-// /Progressbar
-
-// Switchery
-$(document).ready(function () {
-	if ($(".js-switch")[0]) {
-		var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
-		elems.forEach(function (html) {
-			var switchery = new Switchery(html, {
-				color: '#26B99A'
-			});
-		});
-	}
-});
-// /Switchery
-
-
-// iCheck
-$(document).ready(function () {
-	if ($("input.flat")[0]) {
-		$(document).ready(function () {
-			$('input.flat').iCheck({
-				checkboxClass: 'icheckbox_flat-green',
-				radioClass: 'iradio_flat-green'
-			});
-		});
-	}
-});
-// /iCheck
-
-// Table
-$('table input').on('ifChecked', function () {
-	checkState = '';
-	$(this).parent().parent().parent().addClass('selected');
-	countChecked();
-});
-$('table input').on('ifUnchecked', function () {
-	checkState = '';
-	$(this).parent().parent().parent().removeClass('selected');
-	countChecked();
-});
-
-var checkState = '';
-
-$('.bulk_action input').on('ifChecked', function () {
-	checkState = '';
-	$(this).parent().parent().parent().addClass('selected');
-	countChecked();
-});
-$('.bulk_action input').on('ifUnchecked', function () {
-	checkState = '';
-	$(this).parent().parent().parent().removeClass('selected');
-	countChecked();
-});
-$('.bulk_action input#check-all').on('ifChecked', function () {
-	checkState = 'all';
-	countChecked();
-});
-$('.bulk_action input#check-all').on('ifUnchecked', function () {
-	checkState = 'none';
-	countChecked();
-});
-
-function countChecked() {
-	if (checkState === 'all') {
-		$(".bulk_action input[name='table_records']").iCheck('check');
-	}
-	if (checkState === 'none') {
-		$(".bulk_action input[name='table_records']").iCheck('uncheck');
-	}
-
-	var checkCount = $(".bulk_action input[name='table_records']:checked").length;
-
-	if (checkCount) {
-		$('.column-title').hide();
-		$('.bulk-actions').show();
-		$('.action-cnt').html(checkCount + ' Records Selected');
-	} else {
-		$('.column-title').show();
-		$('.bulk-actions').hide();
-	}
-}
-
-// Accordion
-$(document).ready(function () {
-	$(".expand").on("click", function () {
-		$(this).next().slideToggle(200);
-		$expand = $(this).find(">:first-child");
-
-		if ($expand.text() == "+") {
-			$expand.text("-");
-		} else {
-			$expand.text("+");
-		}
-	});
-});
-
-// NProgress
-if (typeof NProgress != 'undefined') {
-	$(document).ready(function () {
-		NProgress.start();
-	});
-
-	$(window).load(function () {
-		NProgress.done();
-	});
-}
-
-//hover and retain popover when on popover content
-var originalLeave = $.fn.popover.Constructor.prototype.leave;
-$.fn.popover.Constructor.prototype.leave = function (obj) {
-	var self = obj instanceof this.constructor ? obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
-	var container, timeout;
-
-	originalLeave.call(this, obj);
-
-	if (obj.currentTarget) {
-		container = $(obj.currentTarget).siblings('.popover');
-		timeout = self.timeout;
-		container.one('mouseenter', function () {
-			//We entered the actual popover – call off the dogs
-			clearTimeout(timeout);
-			//Let's monitor popover content instead
-			container.one('mouseleave', function () {
-				$.fn.popover.Constructor.prototype.leave.call(self, self);
-			});
-		});
-	}
-};
-
-$('body').popover({
-	selector: '[data-popover]',
-	trigger: 'click hover',
-	delay: {
-		show: 50,
-		hide: 400
-	}
-});
-
-function gd(year, month, day) {
-	return new Date(year, month - 1, day).getTime();
-}
-
-function init_flot_chart() {
-
-	if (typeof $.plot === 'undefined') {
-		return;
-	}
-
-	console.log('init_flot_chart');
-
-	var arr_data1 = [[gd(2012, 1, 1), 17], [gd(2012, 1, 2), 74], [gd(2012, 1, 3), 6], [gd(2012, 1, 4), 39], [gd(2012, 1, 5), 20], [gd(2012, 1, 6), 85], [gd(2012, 1, 7), 7]];
-
-	var arr_data2 = [[gd(2012, 1, 1), 82], [gd(2012, 1, 2), 23], [gd(2012, 1, 3), 66], [gd(2012, 1, 4), 9], [gd(2012, 1, 5), 119], [gd(2012, 1, 6), 6], [gd(2012, 1, 7), 9]];
-
-	var arr_data3 = [[0, 1], [1, 9], [2, 6], [3, 10], [4, 5], [5, 17], [6, 6], [7, 10], [8, 7], [9, 11], [10, 35], [11, 9], [12, 12], [13, 5], [14, 3], [15, 4], [16, 9]];
-
-	var chart_plot_02_data = [];
-
-	var chart_plot_03_data = [[0, 1], [1, 9], [2, 6], [3, 10], [4, 5], [5, 17], [6, 6], [7, 10], [8, 7], [9, 11], [10, 35], [11, 9], [12, 12], [13, 5], [14, 3], [15, 4], [16, 9]];
-
-	for (var i = 0; i < 30; i++) {
-		chart_plot_02_data.push([new Date(Date.today().add(i).days()).getTime(), randNum() + i + i + 10]);
-	}
-
-	var chart_plot_01_settings = {
-		series: {
-			lines: {
-				show: false,
-				fill: true
-			},
-			splines: {
-				show: true,
-				tension: 0.4,
-				lineWidth: 1,
-				fill: 0.4
-			},
-			points: {
-				radius: 0,
-				show: true
-			},
-			shadowSize: 2
-		},
-		grid: {
-			verticalLines: true,
-			hoverable: true,
-			clickable: true,
-			tickColor: "#d5d5d5",
-			borderWidth: 1,
-			color: '#fff'
-		},
-		colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)"],
-		xaxis: {
-			tickColor: "rgba(51, 51, 51, 0.06)",
-			mode: "time",
-			tickSize: [1, "day"],
-			//tickLength: 10,
-			axisLabel: "Date",
-			axisLabelUseCanvas: true,
-			axisLabelFontSizePixels: 12,
-			axisLabelFontFamily: 'Verdana, Arial',
-			axisLabelPadding: 10
-		},
-		yaxis: {
-			ticks: 8,
-			tickColor: "rgba(51, 51, 51, 0.06)"
-		},
-		tooltip: false
-	};
-
-	var chart_plot_02_settings = {
-		grid: {
-			show: true,
-			aboveData: true,
-			color: "#3f3f3f",
-			labelMargin: 10,
-			axisMargin: 0,
-			borderWidth: 0,
-			borderColor: null,
-			minBorderMargin: 5,
-			clickable: true,
-			hoverable: true,
-			autoHighlight: true,
-			mouseActiveRadius: 100
-		},
-		series: {
-			lines: {
-				show: true,
-				fill: true,
-				lineWidth: 2,
-				steps: false
-			},
-			points: {
-				show: true,
-				radius: 4.5,
-				symbol: "circle",
-				lineWidth: 3.0
-			}
-		},
-		legend: {
-			position: "ne",
-			margin: [0, -25],
-			noColumns: 0,
-			labelBoxBorderColor: null,
-			labelFormatter: function labelFormatter(label, series) {
-				return label + '&nbsp;&nbsp;';
-			},
-			width: 40,
-			height: 1
-		},
-		colors: ['#96CA59', '#3F97EB', '#72c380', '#6f7a8a', '#f7cb38', '#5a8022', '#2c7282'],
-		shadowSize: 0,
-		tooltip: true,
-		tooltipOpts: {
-			content: "%s: %y.0",
-			xDateFormat: "%d/%m",
-			shifts: {
-				x: -30,
-				y: -50
-			},
-			defaultTheme: false
-		},
-		yaxis: {
-			min: 0
-		},
-		xaxis: {
-			mode: "time",
-			minTickSize: [1, "day"],
-			timeformat: "%d/%m/%y",
-			min: chart_plot_02_data[0][0],
-			max: chart_plot_02_data[20][0]
-		}
-	};
-
-	var chart_plot_03_settings = {
-		series: {
-			curvedLines: {
-				apply: true,
-				active: true,
-				monotonicFit: true
-			}
-		},
-		colors: ["#26B99A"],
-		grid: {
-			borderWidth: {
-				top: 0,
-				right: 0,
-				bottom: 1,
-				left: 1
-			},
-			borderColor: {
-				bottom: "#7F8790",
-				left: "#7F8790"
-			}
-		}
-	};
-
-	if ($("#chart_plot_01").length) {
-		console.log('Plot1');
-
-		$.plot($("#chart_plot_01"), [arr_data1, arr_data2], chart_plot_01_settings);
-	}
-
-	if ($("#chart_plot_02").length) {
-		console.log('Plot2');
-
-		$.plot($("#chart_plot_02"), [{
-			label: "Email Sent",
-			data: chart_plot_02_data,
-			lines: {
-				fillColor: "rgba(150, 202, 89, 0.12)"
-			},
-			points: {
-				fillColor: "#fff" }
-		}], chart_plot_02_settings);
-	}
-
-	if ($("#chart_plot_03").length) {
-		console.log('Plot3');
-
-		$.plot($("#chart_plot_03"), [{
-			label: "Registrations",
-			data: chart_plot_03_data,
-			lines: {
-				fillColor: "rgba(150, 202, 89, 0.12)"
-			},
-			points: {
-				fillColor: "#fff"
-			}
-		}], chart_plot_03_settings);
-	};
-}
-
-/* STARRR */
-
-function init_starrr() {
-
-	if (typeof starrr === 'undefined') {
-		return;
-	}
-	console.log('init_starrr');
-
-	$(".stars").starrr();
-
-	$('.stars-existing').starrr({
-		rating: 4
-	});
-
-	$('.stars').on('starrr:change', function (e, value) {
-		$('.stars-count').html(value);
-	});
-
-	$('.stars-existing').on('starrr:change', function (e, value) {
-		$('.stars-count-existing').html(value);
-	});
-};
-
-function init_JQVmap() {
-
-	//console.log('check init_JQVmap [' + typeof (VectorCanvas) + '][' + typeof (jQuery.fn.vectorMap) + ']' );	
-
-	if (typeof jQuery.fn.vectorMap === 'undefined') {
-		return;
-	}
-
-	console.log('init_JQVmap');
-
-	if ($('#world-map-gdp').length) {
-
-		$('#world-map-gdp').vectorMap({
-			map: 'world_en',
-			backgroundColor: null,
-			color: '#ffffff',
-			hoverOpacity: 0.7,
-			selectedColor: '#666666',
-			enableZoom: true,
-			showTooltip: true,
-			values: sample_data,
-			scaleColors: ['#E6F2F0', '#149B7E'],
-			normalizeFunction: 'polynomial'
-		});
-	}
-
-	if ($('#usa_map').length) {
-
-		$('#usa_map').vectorMap({
-			map: 'usa_en',
-			backgroundColor: null,
-			color: '#ffffff',
-			hoverOpacity: 0.7,
-			selectedColor: '#666666',
-			enableZoom: true,
-			showTooltip: true,
-			values: sample_data,
-			scaleColors: ['#E6F2F0', '#149B7E'],
-			normalizeFunction: 'polynomial'
-		});
-	}
-};
-
-function init_skycons() {
-
-	if (typeof Skycons === 'undefined') {
-		return;
-	}
-	console.log('init_skycons');
-
-	var icons = new Skycons({
-		"color": "#73879C"
-	}),
-	    list = ["clear-day", "clear-night", "partly-cloudy-day", "partly-cloudy-night", "cloudy", "rain", "sleet", "snow", "wind", "fog"],
-	    i;
-
-	for (i = list.length; i--;) {
-		icons.set(list[i], list[i]);
-	}icons.play();
-}
-
-function init_chart_doughnut() {
-
-	if (typeof Chart === 'undefined') {
-		return;
-	}
-
-	console.log('init_chart_doughnut');
-
-	if ($('.canvasDoughnut').length) {
-
-		var chart_doughnut_settings = {
-			type: 'doughnut',
-			tooltipFillColor: "rgba(51, 51, 51, 0.55)",
-			data: {
-				labels: ["Symbian", "Blackberry", "Other", "Android", "IOS"],
-				datasets: [{
-					data: [15, 20, 30, 10, 30],
-					backgroundColor: ["#BDC3C7", "#9B59B6", "#E74C3C", "#26B99A", "#3498DB"],
-					hoverBackgroundColor: ["#CFD4D8", "#B370CF", "#E95E4F", "#36CAAB", "#49A9EA"]
-				}]
-			},
-			options: {
-				legend: false,
-				responsive: false
-			}
-		};
-
-		$('.canvasDoughnut').each(function () {
-
-			var chart_element = $(this);
-			var chart_doughnut = new Chart(chart_element, chart_doughnut_settings);
-		});
-	}
-}
-
-function init_gauge() {
-
-	if (typeof Gauge === 'undefined') {
-		return;
-	}
-
-	console.log('init_gauge [' + $('.gauge-chart').length + ']');
-
-	console.log('init_gauge');
-
-	var chart_gauge_settings = {
-		lines: 12,
-		angle: 0,
-		lineWidth: 0.4,
-		pointer: {
-			length: 0.75,
-			strokeWidth: 0.042,
-			color: '#1D212A'
-		},
-		limitMax: 'false',
-		colorStart: '#1ABC9C',
-		colorStop: '#1ABC9C',
-		strokeColor: '#F0F3F3',
-		generateGradient: true
-	};
-
-	if ($('#chart_gauge_01').length) {
-
-		var chart_gauge_01_elem = document.getElementById('chart_gauge_01');
-		var chart_gauge_01 = new Gauge(chart_gauge_01_elem).setOptions(chart_gauge_settings);
-	}
-
-	if ($('#gauge-text').length) {
-
-		chart_gauge_01.maxValue = 6000;
-		chart_gauge_01.animationSpeed = 32;
-		chart_gauge_01.set(3200);
-		chart_gauge_01.setTextField(document.getElementById("gauge-text"));
-	}
-
-	if ($('#chart_gauge_02').length) {
-
-		var chart_gauge_02_elem = document.getElementById('chart_gauge_02');
-		var chart_gauge_02 = new Gauge(chart_gauge_02_elem).setOptions(chart_gauge_settings);
-	}
-
-	if ($('#gauge-text2').length) {
-
-		chart_gauge_02.maxValue = 9000;
-		chart_gauge_02.animationSpeed = 32;
-		chart_gauge_02.set(2400);
-		chart_gauge_02.setTextField(document.getElementById("gauge-text2"));
-	}
-}
-
-/* SPARKLINES */
-
-function init_sparklines() {
-
-	if (typeof jQuery.fn.sparkline === 'undefined') {
-		return;
-	}
-	console.log('init_sparklines');
-
-	$(".sparkline_one").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 4, 5, 6, 3, 5, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
-		type: 'bar',
-		height: '125',
-		barWidth: 13,
-		colorMap: {
-			'7': '#a1a1a1'
-		},
-		barSpacing: 2,
-		barColor: '#26B99A'
-	});
-
-	$(".sparkline_two").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
-		type: 'bar',
-		height: '40',
-		barWidth: 9,
-		colorMap: {
-			'7': '#a1a1a1'
-		},
-		barSpacing: 2,
-		barColor: '#26B99A'
-	});
-
-	$(".sparkline_three").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 7, 5, 4, 3, 5, 6], {
-		type: 'line',
-		width: '200',
-		height: '40',
-		lineColor: '#26B99A',
-		fillColor: 'rgba(223, 223, 223, 0.57)',
-		lineWidth: 2,
-		spotColor: '#26B99A',
-		minSpotColor: '#26B99A'
-	});
-
-	$(".sparkline11").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 6, 2, 4, 3, 4, 5, 4, 5, 4, 3], {
-		type: 'bar',
-		height: '40',
-		barWidth: 8,
-		colorMap: {
-			'7': '#a1a1a1'
-		},
-		barSpacing: 2,
-		barColor: '#26B99A'
-	});
-
-	$(".sparkline22").sparkline([2, 4, 3, 4, 7, 5, 4, 3, 5, 6, 2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 6], {
-		type: 'line',
-		height: '40',
-		width: '200',
-		lineColor: '#26B99A',
-		fillColor: '#ffffff',
-		lineWidth: 3,
-		spotColor: '#34495E',
-		minSpotColor: '#34495E'
-	});
-
-	$(".sparkline_bar").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 4, 5, 6, 3, 5], {
-		type: 'bar',
-		colorMap: {
-			'7': '#a1a1a1'
-		},
-		barColor: '#26B99A'
-	});
-
-	$(".sparkline_area").sparkline([5, 6, 7, 9, 9, 5, 3, 2, 2, 4, 6, 7], {
-		type: 'line',
-		lineColor: '#26B99A',
-		fillColor: '#26B99A',
-		spotColor: '#4578a0',
-		minSpotColor: '#728fb2',
-		maxSpotColor: '#6d93c4',
-		highlightSpotColor: '#ef5179',
-		highlightLineColor: '#8ba8bf',
-		spotRadius: 2.5,
-		width: 85
-	});
-
-	$(".sparkline_line").sparkline([2, 4, 3, 4, 5, 4, 5, 4, 3, 4, 5, 6, 4, 5, 6, 3, 5], {
-		type: 'line',
-		lineColor: '#26B99A',
-		fillColor: '#ffffff',
-		width: 85,
-		spotColor: '#34495E',
-		minSpotColor: '#34495E'
-	});
-
-	$(".sparkline_pie").sparkline([1, 1, 2, 1], {
-		type: 'pie',
-		sliceColors: ['#26B99A', '#ccc', '#75BCDD', '#D66DE2']
-	});
-
-	$(".sparkline_discreet").sparkline([4, 6, 7, 7, 4, 3, 2, 1, 4, 4, 2, 4, 3, 7, 8, 9, 7, 6, 4, 3], {
-		type: 'discrete',
-		barWidth: 3,
-		lineColor: '#26B99A',
-		width: '85'
-	});
-};
-
-/* AUTOCOMPLETE */
-
-function init_autocomplete() {
-
-	if (typeof $.fn.autocomplete === 'undefined') {
-		return;
-	}
-	console.log('init_autocomplete');
-
-	var countries = { AD: "Andorra", A2: "Andorra Test", AE: "United Arab Emirates", AF: "Afghanistan", AG: "Antigua and Barbuda", AI: "Anguilla", AL: "Albania", AM: "Armenia", AN: "Netherlands Antilles", AO: "Angola", AQ: "Antarctica", AR: "Argentina", AS: "American Samoa", AT: "Austria", AU: "Australia", AW: "Aruba", AX: "Åland Islands", AZ: "Azerbaijan", BA: "Bosnia and Herzegovina", BB: "Barbados", BD: "Bangladesh", BE: "Belgium", BF: "Burkina Faso", BG: "Bulgaria", BH: "Bahrain", BI: "Burundi", BJ: "Benin", BL: "Saint Barthélemy", BM: "Bermuda", BN: "Brunei", BO: "Bolivia", BQ: "British Antarctic Territory", BR: "Brazil", BS: "Bahamas", BT: "Bhutan", BV: "Bouvet Island", BW: "Botswana", BY: "Belarus", BZ: "Belize", CA: "Canada", CC: "Cocos [Keeling] Islands", CD: "Congo - Kinshasa", CF: "Central African Republic", CG: "Congo - Brazzaville", CH: "Switzerland", CI: "Côte d’Ivoire", CK: "Cook Islands", CL: "Chile", CM: "Cameroon", CN: "China", CO: "Colombia", CR: "Costa Rica", CS: "Serbia and Montenegro", CT: "Canton and Enderbury Islands", CU: "Cuba", CV: "Cape Verde", CX: "Christmas Island", CY: "Cyprus", CZ: "Czech Republic", DD: "East Germany", DE: "Germany", DJ: "Djibouti", DK: "Denmark", DM: "Dominica", DO: "Dominican Republic", DZ: "Algeria", EC: "Ecuador", EE: "Estonia", EG: "Egypt", EH: "Western Sahara", ER: "Eritrea", ES: "Spain", ET: "Ethiopia", FI: "Finland", FJ: "Fiji", FK: "Falkland Islands", FM: "Micronesia", FO: "Faroe Islands", FQ: "French Southern and Antarctic Territories", FR: "France", FX: "Metropolitan France", GA: "Gabon", GB: "United Kingdom", GD: "Grenada", GE: "Georgia", GF: "French Guiana", GG: "Guernsey", GH: "Ghana", GI: "Gibraltar", GL: "Greenland", GM: "Gambia", GN: "Guinea", GP: "Guadeloupe", GQ: "Equatorial Guinea", GR: "Greece", GS: "South Georgia and the South Sandwich Islands", GT: "Guatemala", GU: "Guam", GW: "Guinea-Bissau", GY: "Guyana", HK: "Hong Kong SAR China", HM: "Heard Island and McDonald Islands", HN: "Honduras", HR: "Croatia", HT: "Haiti", HU: "Hungary", ID: "Indonesia", IE: "Ireland", IL: "Israel", IM: "Isle of Man", IN: "India", IO: "British Indian Ocean Territory", IQ: "Iraq", IR: "Iran", IS: "Iceland", IT: "Italy", JE: "Jersey", JM: "Jamaica", JO: "Jordan", JP: "Japan", JT: "Johnston Island", KE: "Kenya", KG: "Kyrgyzstan", KH: "Cambodia", KI: "Kiribati", KM: "Comoros", KN: "Saint Kitts and Nevis", KP: "North Korea", KR: "South Korea", KW: "Kuwait", KY: "Cayman Islands", KZ: "Kazakhstan", LA: "Laos", LB: "Lebanon", LC: "Saint Lucia", LI: "Liechtenstein", LK: "Sri Lanka", LR: "Liberia", LS: "Lesotho", LT: "Lithuania", LU: "Luxembourg", LV: "Latvia", LY: "Libya", MA: "Morocco", MC: "Monaco", MD: "Moldova", ME: "Montenegro", MF: "Saint Martin", MG: "Madagascar", MH: "Marshall Islands", MI: "Midway Islands", MK: "Macedonia", ML: "Mali", MM: "Myanmar [Burma]", MN: "Mongolia", MO: "Macau SAR China", MP: "Northern Mariana Islands", MQ: "Martinique", MR: "Mauritania", MS: "Montserrat", MT: "Malta", MU: "Mauritius", MV: "Maldives", MW: "Malawi", MX: "Mexico", MY: "Malaysia", MZ: "Mozambique", NA: "Namibia", NC: "New Caledonia", NE: "Niger", NF: "Norfolk Island", NG: "Nigeria", NI: "Nicaragua", NL: "Netherlands", NO: "Norway", NP: "Nepal", NQ: "Dronning Maud Land", NR: "Nauru", NT: "Neutral Zone", NU: "Niue", NZ: "New Zealand", OM: "Oman", PA: "Panama", PC: "Pacific Islands Trust Territory", PE: "Peru", PF: "French Polynesia", PG: "Papua New Guinea", PH: "Philippines", PK: "Pakistan", PL: "Poland", PM: "Saint Pierre and Miquelon", PN: "Pitcairn Islands", PR: "Puerto Rico", PS: "Palestinian Territories", PT: "Portugal", PU: "U.S. Miscellaneous Pacific Islands", PW: "Palau", PY: "Paraguay", PZ: "Panama Canal Zone", QA: "Qatar", RE: "Réunion", RO: "Romania", RS: "Serbia", RU: "Russia", RW: "Rwanda", SA: "Saudi Arabia", SB: "Solomon Islands", SC: "Seychelles", SD: "Sudan", SE: "Sweden", SG: "Singapore", SH: "Saint Helena", SI: "Slovenia", SJ: "Svalbard and Jan Mayen", SK: "Slovakia", SL: "Sierra Leone", SM: "San Marino", SN: "Senegal", SO: "Somalia", SR: "Suriname", ST: "São Tomé and Príncipe", SU: "Union of Soviet Socialist Republics", SV: "El Salvador", SY: "Syria", SZ: "Swaziland", TC: "Turks and Caicos Islands", TD: "Chad", TF: "French Southern Territories", TG: "Togo", TH: "Thailand", TJ: "Tajikistan", TK: "Tokelau", TL: "Timor-Leste", TM: "Turkmenistan", TN: "Tunisia", TO: "Tonga", TR: "Turkey", TT: "Trinidad and Tobago", TV: "Tuvalu", TW: "Taiwan", TZ: "Tanzania", UA: "Ukraine", UG: "Uganda", UM: "U.S. Minor Outlying Islands", US: "United States", UY: "Uruguay", UZ: "Uzbekistan", VA: "Vatican City", VC: "Saint Vincent and the Grenadines", VD: "North Vietnam", VE: "Venezuela", VG: "British Virgin Islands", VI: "U.S. Virgin Islands", VN: "Vietnam", VU: "Vanuatu", WF: "Wallis and Futuna", WK: "Wake Island", WS: "Samoa", YD: "People's Democratic Republic of Yemen", YE: "Yemen", YT: "Mayotte", ZA: "South Africa", ZM: "Zambia", ZW: "Zimbabwe", ZZ: "Unknown or Invalid Region" };
-
-	var countriesArray = $.map(countries, function (value, key) {
-		return {
-			value: value,
-			data: key
-		};
-	});
-
-	// initialize autocomplete with custom appendTo
-	$('#autocomplete-custom-append').autocomplete({
-		lookup: countriesArray
-	});
-};
-
-/* AUTOSIZE */
-
-function init_autosize() {
-
-	if (typeof $.fn.autosize !== 'undefined') {
-
-		autosize($('.resizable_textarea'));
-	}
-};
-
-/* PARSLEY */
-
-function init_parsley() {
-
-	if (typeof parsley === 'undefined') {
-		return;
-	}
-	console.log('init_parsley');
-
-	$ /*.listen*/('parsley:field:validate', function () {
-		validateFront();
-	});
-	$('#demo-form .btn').on('click', function () {
-		$('#demo-form').parsley().validate();
-		validateFront();
-	});
-	var validateFront = function validateFront() {
-		if (true === $('#demo-form').parsley().isValid()) {
-			$('.bs-callout-info').removeClass('hidden');
-			$('.bs-callout-warning').addClass('hidden');
-		} else {
-			$('.bs-callout-info').addClass('hidden');
-			$('.bs-callout-warning').removeClass('hidden');
-		}
-	};
-
-	$ /*.listen*/('parsley:field:validate', function () {
-		validateFront();
-	});
-	$('#demo-form2 .btn').on('click', function () {
-		$('#demo-form2').parsley().validate();
-		validateFront();
-	});
-	var validateFront = function validateFront() {
-		if (true === $('#demo-form2').parsley().isValid()) {
-			$('.bs-callout-info').removeClass('hidden');
-			$('.bs-callout-warning').addClass('hidden');
-		} else {
-			$('.bs-callout-info').addClass('hidden');
-			$('.bs-callout-warning').removeClass('hidden');
-		}
-	};
-
-	try {
-		hljs.initHighlightingOnLoad();
-	} catch (err) {}
-};
-
-/* INPUTS */
-
-function onAddTag(tag) {
-	alert("Added a tag: " + tag);
-}
-
-function onRemoveTag(tag) {
-	alert("Removed a tag: " + tag);
-}
-
-function onChangeTag(input, tag) {
-	alert("Changed a tag: " + tag);
-}
-
-//tags input
-function init_TagsInput() {
-
-	if (typeof $.fn.tagsInput !== 'undefined') {
-
-		$('#tags_1').tagsInput({
-			width: 'auto'
-		});
-	}
-};
-
-/* SELECT2 */
-
-function init_select2() {
-
-	if (typeof select2 === 'undefined') {
-		return;
-	}
-	console.log('init_toolbox');
-
-	$(".select2_single").select2({
-		placeholder: "Select a state",
-		allowClear: true
-	});
-	$(".select2_group").select2({});
-	$(".select2_multiple").select2({
-		maximumSelectionLength: 4,
-		placeholder: "With Max Selection limit 4",
-		allowClear: true
-	});
-};
-
-/* WYSIWYG EDITOR */
-
-function init_wysiwyg() {
-
-	if (typeof $.fn.wysiwyg === 'undefined') {
-		return;
-	}
-	console.log('init_wysiwyg');
-
-	function init_ToolbarBootstrapBindings() {
-		var fonts = ['Serif', 'Sans', 'Arial', 'Arial Black', 'Courier', 'Courier New', 'Comic Sans MS', 'Helvetica', 'Impact', 'Lucida Grande', 'Lucida Sans', 'Tahoma', 'Times', 'Times New Roman', 'Verdana'],
-		    fontTarget = $('[title=Font]').siblings('.dropdown-menu');
-		$.each(fonts, function (idx, fontName) {
-			fontTarget.append($('<li><a data-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
-		});
-		$('a[title]').tooltip({
-			container: 'body'
-		});
-		$('.dropdown-menu input').click(function () {
-			return false;
-		}).change(function () {
-			$(this).parent('.dropdown-menu').siblings('.dropdown-toggle').dropdown('toggle');
-		}).keydown('esc', function () {
-			this.value = '';
-			$(this).change();
-		});
-
-		$('[data-role=magic-overlay]').each(function () {
-			var overlay = $(this),
-			    target = $(overlay.data('target'));
-			overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
-		});
-
-		if ("onwebkitspeechchange" in document.createElement("input")) {
-			var editorOffset = $('#editor').offset();
-
-			$('.voiceBtn').css('position', 'absolute').offset({
-				top: editorOffset.top,
-				left: editorOffset.left + $('#editor').innerWidth() - 35
-			});
-		} else {
-			$('.voiceBtn').hide();
-		}
-	}
-
-	function showErrorAlert(reason, detail) {
-		var msg = '';
-		if (reason === 'unsupported-file-type') {
-			msg = "Unsupported format " + detail;
-		} else {
-			console.log("error uploading file", reason, detail);
-		}
-		$('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' + '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
-	}
-
-	$('.editor-wrapper').each(function () {
-		var id = $(this).attr('id'); //editor-one
-
-		$(this).wysiwyg({
-			toolbarSelector: '[data-target="#' + id + '"]',
-			fileUploadError: showErrorAlert
-		});
-	});
-
-	window.prettyPrint;
-	prettyPrint();
-};
-
-/* CROPPER */
-
-function init_cropper() {
-
-	if (typeof $.fn.cropper === 'undefined') {
-		return;
-	}
-	console.log('init_cropper');
-
-	var $image = $('#image');
-	var $download = $('#download');
-	var $dataX = $('#dataX');
-	var $dataY = $('#dataY');
-	var $dataHeight = $('#dataHeight');
-	var $dataWidth = $('#dataWidth');
-	var $dataRotate = $('#dataRotate');
-	var $dataScaleX = $('#dataScaleX');
-	var $dataScaleY = $('#dataScaleY');
-	var options = {
-		aspectRatio: 16 / 9,
-		preview: '.img-preview',
-		crop: function crop(e) {
-			$dataX.val(Math.round(e.x));
-			$dataY.val(Math.round(e.y));
-			$dataHeight.val(Math.round(e.height));
-			$dataWidth.val(Math.round(e.width));
-			$dataRotate.val(e.rotate);
-			$dataScaleX.val(e.scaleX);
-			$dataScaleY.val(e.scaleY);
-		}
-	};
-
-	// Tooltip
-	$('[data-toggle="tooltip"]').tooltip();
-
-	// Cropper
-	$image.on({
-		'build.cropper': function buildCropper(e) {
-			console.log(e.type);
-		},
-		'built.cropper': function builtCropper(e) {
-			console.log(e.type);
-		},
-		'cropstart.cropper': function cropstartCropper(e) {
-			console.log(e.type, e.action);
-		},
-		'cropmove.cropper': function cropmoveCropper(e) {
-			console.log(e.type, e.action);
-		},
-		'cropend.cropper': function cropendCropper(e) {
-			console.log(e.type, e.action);
-		},
-		'crop.cropper': function cropCropper(e) {
-			console.log(e.type, e.x, e.y, e.width, e.height, e.rotate, e.scaleX, e.scaleY);
-		},
-		'zoom.cropper': function zoomCropper(e) {
-			console.log(e.type, e.ratio);
-		}
-	}).cropper(options);
-
-	// Buttons
-	if (!$.isFunction(document.createElement('canvas').getContext)) {
-		$('button[data-method="getCroppedCanvas"]').prop('disabled', true);
-	}
-
-	if (typeof document.createElement('cropper').style.transition === 'undefined') {
-		$('button[data-method="rotate"]').prop('disabled', true);
-		$('button[data-method="scale"]').prop('disabled', true);
-	}
-
-	// Download
-	if (typeof $download[0].download === 'undefined') {
-		$download.addClass('disabled');
-	}
-
-	// Options
-	$('.docs-toggles').on('change', 'input', function () {
-		var $this = $(this);
-		var name = $this.attr('name');
-		var type = $this.prop('type');
-		var cropBoxData;
-		var canvasData;
-
-		if (!$image.data('cropper')) {
-			return;
-		}
-
-		if (type === 'checkbox') {
-			options[name] = $this.prop('checked');
-			cropBoxData = $image.cropper('getCropBoxData');
-			canvasData = $image.cropper('getCanvasData');
-
-			options.built = function () {
-				$image.cropper('setCropBoxData', cropBoxData);
-				$image.cropper('setCanvasData', canvasData);
-			};
-		} else if (type === 'radio') {
-			options[name] = $this.val();
-		}
-
-		$image.cropper('destroy').cropper(options);
-	});
-
-	// Methods
-	$('.docs-buttons').on('click', '[data-method]', function () {
-		var $this = $(this);
-		var data = $this.data();
-		var $target;
-		var result;
-
-		if ($this.prop('disabled') || $this.hasClass('disabled')) {
-			return;
-		}
-
-		if ($image.data('cropper') && data.method) {
-			data = $.extend({}, data); // Clone a new one
-
-			if (typeof data.target !== 'undefined') {
-				$target = $(data.target);
-
-				if (typeof data.option === 'undefined') {
-					try {
-						data.option = JSON.parse($target.val());
-					} catch (e) {
-						console.log(e.message);
-					}
-				}
-			}
-
-			result = $image.cropper(data.method, data.option, data.secondOption);
-
-			switch (data.method) {
-				case 'scaleX':
-				case 'scaleY':
-					$(this).data('option', -data.option);
-					break;
-
-				case 'getCroppedCanvas':
-					if (result) {
-
-						// Bootstrap's Modal
-						$('#getCroppedCanvasModal').modal().find('.modal-body').html(result);
-
-						if (!$download.hasClass('disabled')) {
-							$download.attr('href', result.toDataURL());
-						}
-					}
-
-					break;
-			}
-
-			if ($.isPlainObject(result) && $target) {
-				try {
-					$target.val(JSON.stringify(result));
-				} catch (e) {
-					console.log(e.message);
-				}
-			}
-		}
-	});
-
-	// Keyboard
-	$(document.body).on('keydown', function (e) {
-		if (!$image.data('cropper') || this.scrollTop > 300) {
-			return;
-		}
-
-		switch (e.which) {
-			case 37:
-				e.preventDefault();
-				$image.cropper('move', -1, 0);
-				break;
-
-			case 38:
-				e.preventDefault();
-				$image.cropper('move', 0, -1);
-				break;
-
-			case 39:
-				e.preventDefault();
-				$image.cropper('move', 1, 0);
-				break;
-
-			case 40:
-				e.preventDefault();
-				$image.cropper('move', 0, 1);
-				break;
-		}
-	});
-
-	// Import image
-	var $inputImage = $('#inputImage');
-	var URL = window.URL || window.webkitURL;
-	var blobURL;
-
-	if (URL) {
-		$inputImage.change(function () {
-			var files = this.files;
-			var file;
-
-			if (!$image.data('cropper')) {
-				return;
-			}
-
-			if (files && files.length) {
-				file = files[0];
-
-				if (/^image\/\w+$/.test(file.type)) {
-					blobURL = URL.createObjectURL(file);
-					$image.one('built.cropper', function () {
-
-						// Revoke when load complete
-						URL.revokeObjectURL(blobURL);
-					}).cropper('reset').cropper('replace', blobURL);
-					$inputImage.val('');
-				} else {
-					window.alert('Please choose an image file.');
-				}
-			}
-		});
-	} else {
-		$inputImage.prop('disabled', true).parent().addClass('disabled');
-	}
-};
-
-/* CROPPER --- end */
-
-/* KNOB */
-
-function init_knob() {
-
-	if (typeof $.fn.knob === 'undefined') {
-		return;
-	}
-	console.log('init_knob');
-
-	$(".knob").knob({
-		change: function change(value) {
-			//console.log("change : " + value);
-		},
-		release: function release(value) {
-			//console.log(this.$.attr('value'));
-			console.log("release : " + value);
-		},
-		cancel: function cancel() {
-			console.log("cancel : ", this);
-		},
-		/*format : function (value) {
-   return value + '%';
-   },*/
-		draw: function draw() {
-
-			// "tron" case
-			if (this.$.data('skin') == 'tron') {
-
-				this.cursorExt = 0.3;
-
-				var a = this.arc(this.cv) // Arc
-
-				,
-				    pa // Previous arc
-				,
-				    r = 1;
-
-				this.g.lineWidth = this.lineWidth;
-
-				if (this.o.displayPrevious) {
-					pa = this.arc(this.v);
-					this.g.beginPath();
-					this.g.strokeStyle = this.pColor;
-					this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, pa.s, pa.e, pa.d);
-					this.g.stroke();
-				}
-
-				this.g.beginPath();
-				this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
-				this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, a.s, a.e, a.d);
-				this.g.stroke();
-
-				this.g.lineWidth = 2;
-				this.g.beginPath();
-				this.g.strokeStyle = this.o.fgColor;
-				this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
-				this.g.stroke();
-
-				return false;
-			}
-		}
-
-	});
-
-	// Example of infinite knob, iPod click wheel
-	var v,
-	    up = 0,
-	    down = 0,
-	    i = 0,
-	    $idir = $("div.idir"),
-	    $ival = $("div.ival"),
-	    incr = function incr() {
-		i++;
-		$idir.show().html("+").fadeOut();
-		$ival.html(i);
-	},
-	    decr = function decr() {
-		i--;
-		$idir.show().html("-").fadeOut();
-		$ival.html(i);
-	};
-	$("input.infinite").knob({
-		min: 0,
-		max: 20,
-		stopper: false,
-		change: function change() {
-			if (v > this.cv) {
-				if (up) {
-					decr();
-					up = 0;
-				} else {
-					up = 1;
-					down = 0;
-				}
-			} else {
-				if (v < this.cv) {
-					if (down) {
-						incr();
-						down = 0;
-					} else {
-						down = 1;
-						up = 0;
-					}
-				}
-			}
-			v = this.cv;
-		}
-	});
-};
-
-/* INPUT MASK */
-
-function init_InputMask() {
-
-	if (typeof $.fn.inputmask === 'undefined') {
-		return;
-	}
-	console.log('init_InputMask');
-
-	$(":input").inputmask();
-};
-
-/* COLOR PICKER */
-
-function init_ColorPicker() {
-
-	if (typeof $.fn.colorpicker === 'undefined') {
-		return;
-	}
-	console.log('init_ColorPicker');
-
-	$('.demo1').colorpicker();
-	$('.demo2').colorpicker();
-
-	$('#demo_forceformat').colorpicker({
-		format: 'rgba',
-		horizontal: true
-	});
-
-	$('#demo_forceformat3').colorpicker({
-		format: 'rgba'
-	});
-
-	$('.demo-auto').colorpicker();
-};
-
-/* ION RANGE SLIDER */
-
-function init_IonRangeSlider() {
-
-	if (typeof $.fn.ionRangeSlider === 'undefined') {
-		return;
-	}
-	console.log('init_IonRangeSlider');
-
-	$("#range_27").ionRangeSlider({
-		type: "double",
-		min: 1000000,
-		max: 2000000,
-		grid: true,
-		force_edges: true
-	});
-	$("#range").ionRangeSlider({
-		hide_min_max: true,
-		keyboard: true,
-		min: 0,
-		max: 5000,
-		from: 1000,
-		to: 4000,
-		type: 'double',
-		step: 1,
-		prefix: "$",
-		grid: true
-	});
-	$("#range_25").ionRangeSlider({
-		type: "double",
-		min: 1000000,
-		max: 2000000,
-		grid: true
-	});
-	$("#range_26").ionRangeSlider({
-		type: "double",
-		min: 0,
-		max: 10000,
-		step: 500,
-		grid: true,
-		grid_snap: true
-	});
-	$("#range_31").ionRangeSlider({
-		type: "double",
-		min: 0,
-		max: 100,
-		from: 30,
-		to: 70,
-		from_fixed: true
-	});
-	$(".range_min_max").ionRangeSlider({
-		type: "double",
-		min: 0,
-		max: 100,
-		from: 30,
-		to: 70,
-		max_interval: 50
-	});
-	$(".range_time24").ionRangeSlider({
-		min: +moment().subtract(12, "hours").format("X"),
-		max: +moment().format("X"),
-		from: +moment().subtract(6, "hours").format("X"),
-		grid: true,
-		force_edges: true,
-		prettify: function prettify(num) {
-			var m = moment(num, "X");
-			return m.format("Do MMMM, HH:mm");
-		}
-	});
-};
-
-/* DATERANGEPICKER */
-
-function init_daterangepicker() {
-
-	if (typeof $.fn.daterangepicker === 'undefined') {
-		return;
-	}
-	console.log('init_daterangepicker');
-
-	var cb = function cb(start, end, label) {
-		console.log(start.toISOString(), end.toISOString(), label);
-		$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-	};
-
-	var optionSet1 = {
-		startDate: moment().subtract(29, 'days'),
-		endDate: moment(),
-		minDate: '01/01/2012',
-		maxDate: '12/31/2015',
-		dateLimit: {
-			days: 60
-		},
-		showDropdowns: true,
-		showWeekNumbers: true,
-		timePicker: false,
-		timePickerIncrement: 1,
-		timePicker12Hour: true,
-		ranges: {
-			'Today': [moment(), moment()],
-			'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-			'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-			'This Month': [moment().startOf('month'), moment().endOf('month')],
-			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-		},
-		opens: 'left',
-		buttonClasses: ['btn btn-default'],
-		applyClass: 'btn-small btn-primary',
-		cancelClass: 'btn-small',
-		format: 'MM/DD/YYYY',
-		separator: ' to ',
-		locale: {
-			applyLabel: 'Submit',
-			cancelLabel: 'Clear',
-			fromLabel: 'From',
-			toLabel: 'To',
-			customRangeLabel: 'Custom',
-			daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-			monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-			firstDay: 1
-		}
-	};
-
-	$('#reportrange span').html(moment().subtract(29, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
-	$('#reportrange').daterangepicker(optionSet1, cb);
-	$('#reportrange').on('show.daterangepicker', function () {
-		console.log("show event fired");
-	});
-	$('#reportrange').on('hide.daterangepicker', function () {
-		console.log("hide event fired");
-	});
-	$('#reportrange').on('apply.daterangepicker', function (ev, picker) {
-		console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
-	});
-	$('#reportrange').on('cancel.daterangepicker', function (ev, picker) {
-		console.log("cancel event fired");
-	});
-	$('#options1').click(function () {
-		$('#reportrange').data('daterangepicker').setOptions(optionSet1, cb);
-	});
-	$('#options2').click(function () {
-		$('#reportrange').data('daterangepicker').setOptions(optionSet2, cb);
-	});
-	$('#destroy').click(function () {
-		$('#reportrange').data('daterangepicker').remove();
-	});
-}
-
-function init_daterangepicker_right() {
-
-	if (typeof $.fn.daterangepicker === 'undefined') {
-		return;
-	}
-	console.log('init_daterangepicker_right');
-
-	var cb = function cb(start, end, label) {
-		console.log(start.toISOString(), end.toISOString(), label);
-		$('#reportrange_right span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-	};
-
-	var optionSet1 = {
-		startDate: moment().subtract(29, 'days'),
-		endDate: moment(),
-		minDate: '01/01/2012',
-		maxDate: '12/31/2020',
-		dateLimit: {
-			days: 60
-		},
-		showDropdowns: true,
-		showWeekNumbers: true,
-		timePicker: false,
-		timePickerIncrement: 1,
-		timePicker12Hour: true,
-		ranges: {
-			'Today': [moment(), moment()],
-			'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-			'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-			'This Month': [moment().startOf('month'), moment().endOf('month')],
-			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-		},
-		opens: 'right',
-		buttonClasses: ['btn btn-default'],
-		applyClass: 'btn-small btn-primary',
-		cancelClass: 'btn-small',
-		format: 'MM/DD/YYYY',
-		separator: ' to ',
-		locale: {
-			applyLabel: 'Submit',
-			cancelLabel: 'Clear',
-			fromLabel: 'From',
-			toLabel: 'To',
-			customRangeLabel: 'Custom',
-			daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-			monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-			firstDay: 1
-		}
-	};
-
-	$('#reportrange_right span').html(moment().subtract(29, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
-
-	$('#reportrange_right').daterangepicker(optionSet1, cb);
-
-	$('#reportrange_right').on('show.daterangepicker', function () {
-		console.log("show event fired");
-	});
-	$('#reportrange_right').on('hide.daterangepicker', function () {
-		console.log("hide event fired");
-	});
-	$('#reportrange_right').on('apply.daterangepicker', function (ev, picker) {
-		console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
-	});
-	$('#reportrange_right').on('cancel.daterangepicker', function (ev, picker) {
-		console.log("cancel event fired");
-	});
-
-	$('#options1').click(function () {
-		$('#reportrange_right').data('daterangepicker').setOptions(optionSet1, cb);
-	});
-
-	$('#options2').click(function () {
-		$('#reportrange_right').data('daterangepicker').setOptions(optionSet2, cb);
-	});
-
-	$('#destroy').click(function () {
-		$('#reportrange_right').data('daterangepicker').remove();
-	});
-}
-
-function init_daterangepicker_single_call() {
-
-	if (typeof $.fn.daterangepicker === 'undefined') {
-		return;
-	}
-	console.log('init_daterangepicker_single_call');
-
-	$('#single_cal1').daterangepicker({
-		singleDatePicker: true,
-		singleClasses: "picker_1"
-	}, function (start, end, label) {
-		console.log(start.toISOString(), end.toISOString(), label);
-	});
-	$('#single_cal2').daterangepicker({
-		singleDatePicker: true,
-		singleClasses: "picker_2"
-	}, function (start, end, label) {
-		console.log(start.toISOString(), end.toISOString(), label);
-	});
-	$('#single_cal3').daterangepicker({
-		singleDatePicker: true,
-		singleClasses: "picker_3"
-	}, function (start, end, label) {
-		console.log(start.toISOString(), end.toISOString(), label);
-	});
-	$('#single_cal4').daterangepicker({
-		singleDatePicker: true,
-		singleClasses: "picker_4"
-	}, function (start, end, label) {
-		console.log(start.toISOString(), end.toISOString(), label);
-	});
-}
-
-function init_daterangepicker_reservation() {
-
-	if (typeof $.fn.daterangepicker === 'undefined') {
-		return;
-	}
-	console.log('init_daterangepicker_reservation');
-
-	$('#reservation').daterangepicker(null, function (start, end, label) {
-		console.log(start.toISOString(), end.toISOString(), label);
-	});
-
-	$('#reservation-time').daterangepicker({
-		timePicker: true,
-		timePickerIncrement: 30,
-		locale: {
-			format: 'MM/DD/YYYY h:mm A'
-		}
-	});
-}
-
-/* SMART WIZARD */
-
-function init_SmartWizard() {
-
-	if (typeof $.fn.smartWizard === 'undefined') {
-		return;
-	}
-	console.log('init_SmartWizard');
-
-	$('#wizard').smartWizard();
-
-	$('#wizard_verticle').smartWizard({
-		transitionEffect: 'slide'
-	});
-
-	$('.buttonNext').addClass('btn btn-success');
-	$('.buttonPrevious').addClass('btn btn-primary');
-	$('.buttonFinish').addClass('btn btn-default');
-};
-
-/* VALIDATOR */
-
-function init_validator() {
-
-	if (typeof validator === 'undefined') {
-		return;
-	}
-	console.log('init_validator');
-
-	// initialize the validator function
-	validator.message.date = 'not a real date';
-
-	// validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
-	$('form').on('blur', 'input[required], input.optional, select.required', validator.checkField).on('change', 'select.required', validator.checkField).on('keypress', 'input[required][pattern]', validator.keypress);
-
-	$('.multi.required').on('keyup blur', 'input', function () {
-		validator.checkField.apply($(this).siblings().last()[0]);
-	});
-
-	$('form').submit(function (e) {
-		e.preventDefault();
-		var submit = true;
-
-		// evaluate the form using generic validaing
-		if (!validator.checkAll($(this))) {
-			submit = false;
-		}
-
-		if (submit) this.submit();
-
-		return false;
-	});
-};
-
-/* PNotify */
-
-function init_PNotify() {
-
-	if (typeof PNotify === 'undefined') {
-		return;
-	}
-	console.log('init_PNotify');
-};
-
-/* CUSTOM NOTIFICATION */
-
-function init_CustomNotification() {
-
-	console.log('run_customtabs');
-
-	if (typeof CustomTabs === 'undefined') {
-		return;
-	}
-	console.log('init_CustomTabs');
-
-	var cnt = 10;
-
-	TabbedNotification = function TabbedNotification(options) {
-		var message = "<div id='ntf" + cnt + "' class='text alert-" + options.type + "' style='display:none'><h2><i class='fa fa-bell'></i> " + options.title + "</h2><div class='close'><a href='javascript:;' class='notification_close'><i class='fa fa-close'></i></a></div><p>" + options.text + "</p></div>";
-
-		if (!document.getElementById('custom_notifications')) {
-			alert('doesnt exists');
-		} else {
-			$('#custom_notifications ul.notifications').append("<li><a id='ntlink" + cnt + "' class='alert-" + options.type + "' href='#ntf" + cnt + "'><i class='fa fa-bell animated shake'></i></a></li>");
-			$('#custom_notifications #notif-group').append(message);
-			cnt++;
-			CustomTabs(options);
-		}
-	};
-
-	CustomTabs = function CustomTabs(options) {
-		$('.tabbed_notifications > div').hide();
-		$('.tabbed_notifications > div:first-of-type').show();
-		$('#custom_notifications').removeClass('dsp_none');
-		$('.notifications a').click(function (e) {
-			e.preventDefault();
-			var $this = $(this),
-			    tabbed_notifications = '#' + $this.parents('.notifications').data('tabbed_notifications'),
-			    others = $this.closest('li').siblings().children('a'),
-			    target = $this.attr('href');
-			others.removeClass('active');
-			$this.addClass('active');
-			$(tabbed_notifications).children('div').hide();
-			$(target).show();
-		});
-	};
-
-	CustomTabs();
-
-	var tabid = idname = '';
-
-	$(document).on('click', '.notification_close', function (e) {
-		idname = $(this).parent().parent().attr("id");
-		tabid = idname.substr(-2);
-		$('#ntf' + tabid).remove();
-		$('#ntlink' + tabid).parent().remove();
-		$('.notifications a').first().addClass('active');
-		$('#notif-group div').first().css('display', 'block');
-	});
-};
-
-/* EASYPIECHART */
-
-function init_EasyPieChart() {
-
-	if (typeof $.fn.easyPieChart === 'undefined') {
-		return;
-	}
-	console.log('init_EasyPieChart');
-
-	$('.chart').easyPieChart({
-		easing: 'easeOutElastic',
-		delay: 3000,
-		barColor: '#26B99A',
-		trackColor: '#fff',
-		scaleColor: false,
-		lineWidth: 20,
-		trackWidth: 16,
-		lineCap: 'butt',
-		onStep: function onStep(from, to, percent) {
-			$(this.el).find('.percent').text(Math.round(percent));
-		}
-	});
-	var chart = window.chart = $('.chart').data('easyPieChart');
-	$('.js_update').on('click', function () {
-		chart.update(Math.random() * 200 - 100);
-	});
-
-	//hover and retain popover when on popover content
-	var originalLeave = $.fn.popover.Constructor.prototype.leave;
-	$.fn.popover.Constructor.prototype.leave = function (obj) {
-		var self = obj instanceof this.constructor ? obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
-		var container, timeout;
-
-		originalLeave.call(this, obj);
-
-		if (obj.currentTarget) {
-			container = $(obj.currentTarget).siblings('.popover');
-			timeout = self.timeout;
-			container.one('mouseenter', function () {
-				//We entered the actual popover – call off the dogs
-				clearTimeout(timeout);
-				//Let's monitor popover content instead
-				container.one('mouseleave', function () {
-					$.fn.popover.Constructor.prototype.leave.call(self, self);
-				});
-			});
-		}
-	};
-
-	$('body').popover({
-		selector: '[data-popover]',
-		trigger: 'click hover',
-		delay: {
-			show: 50,
-			hide: 400
-		}
-	});
-};
-
-function init_charts() {
-
-	console.log('run_charts  typeof [' + (typeof Chart === 'undefined' ? 'undefined' : _typeof(Chart)) + ']');
-
-	if (typeof Chart === 'undefined') {
-		return;
-	}
-
-	console.log('init_charts');
-
-	Chart.defaults.global.legend = {
-		enabled: false
-	};
-
-	if ($('#canvas_line').length) {
-
-		var canvas_line_00 = new Chart(document.getElementById("canvas_line"), {
-			type: 'line',
-			data: {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
-				datasets: [{
-					label: "My First dataset",
-					backgroundColor: "rgba(38, 185, 154, 0.31)",
-					borderColor: "rgba(38, 185, 154, 0.7)",
-					pointBorderColor: "rgba(38, 185, 154, 0.7)",
-					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(220,220,220,1)",
-					pointBorderWidth: 1,
-					data: [31, 74, 6, 39, 20, 85, 7]
-				}, {
-					label: "My Second dataset",
-					backgroundColor: "rgba(3, 88, 106, 0.3)",
-					borderColor: "rgba(3, 88, 106, 0.70)",
-					pointBorderColor: "rgba(3, 88, 106, 0.70)",
-					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(151,187,205,1)",
-					pointBorderWidth: 1,
-					data: [82, 23, 66, 9, 99, 4, 2]
-				}]
-			}
-		});
-	}
-
-	if ($('#canvas_line1').length) {
-
-		var canvas_line_01 = new Chart(document.getElementById("canvas_line1"), {
-			type: 'line',
-			data: {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
-				datasets: [{
-					label: "My First dataset",
-					backgroundColor: "rgba(38, 185, 154, 0.31)",
-					borderColor: "rgba(38, 185, 154, 0.7)",
-					pointBorderColor: "rgba(38, 185, 154, 0.7)",
-					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(220,220,220,1)",
-					pointBorderWidth: 1,
-					data: [31, 74, 6, 39, 20, 85, 7]
-				}, {
-					label: "My Second dataset",
-					backgroundColor: "rgba(3, 88, 106, 0.3)",
-					borderColor: "rgba(3, 88, 106, 0.70)",
-					pointBorderColor: "rgba(3, 88, 106, 0.70)",
-					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(151,187,205,1)",
-					pointBorderWidth: 1,
-					data: [82, 23, 66, 9, 99, 4, 2]
-				}]
-			}
-		});
-	}
-
-	if ($('#canvas_line2').length) {
-
-		var canvas_line_02 = new Chart(document.getElementById("canvas_line2"), {
-			type: 'line',
-			data: {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
-				datasets: [{
-					label: "My First dataset",
-					backgroundColor: "rgba(38, 185, 154, 0.31)",
-					borderColor: "rgba(38, 185, 154, 0.7)",
-					pointBorderColor: "rgba(38, 185, 154, 0.7)",
-					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(220,220,220,1)",
-					pointBorderWidth: 1,
-					data: [31, 74, 6, 39, 20, 85, 7]
-				}, {
-					label: "My Second dataset",
-					backgroundColor: "rgba(3, 88, 106, 0.3)",
-					borderColor: "rgba(3, 88, 106, 0.70)",
-					pointBorderColor: "rgba(3, 88, 106, 0.70)",
-					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(151,187,205,1)",
-					pointBorderWidth: 1,
-					data: [82, 23, 66, 9, 99, 4, 2]
-				}]
-			}
-		});
-	}
-
-	if ($('#canvas_line3').length) {
-
-		var canvas_line_03 = new Chart(document.getElementById("canvas_line3"), {
-			type: 'line',
-			data: {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
-				datasets: [{
-					label: "My First dataset",
-					backgroundColor: "rgba(38, 185, 154, 0.31)",
-					borderColor: "rgba(38, 185, 154, 0.7)",
-					pointBorderColor: "rgba(38, 185, 154, 0.7)",
-					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(220,220,220,1)",
-					pointBorderWidth: 1,
-					data: [31, 74, 6, 39, 20, 85, 7]
-				}, {
-					label: "My Second dataset",
-					backgroundColor: "rgba(3, 88, 106, 0.3)",
-					borderColor: "rgba(3, 88, 106, 0.70)",
-					pointBorderColor: "rgba(3, 88, 106, 0.70)",
-					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(151,187,205,1)",
-					pointBorderWidth: 1,
-					data: [82, 23, 66, 9, 99, 4, 2]
-				}]
-			}
-		});
-	}
-
-	if ($('#canvas_line4').length) {
-
-		var canvas_line_04 = new Chart(document.getElementById("canvas_line4"), {
-			type: 'line',
-			data: {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
-				datasets: [{
-					label: "My First dataset",
-					backgroundColor: "rgba(38, 185, 154, 0.31)",
-					borderColor: "rgba(38, 185, 154, 0.7)",
-					pointBorderColor: "rgba(38, 185, 154, 0.7)",
-					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(220,220,220,1)",
-					pointBorderWidth: 1,
-					data: [31, 74, 6, 39, 20, 85, 7]
-				}, {
-					label: "My Second dataset",
-					backgroundColor: "rgba(3, 88, 106, 0.3)",
-					borderColor: "rgba(3, 88, 106, 0.70)",
-					pointBorderColor: "rgba(3, 88, 106, 0.70)",
-					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(151,187,205,1)",
-					pointBorderWidth: 1,
-					data: [82, 23, 66, 9, 99, 4, 2]
-				}]
-			}
-		});
-	}
-
-	// Line chart
-
-	if ($('#lineChart').length) {
-
-		var ctx = document.getElementById("lineChart");
-		var lineChart = new Chart(ctx, {
-			type: 'line',
-			data: {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
-				datasets: [{
-					label: "My First dataset",
-					backgroundColor: "rgba(38, 185, 154, 0.31)",
-					borderColor: "rgba(38, 185, 154, 0.7)",
-					pointBorderColor: "rgba(38, 185, 154, 0.7)",
-					pointBackgroundColor: "rgba(38, 185, 154, 0.7)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(220,220,220,1)",
-					pointBorderWidth: 1,
-					data: [31, 74, 6, 39, 20, 85, 7]
-				}, {
-					label: "My Second dataset",
-					backgroundColor: "rgba(3, 88, 106, 0.3)",
-					borderColor: "rgba(3, 88, 106, 0.70)",
-					pointBorderColor: "rgba(3, 88, 106, 0.70)",
-					pointBackgroundColor: "rgba(3, 88, 106, 0.70)",
-					pointHoverBackgroundColor: "#fff",
-					pointHoverBorderColor: "rgba(151,187,205,1)",
-					pointBorderWidth: 1,
-					data: [82, 23, 66, 9, 99, 4, 2]
-				}]
-			}
-		});
-	}
-
-	// Bar chart
-
-	if ($('#mybarChart').length) {
-
-		var ctx = document.getElementById("mybarChart");
-		var mybarChart = new Chart(ctx, {
-			type: 'bar',
-			data: {
-				labels: ["January", "February", "March", "April", "May", "June", "July"],
-				datasets: [{
-					label: '# of Votes',
-					backgroundColor: "#26B99A",
-					data: [51, 30, 40, 28, 92, 50, 45]
-				}, {
-					label: '# of Votes',
-					backgroundColor: "#03586A",
-					data: [41, 56, 25, 48, 72, 34, 12]
-				}]
-			},
-
-			options: {
-				scales: {
-					yAxes: [{
-						ticks: {
-							beginAtZero: true
-						}
-					}]
-				}
-			}
-		});
-	}
-
-	// Doughnut chart
-
-	if ($('#canvasDoughnut').length) {
-
-		var ctx = document.getElementById("canvasDoughnut");
-		var data = {
-			labels: ["Dark Grey", "Purple Color", "Gray Color", "Green Color", "Blue Color"],
-			datasets: [{
-				data: [120, 50, 140, 180, 100],
-				backgroundColor: ["#455C73", "#9B59B6", "#BDC3C7", "#26B99A", "#3498DB"],
-				hoverBackgroundColor: ["#34495E", "#B370CF", "#CFD4D8", "#36CAAB", "#49A9EA"]
-
-			}]
-		};
-
-		var canvasDoughnut = new Chart(ctx, {
-			type: 'doughnut',
-			tooltipFillColor: "rgba(51, 51, 51, 0.55)",
-			data: data
-		});
-	}
-
-	// Radar chart
-
-	if ($('#canvasRadar').length) {
-
-		var ctx = document.getElementById("canvasRadar");
-		var data = {
-			labels: ["Eating", "Drinking", "Sleeping", "Designing", "Coding", "Cycling", "Running"],
-			datasets: [{
-				label: "My First dataset",
-				backgroundColor: "rgba(3, 88, 106, 0.2)",
-				borderColor: "rgba(3, 88, 106, 0.80)",
-				pointBorderColor: "rgba(3, 88, 106, 0.80)",
-				pointBackgroundColor: "rgba(3, 88, 106, 0.80)",
-				pointHoverBackgroundColor: "#fff",
-				pointHoverBorderColor: "rgba(220,220,220,1)",
-				data: [65, 59, 90, 81, 56, 55, 40]
-			}, {
-				label: "My Second dataset",
-				backgroundColor: "rgba(38, 185, 154, 0.2)",
-				borderColor: "rgba(38, 185, 154, 0.85)",
-				pointColor: "rgba(38, 185, 154, 0.85)",
-				pointStrokeColor: "#fff",
-				pointHighlightFill: "#fff",
-				pointHighlightStroke: "rgba(151,187,205,1)",
-				data: [28, 48, 40, 19, 96, 27, 100]
-			}]
-		};
-
-		var canvasRadar = new Chart(ctx, {
-			type: 'radar',
-			data: data
-		});
-	}
-
-	// Pie chart
-	if ($('#pieChart').length) {
-
-		var ctx = document.getElementById("pieChart");
-		var data = {
-			datasets: [{
-				data: [120, 50, 140, 180, 100],
-				backgroundColor: ["#455C73", "#9B59B6", "#BDC3C7", "#26B99A", "#3498DB"],
-				label: 'My dataset' // for legend
-			}],
-			labels: ["Dark Gray", "Purple", "Gray", "Green", "Blue"]
-		};
-
-		var pieChart = new Chart(ctx, {
-			data: data,
-			type: 'pie',
-			otpions: {
-				legend: false
-			}
-		});
-	}
-
-	// PolarArea chart
-
-	if ($('#polarArea').length) {
-
-		var ctx = document.getElementById("polarArea");
-		var data = {
-			datasets: [{
-				data: [120, 50, 140, 180, 100],
-				backgroundColor: ["#455C73", "#9B59B6", "#BDC3C7", "#26B99A", "#3498DB"],
-				label: 'My dataset'
-			}],
-			labels: ["Dark Gray", "Purple", "Gray", "Green", "Blue"]
-		};
-
-		var polarArea = new Chart(ctx, {
-			data: data,
-			type: 'polarArea',
-			options: {
-				scale: {
-					ticks: {
-						beginAtZero: true
-					}
-				}
-			}
-		});
-	}
-}
-
-/* COMPOSE */
-
-function init_compose() {
-
-	if (typeof $.fn.slideToggle === 'undefined') {
-		return;
-	}
-	console.log('init_compose');
-
-	$('#compose, .compose-close').click(function () {
-		$('.compose').slideToggle();
-	});
-};
-
-/* CALENDAR */
-
-function init_calendar() {
-
-	if (typeof $.fn.fullCalendar === 'undefined') {
-		return;
-	}
-	console.log('init_calendar');
-
-	var date = new Date(),
-	    d = date.getDate(),
-	    m = date.getMonth(),
-	    y = date.getFullYear(),
-	    started,
-	    categoryClass;
-
-	var calendar = $('#calendar').fullCalendar({
-		header: {
-			left: 'prev,next today',
-			center: 'title',
-			right: 'month,agendaWeek,agendaDay,listMonth'
-		},
-		selectable: true,
-		selectHelper: true,
-		select: function select(start, end, allDay) {
-			$('#fc_create').click();
-
-			started = start;
-			ended = end;
-
-			$(".antosubmit").on("click", function () {
-				var title = $("#title").val();
-				if (end) {
-					ended = end;
-				}
-
-				categoryClass = $("#event_type").val();
-
-				if (title) {
-					calendar.fullCalendar('renderEvent', {
-						title: title,
-						start: started,
-						end: end,
-						allDay: allDay
-					}, true // make the event "stick"
-					);
-				}
-
-				$('#title').val('');
-
-				calendar.fullCalendar('unselect');
-
-				$('.antoclose').click();
-
-				return false;
-			});
-		},
-		eventClick: function eventClick(calEvent, jsEvent, view) {
-			$('#fc_edit').click();
-			$('#title2').val(calEvent.title);
-
-			categoryClass = $("#event_type").val();
-
-			$(".antosubmit2").on("click", function () {
-				calEvent.title = $("#title2").val();
-
-				calendar.fullCalendar('updateEvent', calEvent);
-				$('.antoclose2').click();
-			});
-
-			calendar.fullCalendar('unselect');
-		},
-		editable: true,
-		events: [{
-			title: 'All Day Event',
-			start: new Date(y, m, 1)
-		}, {
-			title: 'Long Event',
-			start: new Date(y, m, d - 5),
-			end: new Date(y, m, d - 2)
-		}, {
-			title: 'Meeting',
-			start: new Date(y, m, d, 10, 30),
-			allDay: false
-		}, {
-			title: 'Lunch',
-			start: new Date(y, m, d + 14, 12, 0),
-			end: new Date(y, m, d, 14, 0),
-			allDay: false
-		}, {
-			title: 'Birthday Party',
-			start: new Date(y, m, d + 1, 19, 0),
-			end: new Date(y, m, d + 1, 22, 30),
-			allDay: false
-		}, {
-			title: 'Click for Google',
-			start: new Date(y, m, 28),
-			end: new Date(y, m, 29),
-			url: 'http://google.com/'
-		}]
-	});
-};
-
-/* DATA TABLES */
-
-function init_DataTables() {
-
-	console.log('run_datatables');
-
-	if (typeof $.fn.DataTable === 'undefined') {
-		return;
-	}
-	console.log('init_DataTables');
-
-	var handleDataTableButtons = function handleDataTableButtons() {
-		if ($("#datatable-buttons").length) {
-			$("#datatable-buttons").DataTable({
-				dom: "Blfrtip",
-				buttons: [{
-					extend: "copy",
-					className: "btn-sm"
-				}, {
-					extend: "csv",
-					className: "btn-sm"
-				}, {
-					extend: "excel",
-					className: "btn-sm"
-				}, {
-					extend: "pdfHtml5",
-					className: "btn-sm"
-				}, {
-					extend: "print",
-					className: "btn-sm"
-				}],
-				responsive: true
-			});
-		}
-	};
-
-	TableManageButtons = function () {
-		"use strict";
-
-		return {
-			init: function init() {
-				handleDataTableButtons();
-			}
-		};
-	}();
-
-	$('#datatable').dataTable();
-
-	$('#datatable-keytable').DataTable({
-		keys: true
-	});
-
-	$('#datatable-responsive').DataTable();
-
-	$('#datatable-scroller').DataTable({
-		ajax: "js/datatables/json/scroller-demo.json",
-		deferRender: true,
-		scrollY: 380,
-		scrollCollapse: true,
-		scroller: true
-	});
-
-	$('#datatable-fixed-header').DataTable({
-		fixedHeader: true
-	});
-
-	var $datatable = $('#datatable-checkbox');
-
-	$datatable.dataTable({
-		'order': [[1, 'asc']],
-		'columnDefs': [{ orderable: false, targets: [0] }]
-	});
-	$datatable.on('draw.dt', function () {
-		$('checkbox input').iCheck({
-			checkboxClass: 'icheckbox_flat-green'
-		});
-	});
-
-	TableManageButtons.init();
-};
-
-/* CHART - MORRIS  */
-
-function init_morris_charts() {
-
-	if (typeof Morris === 'undefined') {
-		return;
-	}
-	console.log('init_morris_charts');
-
-	if ($('#graph_bar').length) {
-
-		Morris.Bar({
-			element: 'graph_bar',
-			data: [{ device: 'iPhone 4', geekbench: 380 }, { device: 'iPhone 4S', geekbench: 655 }, { device: 'iPhone 3GS', geekbench: 275 }, { device: 'iPhone 5', geekbench: 1571 }, { device: 'iPhone 5S', geekbench: 655 }, { device: 'iPhone 6', geekbench: 2154 }, { device: 'iPhone 6 Plus', geekbench: 1144 }, { device: 'iPhone 6S', geekbench: 2371 }, { device: 'iPhone 6S Plus', geekbench: 1471 }, { device: 'Other', geekbench: 1371 }],
-			xkey: 'device',
-			ykeys: ['geekbench'],
-			labels: ['Geekbench'],
-			barRatio: 0.4,
-			barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
-			xLabelAngle: 35,
-			hideHover: 'auto',
-			resize: true
-		});
-	}
-
-	if ($('#graph_bar_group').length) {
-
-		Morris.Bar({
-			element: 'graph_bar_group',
-			data: [{ "period": "2016-10-01", "licensed": 807, "sorned": 660 }, { "period": "2016-09-30", "licensed": 1251, "sorned": 729 }, { "period": "2016-09-29", "licensed": 1769, "sorned": 1018 }, { "period": "2016-09-20", "licensed": 2246, "sorned": 1461 }, { "period": "2016-09-19", "licensed": 2657, "sorned": 1967 }, { "period": "2016-09-18", "licensed": 3148, "sorned": 2627 }, { "period": "2016-09-17", "licensed": 3471, "sorned": 3740 }, { "period": "2016-09-16", "licensed": 2871, "sorned": 2216 }, { "period": "2016-09-15", "licensed": 2401, "sorned": 1656 }, { "period": "2016-09-10", "licensed": 2115, "sorned": 1022 }],
-			xkey: 'period',
-			barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
-			ykeys: ['licensed', 'sorned'],
-			labels: ['Licensed', 'SORN'],
-			hideHover: 'auto',
-			xLabelAngle: 60,
-			resize: true
-		});
-	}
-
-	if ($('#graphx').length) {
-
-		Morris.Bar({
-			element: 'graphx',
-			data: [{ x: '2015 Q1', y: 2, z: 3, a: 4 }, { x: '2015 Q2', y: 3, z: 5, a: 6 }, { x: '2015 Q3', y: 4, z: 3, a: 2 }, { x: '2015 Q4', y: 2, z: 4, a: 5 }],
-			xkey: 'x',
-			ykeys: ['y', 'z', 'a'],
-			barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
-			hideHover: 'auto',
-			labels: ['Y', 'Z', 'A'],
-			resize: true
-		}).on('click', function (i, row) {
-			console.log(i, row);
-		});
-	}
-
-	if ($('#graph_area').length) {
-
-		Morris.Area({
-			element: 'graph_area',
-			data: [{ period: '2014 Q1', iphone: 2666, ipad: null, itouch: 2647 }, { period: '2014 Q2', iphone: 2778, ipad: 2294, itouch: 2441 }, { period: '2014 Q3', iphone: 4912, ipad: 1969, itouch: 2501 }, { period: '2014 Q4', iphone: 3767, ipad: 3597, itouch: 5689 }, { period: '2015 Q1', iphone: 6810, ipad: 1914, itouch: 2293 }, { period: '2015 Q2', iphone: 5670, ipad: 4293, itouch: 1881 }, { period: '2015 Q3', iphone: 4820, ipad: 3795, itouch: 1588 }, { period: '2015 Q4', iphone: 15073, ipad: 5967, itouch: 5175 }, { period: '2016 Q1', iphone: 10687, ipad: 4460, itouch: 2028 }, { period: '2016 Q2', iphone: 8432, ipad: 5713, itouch: 1791 }],
-			xkey: 'period',
-			ykeys: ['iphone', 'ipad', 'itouch'],
-			lineColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
-			labels: ['iPhone', 'iPad', 'iPod Touch'],
-			pointSize: 2,
-			hideHover: 'auto',
-			resize: true
-		});
-	}
-
-	if ($('#graph_donut').length) {
-
-		Morris.Donut({
-			element: 'graph_donut',
-			data: [{ label: 'Jam', value: 25 }, { label: 'Frosted', value: 40 }, { label: 'Custard', value: 25 }, { label: 'Sugar', value: 10 }],
-			colors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
-			formatter: function formatter(y) {
-				return y + "%";
-			},
-			resize: true
-		});
-	}
-
-	if ($('#graph_line').length) {
-
-		Morris.Line({
-			element: 'graph_line',
-			xkey: 'year',
-			ykeys: ['value'],
-			labels: ['Value'],
-			hideHover: 'auto',
-			lineColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
-			data: [{ year: '2012', value: 20 }, { year: '2013', value: 10 }, { year: '2014', value: 5 }, { year: '2015', value: 5 }, { year: '2016', value: 20 }],
-			resize: true
-		});
-
-		$MENU_TOGGLE.on('click', function () {
-			$(window).resize();
-		});
-	}
-};
-
-/* ECHRTS */
-
-function init_echarts() {
-
-	if (typeof echarts === 'undefined') {
-		return;
-	}
-	console.log('init_echarts');
-
-	var theme = {
-		color: ['#26B99A', '#34495E', '#BDC3C7', '#3498DB', '#9B59B6', '#8abb6f', '#759c6a', '#bfd3b7'],
-
-		title: {
-			itemGap: 8,
-			textStyle: {
-				fontWeight: 'normal',
-				color: '#408829'
-			}
-		},
-
-		dataRange: {
-			color: ['#1f610a', '#97b58d']
-		},
-
-		toolbox: {
-			color: ['#408829', '#408829', '#408829', '#408829']
-		},
-
-		tooltip: {
-			backgroundColor: 'rgba(0,0,0,0.5)',
-			axisPointer: {
-				type: 'line',
-				lineStyle: {
-					color: '#408829',
-					type: 'dashed'
-				},
-				crossStyle: {
-					color: '#408829'
-				},
-				shadowStyle: {
-					color: 'rgba(200,200,200,0.3)'
-				}
-			}
-		},
-
-		dataZoom: {
-			dataBackgroundColor: '#eee',
-			fillerColor: 'rgba(64,136,41,0.2)',
-			handleColor: '#408829'
-		},
-		grid: {
-			borderWidth: 0
-		},
-
-		categoryAxis: {
-			axisLine: {
-				lineStyle: {
-					color: '#408829'
-				}
-			},
-			splitLine: {
-				lineStyle: {
-					color: ['#eee']
-				}
-			}
-		},
-
-		valueAxis: {
-			axisLine: {
-				lineStyle: {
-					color: '#408829'
-				}
-			},
-			splitArea: {
-				show: true,
-				areaStyle: {
-					color: ['rgba(250,250,250,0.1)', 'rgba(200,200,200,0.1)']
-				}
-			},
-			splitLine: {
-				lineStyle: {
-					color: ['#eee']
-				}
-			}
-		},
-		timeline: {
-			lineStyle: {
-				color: '#408829'
-			},
-			controlStyle: {
-				normal: { color: '#408829' },
-				emphasis: { color: '#408829' }
-			}
-		},
-
-		k: {
-			itemStyle: {
-				normal: {
-					color: '#68a54a',
-					color0: '#a9cba2',
-					lineStyle: {
-						width: 1,
-						color: '#408829',
-						color0: '#86b379'
-					}
-				}
-			}
-		},
-		map: {
-			itemStyle: {
-				normal: {
-					areaStyle: {
-						color: '#ddd'
-					},
-					label: {
-						textStyle: {
-							color: '#c12e34'
-						}
-					}
-				},
-				emphasis: {
-					areaStyle: {
-						color: '#99d2dd'
-					},
-					label: {
-						textStyle: {
-							color: '#c12e34'
-						}
-					}
-				}
-			}
-		},
-		force: {
-			itemStyle: {
-				normal: {
-					linkStyle: {
-						strokeColor: '#408829'
-					}
-				}
-			}
-		},
-		chord: {
-			padding: 4,
-			itemStyle: {
-				normal: {
-					lineStyle: {
-						width: 1,
-						color: 'rgba(128, 128, 128, 0.5)'
-					},
-					chordStyle: {
-						lineStyle: {
-							width: 1,
-							color: 'rgba(128, 128, 128, 0.5)'
-						}
-					}
-				},
-				emphasis: {
-					lineStyle: {
-						width: 1,
-						color: 'rgba(128, 128, 128, 0.5)'
-					},
-					chordStyle: {
-						lineStyle: {
-							width: 1,
-							color: 'rgba(128, 128, 128, 0.5)'
-						}
-					}
-				}
-			}
-		},
-		gauge: {
-			startAngle: 225,
-			endAngle: -45,
-			axisLine: {
-				show: true,
-				lineStyle: {
-					color: [[0.2, '#86b379'], [0.8, '#68a54a'], [1, '#408829']],
-					width: 8
-				}
-			},
-			axisTick: {
-				splitNumber: 10,
-				length: 12,
-				lineStyle: {
-					color: 'auto'
-				}
-			},
-			axisLabel: {
-				textStyle: {
-					color: 'auto'
-				}
-			},
-			splitLine: {
-				length: 18,
-				lineStyle: {
-					color: 'auto'
-				}
-			},
-			pointer: {
-				length: '90%',
-				color: 'auto'
-			},
-			title: {
-				textStyle: {
-					color: '#333'
-				}
-			},
-			detail: {
-				textStyle: {
-					color: 'auto'
-				}
-			}
-		},
-		textStyle: {
-			fontFamily: 'Arial, Verdana, sans-serif'
-		}
-	};
-
-	//echart Bar
-
-	if ($('#mainb').length) {
-
-		var echartBar = echarts.init(document.getElementById('mainb'), theme);
-
-		echartBar.setOption({
-			title: {
-				text: 'Graph title',
-				subtext: 'Graph Sub-text'
-			},
-			tooltip: {
-				trigger: 'axis'
-			},
-			legend: {
-				data: ['sales', 'purchases']
-			},
-			toolbox: {
-				show: false
-			},
-			calculable: false,
-			xAxis: [{
-				type: 'category',
-				data: ['1?', '2?', '3?', '4?', '5?', '6?', '7?', '8?', '9?', '10?', '11?', '12?']
-			}],
-			yAxis: [{
-				type: 'value'
-			}],
-			series: [{
-				name: 'sales',
-				type: 'bar',
-				data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
-				markPoint: {
-					data: [{
-						type: 'max',
-						name: '???'
-					}, {
-						type: 'min',
-						name: '???'
-					}]
-				},
-				markLine: {
-					data: [{
-						type: 'average',
-						name: '???'
-					}]
-				}
-			}, {
-				name: 'purchases',
-				type: 'bar',
-				data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
-				markPoint: {
-					data: [{
-						name: 'sales',
-						value: 182.2,
-						xAxis: 7,
-						yAxis: 183
-					}, {
-						name: 'purchases',
-						value: 2.3,
-						xAxis: 11,
-						yAxis: 3
-					}]
-				},
-				markLine: {
-					data: [{
-						type: 'average',
-						name: '???'
-					}]
-				}
-			}]
-		});
-	}
-
-	//echart Radar
-
-	if ($('#echart_sonar').length) {
-
-		var echartRadar = echarts.init(document.getElementById('echart_sonar'), theme);
-
-		echartRadar.setOption({
-			title: {
-				text: 'Budget vs spending',
-				subtext: 'Subtitle'
-			},
-			tooltip: {
-				trigger: 'item'
-			},
-			legend: {
-				orient: 'vertical',
-				x: 'right',
-				y: 'bottom',
-				data: ['Allocated Budget', 'Actual Spending']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			polar: [{
-				indicator: [{
-					text: 'Sales',
-					max: 6000
-				}, {
-					text: 'Administration',
-					max: 16000
-				}, {
-					text: 'Information Techology',
-					max: 30000
-				}, {
-					text: 'Customer Support',
-					max: 38000
-				}, {
-					text: 'Development',
-					max: 52000
-				}, {
-					text: 'Marketing',
-					max: 25000
-				}]
-			}],
-			calculable: true,
-			series: [{
-				name: 'Budget vs spending',
-				type: 'radar',
-				data: [{
-					value: [4300, 10000, 28000, 35000, 50000, 19000],
-					name: 'Allocated Budget'
-				}, {
-					value: [5000, 14000, 28000, 31000, 42000, 21000],
-					name: 'Actual Spending'
-				}]
-			}]
-		});
-	}
-
-	//echart Funnel
-
-	if ($('#echart_pyramid').length) {
-
-		var echartFunnel = echarts.init(document.getElementById('echart_pyramid'), theme);
-
-		echartFunnel.setOption({
-			title: {
-				text: 'Echart Pyramid Graph',
-				subtext: 'Subtitle'
-			},
-			tooltip: {
-				trigger: 'item',
-				formatter: "{a} <br/>{b} : {c}%"
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			legend: {
-				data: ['Something #1', 'Something #2', 'Something #3', 'Something #4', 'Something #5'],
-				orient: 'vertical',
-				x: 'left',
-				y: 'bottom'
-			},
-			calculable: true,
-			series: [{
-				name: '漏斗图',
-				type: 'funnel',
-				width: '40%',
-				data: [{
-					value: 60,
-					name: 'Something #1'
-				}, {
-					value: 40,
-					name: 'Something #2'
-				}, {
-					value: 20,
-					name: 'Something #3'
-				}, {
-					value: 80,
-					name: 'Something #4'
-				}, {
-					value: 100,
-					name: 'Something #5'
-				}]
-			}]
-		});
-	}
-
-	//echart Gauge
-
-	if ($('#echart_gauge').length) {
-
-		var echartGauge = echarts.init(document.getElementById('echart_gauge'), theme);
-
-		echartGauge.setOption({
-			tooltip: {
-				formatter: "{a} <br/>{b} : {c}%"
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			series: [{
-				name: 'Performance',
-				type: 'gauge',
-				center: ['50%', '50%'],
-				startAngle: 140,
-				endAngle: -140,
-				min: 0,
-				max: 100,
-				precision: 0,
-				splitNumber: 10,
-				axisLine: {
-					show: true,
-					lineStyle: {
-						color: [[0.2, 'lightgreen'], [0.4, 'orange'], [0.8, 'skyblue'], [1, '#ff4500']],
-						width: 30
-					}
-				},
-				axisTick: {
-					show: true,
-					splitNumber: 5,
-					length: 8,
-					lineStyle: {
-						color: '#eee',
-						width: 1,
-						type: 'solid'
-					}
-				},
-				axisLabel: {
-					show: true,
-					formatter: function formatter(v) {
-						switch (v + '') {
-							case '10':
-								return 'a';
-							case '30':
-								return 'b';
-							case '60':
-								return 'c';
-							case '90':
-								return 'd';
-							default:
-								return '';
-						}
-					},
-					textStyle: {
-						color: '#333'
-					}
-				},
-				splitLine: {
-					show: true,
-					length: 30,
-					lineStyle: {
-						color: '#eee',
-						width: 2,
-						type: 'solid'
-					}
-				},
-				pointer: {
-					length: '80%',
-					width: 8,
-					color: 'auto'
-				},
-				title: {
-					show: true,
-					offsetCenter: ['-65%', -10],
-					textStyle: {
-						color: '#333',
-						fontSize: 15
-					}
-				},
-				detail: {
-					show: true,
-					backgroundColor: 'rgba(0,0,0,0)',
-					borderWidth: 0,
-					borderColor: '#ccc',
-					width: 100,
-					height: 40,
-					offsetCenter: ['-60%', 10],
-					formatter: '{value}%',
-					textStyle: {
-						color: 'auto',
-						fontSize: 30
-					}
-				},
-				data: [{
-					value: 50,
-					name: 'Performance'
-				}]
-			}]
-		});
-	}
-
-	//echart Line
-
-	if ($('#echart_line').length) {
-
-		var echartLine = echarts.init(document.getElementById('echart_line'), theme);
-
-		echartLine.setOption({
-			title: {
-				text: 'Line Graph',
-				subtext: 'Subtitle'
-			},
-			tooltip: {
-				trigger: 'axis'
-			},
-			legend: {
-				x: 220,
-				y: 40,
-				data: ['Intent', 'Pre-order', 'Deal']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					magicType: {
-						show: true,
-						title: {
-							line: 'Line',
-							bar: 'Bar',
-							stack: 'Stack',
-							tiled: 'Tiled'
-						},
-						type: ['line', 'bar', 'stack', 'tiled']
-					},
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			calculable: true,
-			xAxis: [{
-				type: 'category',
-				boundaryGap: false,
-				data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-			}],
-			yAxis: [{
-				type: 'value'
-			}],
-			series: [{
-				name: 'Deal',
-				type: 'line',
-				smooth: true,
-				itemStyle: {
-					normal: {
-						areaStyle: {
-							type: 'default'
-						}
-					}
-				},
-				data: [10, 12, 21, 54, 260, 830, 710]
-			}, {
-				name: 'Pre-order',
-				type: 'line',
-				smooth: true,
-				itemStyle: {
-					normal: {
-						areaStyle: {
-							type: 'default'
-						}
-					}
-				},
-				data: [30, 182, 434, 791, 390, 30, 10]
-			}, {
-				name: 'Intent',
-				type: 'line',
-				smooth: true,
-				itemStyle: {
-					normal: {
-						areaStyle: {
-							type: 'default'
-						}
-					}
-				},
-				data: [1320, 1132, 601, 234, 120, 90, 20]
-			}]
-		});
-	}
-
-	//echart Scatter
-
-	if ($('#echart_scatter').length) {
-
-		var echartScatter = echarts.init(document.getElementById('echart_scatter'), theme);
-
-		echartScatter.setOption({
-			title: {
-				text: 'Scatter Graph',
-				subtext: 'Heinz  2003'
-			},
-			tooltip: {
-				trigger: 'axis',
-				showDelay: 0,
-				axisPointer: {
-					type: 'cross',
-					lineStyle: {
-						type: 'dashed',
-						width: 1
-					}
-				}
-			},
-			legend: {
-				data: ['Data2', 'Data1']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			xAxis: [{
-				type: 'value',
-				scale: true,
-				axisLabel: {
-					formatter: '{value} cm'
-				}
-			}],
-			yAxis: [{
-				type: 'value',
-				scale: true,
-				axisLabel: {
-					formatter: '{value} kg'
-				}
-			}],
-			series: [{
-				name: 'Data1',
-				type: 'scatter',
-				tooltip: {
-					trigger: 'item',
-					formatter: function formatter(params) {
-						if (params.value.length > 1) {
-							return params.seriesName + ' :<br/>' + params.value[0] + 'cm ' + params.value[1] + 'kg ';
-						} else {
-							return params.seriesName + ' :<br/>' + params.name + ' : ' + params.value + 'kg ';
-						}
-					}
-				},
-				data: [[161.2, 51.6], [167.5, 59.0], [159.5, 49.2], [157.0, 63.0], [155.8, 53.6], [170.0, 59.0], [159.1, 47.6], [166.0, 69.8], [176.2, 66.8], [160.2, 75.2], [172.5, 55.2], [170.9, 54.2], [172.9, 62.5], [153.4, 42.0], [160.0, 50.0], [147.2, 49.8], [168.2, 49.2], [175.0, 73.2], [157.0, 47.8], [167.6, 68.8], [159.5, 50.6], [175.0, 82.5], [166.8, 57.2], [176.5, 87.8], [170.2, 72.8], [174.0, 54.5], [173.0, 59.8], [179.9, 67.3], [170.5, 67.8], [160.0, 47.0], [154.4, 46.2], [162.0, 55.0], [176.5, 83.0], [160.0, 54.4], [152.0, 45.8], [162.1, 53.6], [170.0, 73.2], [160.2, 52.1], [161.3, 67.9], [166.4, 56.6], [168.9, 62.3], [163.8, 58.5], [167.6, 54.5], [160.0, 50.2], [161.3, 60.3], [167.6, 58.3], [165.1, 56.2], [160.0, 50.2], [170.0, 72.9], [157.5, 59.8], [167.6, 61.0], [160.7, 69.1], [163.2, 55.9], [152.4, 46.5], [157.5, 54.3], [168.3, 54.8], [180.3, 60.7], [165.5, 60.0], [165.0, 62.0], [164.5, 60.3], [156.0, 52.7], [160.0, 74.3], [163.0, 62.0], [165.7, 73.1], [161.0, 80.0], [162.0, 54.7], [166.0, 53.2], [174.0, 75.7], [172.7, 61.1], [167.6, 55.7], [151.1, 48.7], [164.5, 52.3], [163.5, 50.0], [152.0, 59.3], [169.0, 62.5], [164.0, 55.7], [161.2, 54.8], [155.0, 45.9], [170.0, 70.6], [176.2, 67.2], [170.0, 69.4], [162.5, 58.2], [170.3, 64.8], [164.1, 71.6], [169.5, 52.8], [163.2, 59.8], [154.5, 49.0], [159.8, 50.0], [173.2, 69.2], [170.0, 55.9], [161.4, 63.4], [169.0, 58.2], [166.2, 58.6], [159.4, 45.7], [162.5, 52.2], [159.0, 48.6], [162.8, 57.8], [159.0, 55.6], [179.8, 66.8], [162.9, 59.4], [161.0, 53.6], [151.1, 73.2], [168.2, 53.4], [168.9, 69.0], [173.2, 58.4], [171.8, 56.2], [178.0, 70.6], [164.3, 59.8], [163.0, 72.0], [168.5, 65.2], [166.8, 56.6], [172.7, 105.2], [163.5, 51.8], [169.4, 63.4], [167.8, 59.0], [159.5, 47.6], [167.6, 63.0], [161.2, 55.2], [160.0, 45.0], [163.2, 54.0], [162.2, 50.2], [161.3, 60.2], [149.5, 44.8], [157.5, 58.8], [163.2, 56.4], [172.7, 62.0], [155.0, 49.2], [156.5, 67.2], [164.0, 53.8], [160.9, 54.4], [162.8, 58.0], [167.0, 59.8], [160.0, 54.8], [160.0, 43.2], [168.9, 60.5], [158.2, 46.4], [156.0, 64.4], [160.0, 48.8], [167.1, 62.2], [158.0, 55.5], [167.6, 57.8], [156.0, 54.6], [162.1, 59.2], [173.4, 52.7], [159.8, 53.2], [170.5, 64.5], [159.2, 51.8], [157.5, 56.0], [161.3, 63.6], [162.6, 63.2], [160.0, 59.5], [168.9, 56.8], [165.1, 64.1], [162.6, 50.0], [165.1, 72.3], [166.4, 55.0], [160.0, 55.9], [152.4, 60.4], [170.2, 69.1], [162.6, 84.5], [170.2, 55.9], [158.8, 55.5], [172.7, 69.5], [167.6, 76.4], [162.6, 61.4], [167.6, 65.9], [156.2, 58.6], [175.2, 66.8], [172.1, 56.6], [162.6, 58.6], [160.0, 55.9], [165.1, 59.1], [182.9, 81.8], [166.4, 70.7], [165.1, 56.8], [177.8, 60.0], [165.1, 58.2], [175.3, 72.7], [154.9, 54.1], [158.8, 49.1], [172.7, 75.9], [168.9, 55.0], [161.3, 57.3], [167.6, 55.0], [165.1, 65.5], [175.3, 65.5], [157.5, 48.6], [163.8, 58.6], [167.6, 63.6], [165.1, 55.2], [165.1, 62.7], [168.9, 56.6], [162.6, 53.9], [164.5, 63.2], [176.5, 73.6], [168.9, 62.0], [175.3, 63.6], [159.4, 53.2], [160.0, 53.4], [170.2, 55.0], [162.6, 70.5], [167.6, 54.5], [162.6, 54.5], [160.7, 55.9], [160.0, 59.0], [157.5, 63.6], [162.6, 54.5], [152.4, 47.3], [170.2, 67.7], [165.1, 80.9], [172.7, 70.5], [165.1, 60.9], [170.2, 63.6], [170.2, 54.5], [170.2, 59.1], [161.3, 70.5], [167.6, 52.7], [167.6, 62.7], [165.1, 86.3], [162.6, 66.4], [152.4, 67.3], [168.9, 63.0], [170.2, 73.6], [175.2, 62.3], [175.2, 57.7], [160.0, 55.4], [165.1, 104.1], [174.0, 55.5], [170.2, 77.3], [160.0, 80.5], [167.6, 64.5], [167.6, 72.3], [167.6, 61.4], [154.9, 58.2], [162.6, 81.8], [175.3, 63.6], [171.4, 53.4], [157.5, 54.5], [165.1, 53.6], [160.0, 60.0], [174.0, 73.6], [162.6, 61.4], [174.0, 55.5], [162.6, 63.6], [161.3, 60.9], [156.2, 60.0], [149.9, 46.8], [169.5, 57.3], [160.0, 64.1], [175.3, 63.6], [169.5, 67.3], [160.0, 75.5], [172.7, 68.2], [162.6, 61.4], [157.5, 76.8], [176.5, 71.8], [164.4, 55.5], [160.7, 48.6], [174.0, 66.4], [163.8, 67.3]],
-				markPoint: {
-					data: [{
-						type: 'max',
-						name: 'Max'
-					}, {
-						type: 'min',
-						name: 'Min'
-					}]
-				},
-				markLine: {
-					data: [{
-						type: 'average',
-						name: 'Mean'
-					}]
-				}
-			}, {
-				name: 'Data2',
-				type: 'scatter',
-				tooltip: {
-					trigger: 'item',
-					formatter: function formatter(params) {
-						if (params.value.length > 1) {
-							return params.seriesName + ' :<br/>' + params.value[0] + 'cm ' + params.value[1] + 'kg ';
-						} else {
-							return params.seriesName + ' :<br/>' + params.name + ' : ' + params.value + 'kg ';
-						}
-					}
-				},
-				data: [[174.0, 65.6], [175.3, 71.8], [193.5, 80.7], [186.5, 72.6], [187.2, 78.8], [181.5, 74.8], [184.0, 86.4], [184.5, 78.4], [175.0, 62.0], [184.0, 81.6], [180.0, 76.6], [177.8, 83.6], [192.0, 90.0], [176.0, 74.6], [174.0, 71.0], [184.0, 79.6], [192.7, 93.8], [171.5, 70.0], [173.0, 72.4], [176.0, 85.9], [176.0, 78.8], [180.5, 77.8], [172.7, 66.2], [176.0, 86.4], [173.5, 81.8], [178.0, 89.6], [180.3, 82.8], [180.3, 76.4], [164.5, 63.2], [173.0, 60.9], [183.5, 74.8], [175.5, 70.0], [188.0, 72.4], [189.2, 84.1], [172.8, 69.1], [170.0, 59.5], [182.0, 67.2], [170.0, 61.3], [177.8, 68.6], [184.2, 80.1], [186.7, 87.8], [171.4, 84.7], [172.7, 73.4], [175.3, 72.1], [180.3, 82.6], [182.9, 88.7], [188.0, 84.1], [177.2, 94.1], [172.1, 74.9], [167.0, 59.1], [169.5, 75.6], [174.0, 86.2], [172.7, 75.3], [182.2, 87.1], [164.1, 55.2], [163.0, 57.0], [171.5, 61.4], [184.2, 76.8], [174.0, 86.8], [174.0, 72.2], [177.0, 71.6], [186.0, 84.8], [167.0, 68.2], [171.8, 66.1], [182.0, 72.0], [167.0, 64.6], [177.8, 74.8], [164.5, 70.0], [192.0, 101.6], [175.5, 63.2], [171.2, 79.1], [181.6, 78.9], [167.4, 67.7], [181.1, 66.0], [177.0, 68.2], [174.5, 63.9], [177.5, 72.0], [170.5, 56.8], [182.4, 74.5], [197.1, 90.9], [180.1, 93.0], [175.5, 80.9], [180.6, 72.7], [184.4, 68.0], [175.5, 70.9], [180.6, 72.5], [177.0, 72.5], [177.1, 83.4], [181.6, 75.5], [176.5, 73.0], [175.0, 70.2], [174.0, 73.4], [165.1, 70.5], [177.0, 68.9], [192.0, 102.3], [176.5, 68.4], [169.4, 65.9], [182.1, 75.7], [179.8, 84.5], [175.3, 87.7], [184.9, 86.4], [177.3, 73.2], [167.4, 53.9], [178.1, 72.0], [168.9, 55.5], [157.2, 58.4], [180.3, 83.2], [170.2, 72.7], [177.8, 64.1], [172.7, 72.3], [165.1, 65.0], [186.7, 86.4], [165.1, 65.0], [174.0, 88.6], [175.3, 84.1], [185.4, 66.8], [177.8, 75.5], [180.3, 93.2], [180.3, 82.7], [177.8, 58.0], [177.8, 79.5], [177.8, 78.6], [177.8, 71.8], [177.8, 116.4], [163.8, 72.2], [188.0, 83.6], [198.1, 85.5], [175.3, 90.9], [166.4, 85.9], [190.5, 89.1], [166.4, 75.0], [177.8, 77.7], [179.7, 86.4], [172.7, 90.9], [190.5, 73.6], [185.4, 76.4], [168.9, 69.1], [167.6, 84.5], [175.3, 64.5], [170.2, 69.1], [190.5, 108.6], [177.8, 86.4], [190.5, 80.9], [177.8, 87.7], [184.2, 94.5], [176.5, 80.2], [177.8, 72.0], [180.3, 71.4], [171.4, 72.7], [172.7, 84.1], [172.7, 76.8], [177.8, 63.6], [177.8, 80.9], [182.9, 80.9], [170.2, 85.5], [167.6, 68.6], [175.3, 67.7], [165.1, 66.4], [185.4, 102.3], [181.6, 70.5], [172.7, 95.9], [190.5, 84.1], [179.1, 87.3], [175.3, 71.8], [170.2, 65.9], [193.0, 95.9], [171.4, 91.4], [177.8, 81.8], [177.8, 96.8], [167.6, 69.1], [167.6, 82.7], [180.3, 75.5], [182.9, 79.5], [176.5, 73.6], [186.7, 91.8], [188.0, 84.1], [188.0, 85.9], [177.8, 81.8], [174.0, 82.5], [177.8, 80.5], [171.4, 70.0], [185.4, 81.8], [185.4, 84.1], [188.0, 90.5], [188.0, 91.4], [182.9, 89.1], [176.5, 85.0], [175.3, 69.1], [175.3, 73.6], [188.0, 80.5], [188.0, 82.7], [175.3, 86.4], [170.5, 67.7], [179.1, 92.7], [177.8, 93.6], [175.3, 70.9], [182.9, 75.0], [170.8, 93.2], [188.0, 93.2], [180.3, 77.7], [177.8, 61.4], [185.4, 94.1], [168.9, 75.0], [185.4, 83.6], [180.3, 85.5], [174.0, 73.9], [167.6, 66.8], [182.9, 87.3], [160.0, 72.3], [180.3, 88.6], [167.6, 75.5], [186.7, 101.4], [175.3, 91.1], [175.3, 67.3], [175.9, 77.7], [175.3, 81.8], [179.1, 75.5], [181.6, 84.5], [177.8, 76.6], [182.9, 85.0], [177.8, 102.5], [184.2, 77.3], [179.1, 71.8], [176.5, 87.9], [188.0, 94.3], [174.0, 70.9], [167.6, 64.5], [170.2, 77.3], [167.6, 72.3], [188.0, 87.3], [174.0, 80.0], [176.5, 82.3], [180.3, 73.6], [167.6, 74.1], [188.0, 85.9], [180.3, 73.2], [167.6, 76.3], [183.0, 65.9], [183.0, 90.9], [179.1, 89.1], [170.2, 62.3], [177.8, 82.7], [179.1, 79.1], [190.5, 98.2], [177.8, 84.1], [180.3, 83.2], [180.3, 83.2]],
-				markPoint: {
-					data: [{
-						type: 'max',
-						name: 'Max'
-					}, {
-						type: 'min',
-						name: 'Min'
-					}]
-				},
-				markLine: {
-					data: [{
-						type: 'average',
-						name: 'Mean'
-					}]
-				}
-			}]
-		});
-	}
-
-	//echart Bar Horizontal
-
-	if ($('#echart_bar_horizontal').length) {
-
-		var echartBar = echarts.init(document.getElementById('echart_bar_horizontal'), theme);
-
-		echartBar.setOption({
-			title: {
-				text: 'Bar Graph',
-				subtext: 'Graph subtitle'
-			},
-			tooltip: {
-				trigger: 'axis'
-			},
-			legend: {
-				x: 100,
-				data: ['2015', '2016']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			calculable: true,
-			xAxis: [{
-				type: 'value',
-				boundaryGap: [0, 0.01]
-			}],
-			yAxis: [{
-				type: 'category',
-				data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-			}],
-			series: [{
-				name: '2015',
-				type: 'bar',
-				data: [18203, 23489, 29034, 104970, 131744, 630230]
-			}, {
-				name: '2016',
-				type: 'bar',
-				data: [19325, 23438, 31000, 121594, 134141, 681807]
-			}]
-		});
-	}
-
-	//echart Pie Collapse
-
-	if ($('#echart_pie2').length) {
-
-		var echartPieCollapse = echarts.init(document.getElementById('echart_pie2'), theme);
-
-		echartPieCollapse.setOption({
-			tooltip: {
-				trigger: 'item',
-				formatter: "{a} <br/>{b} : {c} ({d}%)"
-			},
-			legend: {
-				x: 'center',
-				y: 'bottom',
-				data: ['rose1', 'rose2', 'rose3', 'rose4', 'rose5', 'rose6']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					magicType: {
-						show: true,
-						type: ['pie', 'funnel']
-					},
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			calculable: true,
-			series: [{
-				name: 'Area Mode',
-				type: 'pie',
-				radius: [25, 90],
-				center: ['50%', 170],
-				roseType: 'area',
-				x: '50%',
-				max: 40,
-				sort: 'ascending',
-				data: [{
-					value: 10,
-					name: 'rose1'
-				}, {
-					value: 5,
-					name: 'rose2'
-				}, {
-					value: 15,
-					name: 'rose3'
-				}, {
-					value: 25,
-					name: 'rose4'
-				}, {
-					value: 20,
-					name: 'rose5'
-				}, {
-					value: 35,
-					name: 'rose6'
-				}]
-			}]
-		});
-	}
-
-	//echart Donut
-
-	if ($('#echart_donut').length) {
-
-		var echartDonut = echarts.init(document.getElementById('echart_donut'), theme);
-
-		echartDonut.setOption({
-			tooltip: {
-				trigger: 'item',
-				formatter: "{a} <br/>{b} : {c} ({d}%)"
-			},
-			calculable: true,
-			legend: {
-				x: 'center',
-				y: 'bottom',
-				data: ['Direct Access', 'E-mail Marketing', 'Union Ad', 'Video Ads', 'Search Engine']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					magicType: {
-						show: true,
-						type: ['pie', 'funnel'],
-						option: {
-							funnel: {
-								x: '25%',
-								width: '50%',
-								funnelAlign: 'center',
-								max: 1548
-							}
-						}
-					},
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			series: [{
-				name: 'Access to the resource',
-				type: 'pie',
-				radius: ['35%', '55%'],
-				itemStyle: {
-					normal: {
-						label: {
-							show: true
-						},
-						labelLine: {
-							show: true
-						}
-					},
-					emphasis: {
-						label: {
-							show: true,
-							position: 'center',
-							textStyle: {
-								fontSize: '14',
-								fontWeight: 'normal'
-							}
-						}
-					}
-				},
-				data: [{
-					value: 335,
-					name: 'Direct Access'
-				}, {
-					value: 310,
-					name: 'E-mail Marketing'
-				}, {
-					value: 234,
-					name: 'Union Ad'
-				}, {
-					value: 135,
-					name: 'Video Ads'
-				}, {
-					value: 1548,
-					name: 'Search Engine'
-				}]
-			}]
-		});
-	}
-
-	//echart Pie
-
-	if ($('#echart_pie').length) {
-
-		var echartPie = echarts.init(document.getElementById('echart_pie'), theme);
-
-		echartPie.setOption({
-			tooltip: {
-				trigger: 'item',
-				formatter: "{a} <br/>{b} : {c} ({d}%)"
-			},
-			legend: {
-				x: 'center',
-				y: 'bottom',
-				data: ['Direct Access', 'E-mail Marketing', 'Union Ad', 'Video Ads', 'Search Engine']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					magicType: {
-						show: true,
-						type: ['pie', 'funnel'],
-						option: {
-							funnel: {
-								x: '25%',
-								width: '50%',
-								funnelAlign: 'left',
-								max: 1548
-							}
-						}
-					},
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			calculable: true,
-			series: [{
-				name: '访问来源',
-				type: 'pie',
-				radius: '55%',
-				center: ['50%', '48%'],
-				data: [{
-					value: 335,
-					name: 'Direct Access'
-				}, {
-					value: 310,
-					name: 'E-mail Marketing'
-				}, {
-					value: 234,
-					name: 'Union Ad'
-				}, {
-					value: 135,
-					name: 'Video Ads'
-				}, {
-					value: 1548,
-					name: 'Search Engine'
-				}]
-			}]
-		});
-
-		var dataStyle = {
-			normal: {
-				label: {
-					show: false
-				},
-				labelLine: {
-					show: false
-				}
-			}
-		};
-
-		var placeHolderStyle = {
-			normal: {
-				color: 'rgba(0,0,0,0)',
-				label: {
-					show: false
-				},
-				labelLine: {
-					show: false
-				}
-			},
-			emphasis: {
-				color: 'rgba(0,0,0,0)'
-			}
-		};
-	}
-
-	//echart Mini Pie
-
-	if ($('#echart_mini_pie').length) {
-
-		var echartMiniPie = echarts.init(document.getElementById('echart_mini_pie'), theme);
-
-		echartMiniPie.setOption({
-			title: {
-				text: 'Chart #2',
-				subtext: 'From ExcelHome',
-				sublink: 'http://e.weibo.com/1341556070/AhQXtjbqh',
-				x: 'center',
-				y: 'center',
-				itemGap: 20,
-				textStyle: {
-					color: 'rgba(30,144,255,0.8)',
-					fontFamily: '微软雅黑',
-					fontSize: 35,
-					fontWeight: 'bolder'
-				}
-			},
-			tooltip: {
-				show: true,
-				formatter: "{a} <br/>{b} : {c} ({d}%)"
-			},
-			legend: {
-				orient: 'vertical',
-				x: 170,
-				y: 45,
-				itemGap: 12,
-				data: ['68%Something #1', '29%Something #2', '3%Something #3']
-			},
-			toolbox: {
-				show: true,
-				feature: {
-					mark: {
-						show: true
-					},
-					dataView: {
-						show: true,
-						title: "Text View",
-						lang: ["Text View", "Close", "Refresh"],
-						readOnly: false
-					},
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			series: [{
-				name: '1',
-				type: 'pie',
-				clockWise: false,
-				radius: [105, 130],
-				itemStyle: dataStyle,
-				data: [{
-					value: 68,
-					name: '68%Something #1'
-				}, {
-					value: 32,
-					name: 'invisible',
-					itemStyle: placeHolderStyle
-				}]
-			}, {
-				name: '2',
-				type: 'pie',
-				clockWise: false,
-				radius: [80, 105],
-				itemStyle: dataStyle,
-				data: [{
-					value: 29,
-					name: '29%Something #2'
-				}, {
-					value: 71,
-					name: 'invisible',
-					itemStyle: placeHolderStyle
-				}]
-			}, {
-				name: '3',
-				type: 'pie',
-				clockWise: false,
-				radius: [25, 80],
-				itemStyle: dataStyle,
-				data: [{
-					value: 3,
-					name: '3%Something #3'
-				}, {
-					value: 97,
-					name: 'invisible',
-					itemStyle: placeHolderStyle
-				}]
-			}]
-		});
-	}
-
-	//echart Map
-
-	if ($('#echart_world_map').length) {
-
-		var echartMap = echarts.init(document.getElementById('echart_world_map'), theme);
-
-		echartMap.setOption({
-			title: {
-				text: 'World Population (2010)',
-				subtext: 'from United Nations, Total population, both sexes combined, as of 1 July (thousands)',
-				x: 'center',
-				y: 'top'
-			},
-			tooltip: {
-				trigger: 'item',
-				formatter: function formatter(params) {
-					var value = (params.value + '').split('.');
-					value = value[0].replace(/(\d{1,3})(?=(?:\d{3})+(?!\d))/g, '$1,') + '.' + value[1];
-					return params.seriesName + '<br/>' + params.name + ' : ' + value;
-				}
-			},
-			toolbox: {
-				show: true,
-				orient: 'vertical',
-				x: 'right',
-				y: 'center',
-				feature: {
-					mark: {
-						show: true
-					},
-					dataView: {
-						show: true,
-						title: "Text View",
-						lang: ["Text View", "Close", "Refresh"],
-						readOnly: false
-					},
-					restore: {
-						show: true,
-						title: "Restore"
-					},
-					saveAsImage: {
-						show: true,
-						title: "Save Image"
-					}
-				}
-			},
-			dataRange: {
-				min: 0,
-				max: 1000000,
-				text: ['High', 'Low'],
-				realtime: false,
-				calculable: true,
-				color: ['#087E65', '#26B99A', '#CBEAE3']
-			},
-			series: [{
-				name: 'World Population (2010)',
-				type: 'map',
-				mapType: 'world',
-				roam: false,
-				mapLocation: {
-					y: 60
-				},
-				itemStyle: {
-					emphasis: {
-						label: {
-							show: true
-						}
-					}
-				},
-				data: [{
-					name: 'Afghanistan',
-					value: 28397.812
-				}, {
-					name: 'Angola',
-					value: 19549.124
-				}, {
-					name: 'Albania',
-					value: 3150.143
-				}, {
-					name: 'United Arab Emirates',
-					value: 8441.537
-				}, {
-					name: 'Argentina',
-					value: 40374.224
-				}, {
-					name: 'Armenia',
-					value: 2963.496
-				}, {
-					name: 'French Southern and Antarctic Lands',
-					value: 268.065
-				}, {
-					name: 'Australia',
-					value: 22404.488
-				}, {
-					name: 'Austria',
-					value: 8401.924
-				}, {
-					name: 'Azerbaijan',
-					value: 9094.718
-				}, {
-					name: 'Burundi',
-					value: 9232.753
-				}, {
-					name: 'Belgium',
-					value: 10941.288
-				}, {
-					name: 'Benin',
-					value: 9509.798
-				}, {
-					name: 'Burkina Faso',
-					value: 15540.284
-				}, {
-					name: 'Bangladesh',
-					value: 151125.475
-				}, {
-					name: 'Bulgaria',
-					value: 7389.175
-				}, {
-					name: 'The Bahamas',
-					value: 66402.316
-				}, {
-					name: 'Bosnia and Herzegovina',
-					value: 3845.929
-				}, {
-					name: 'Belarus',
-					value: 9491.07
-				}, {
-					name: 'Belize',
-					value: 308.595
-				}, {
-					name: 'Bermuda',
-					value: 64.951
-				}, {
-					name: 'Bolivia',
-					value: 716.939
-				}, {
-					name: 'Brazil',
-					value: 195210.154
-				}, {
-					name: 'Brunei',
-					value: 27.223
-				}, {
-					name: 'Bhutan',
-					value: 716.939
-				}, {
-					name: 'Botswana',
-					value: 1969.341
-				}, {
-					name: 'Central African Republic',
-					value: 4349.921
-				}, {
-					name: 'Canada',
-					value: 34126.24
-				}, {
-					name: 'Switzerland',
-					value: 7830.534
-				}, {
-					name: 'Chile',
-					value: 17150.76
-				}, {
-					name: 'China',
-					value: 1359821.465
-				}, {
-					name: 'Ivory Coast',
-					value: 60508.978
-				}, {
-					name: 'Cameroon',
-					value: 20624.343
-				}, {
-					name: 'Democratic Republic of the Congo',
-					value: 62191.161
-				}, {
-					name: 'Republic of the Congo',
-					value: 3573.024
-				}, {
-					name: 'Colombia',
-					value: 46444.798
-				}, {
-					name: 'Costa Rica',
-					value: 4669.685
-				}, {
-					name: 'Cuba',
-					value: 11281.768
-				}, {
-					name: 'Northern Cyprus',
-					value: 1.468
-				}, {
-					name: 'Cyprus',
-					value: 1103.685
-				}, {
-					name: 'Czech Republic',
-					value: 10553.701
-				}, {
-					name: 'Germany',
-					value: 83017.404
-				}, {
-					name: 'Djibouti',
-					value: 834.036
-				}, {
-					name: 'Denmark',
-					value: 5550.959
-				}, {
-					name: 'Dominican Republic',
-					value: 10016.797
-				}, {
-					name: 'Algeria',
-					value: 37062.82
-				}, {
-					name: 'Ecuador',
-					value: 15001.072
-				}, {
-					name: 'Egypt',
-					value: 78075.705
-				}, {
-					name: 'Eritrea',
-					value: 5741.159
-				}, {
-					name: 'Spain',
-					value: 46182.038
-				}, {
-					name: 'Estonia',
-					value: 1298.533
-				}, {
-					name: 'Ethiopia',
-					value: 87095.281
-				}, {
-					name: 'Finland',
-					value: 5367.693
-				}, {
-					name: 'Fiji',
-					value: 860.559
-				}, {
-					name: 'Falkland Islands',
-					value: 49.581
-				}, {
-					name: 'France',
-					value: 63230.866
-				}, {
-					name: 'Gabon',
-					value: 1556.222
-				}, {
-					name: 'United Kingdom',
-					value: 62066.35
-				}, {
-					name: 'Georgia',
-					value: 4388.674
-				}, {
-					name: 'Ghana',
-					value: 24262.901
-				}, {
-					name: 'Guinea',
-					value: 10876.033
-				}, {
-					name: 'Gambia',
-					value: 1680.64
-				}, {
-					name: 'Guinea Bissau',
-					value: 10876.033
-				}, {
-					name: 'Equatorial Guinea',
-					value: 696.167
-				}, {
-					name: 'Greece',
-					value: 11109.999
-				}, {
-					name: 'Greenland',
-					value: 56.546
-				}, {
-					name: 'Guatemala',
-					value: 14341.576
-				}, {
-					name: 'French Guiana',
-					value: 231.169
-				}, {
-					name: 'Guyana',
-					value: 786.126
-				}, {
-					name: 'Honduras',
-					value: 7621.204
-				}, {
-					name: 'Croatia',
-					value: 4338.027
-				}, {
-					name: 'Haiti',
-					value: 9896.4
-				}, {
-					name: 'Hungary',
-					value: 10014.633
-				}, {
-					name: 'Indonesia',
-					value: 240676.485
-				}, {
-					name: 'India',
-					value: 1205624.648
-				}, {
-					name: 'Ireland',
-					value: 4467.561
-				}, {
-					name: 'Iran',
-					value: 240676.485
-				}, {
-					name: 'Iraq',
-					value: 30962.38
-				}, {
-					name: 'Iceland',
-					value: 318.042
-				}, {
-					name: 'Israel',
-					value: 7420.368
-				}, {
-					name: 'Italy',
-					value: 60508.978
-				}, {
-					name: 'Jamaica',
-					value: 2741.485
-				}, {
-					name: 'Jordan',
-					value: 6454.554
-				}, {
-					name: 'Japan',
-					value: 127352.833
-				}, {
-					name: 'Kazakhstan',
-					value: 15921.127
-				}, {
-					name: 'Kenya',
-					value: 40909.194
-				}, {
-					name: 'Kyrgyzstan',
-					value: 5334.223
-				}, {
-					name: 'Cambodia',
-					value: 14364.931
-				}, {
-					name: 'South Korea',
-					value: 51452.352
-				}, {
-					name: 'Kosovo',
-					value: 97.743
-				}, {
-					name: 'Kuwait',
-					value: 2991.58
-				}, {
-					name: 'Laos',
-					value: 6395.713
-				}, {
-					name: 'Lebanon',
-					value: 4341.092
-				}, {
-					name: 'Liberia',
-					value: 3957.99
-				}, {
-					name: 'Libya',
-					value: 6040.612
-				}, {
-					name: 'Sri Lanka',
-					value: 20758.779
-				}, {
-					name: 'Lesotho',
-					value: 2008.921
-				}, {
-					name: 'Lithuania',
-					value: 3068.457
-				}, {
-					name: 'Luxembourg',
-					value: 507.885
-				}, {
-					name: 'Latvia',
-					value: 2090.519
-				}, {
-					name: 'Morocco',
-					value: 31642.36
-				}, {
-					name: 'Moldova',
-					value: 103.619
-				}, {
-					name: 'Madagascar',
-					value: 21079.532
-				}, {
-					name: 'Mexico',
-					value: 117886.404
-				}, {
-					name: 'Macedonia',
-					value: 507.885
-				}, {
-					name: 'Mali',
-					value: 13985.961
-				}, {
-					name: 'Myanmar',
-					value: 51931.231
-				}, {
-					name: 'Montenegro',
-					value: 620.078
-				}, {
-					name: 'Mongolia',
-					value: 2712.738
-				}, {
-					name: 'Mozambique',
-					value: 23967.265
-				}, {
-					name: 'Mauritania',
-					value: 3609.42
-				}, {
-					name: 'Malawi',
-					value: 15013.694
-				}, {
-					name: 'Malaysia',
-					value: 28275.835
-				}, {
-					name: 'Namibia',
-					value: 2178.967
-				}, {
-					name: 'New Caledonia',
-					value: 246.379
-				}, {
-					name: 'Niger',
-					value: 15893.746
-				}, {
-					name: 'Nigeria',
-					value: 159707.78
-				}, {
-					name: 'Nicaragua',
-					value: 5822.209
-				}, {
-					name: 'Netherlands',
-					value: 16615.243
-				}, {
-					name: 'Norway',
-					value: 4891.251
-				}, {
-					name: 'Nepal',
-					value: 26846.016
-				}, {
-					name: 'New Zealand',
-					value: 4368.136
-				}, {
-					name: 'Oman',
-					value: 2802.768
-				}, {
-					name: 'Pakistan',
-					value: 173149.306
-				}, {
-					name: 'Panama',
-					value: 3678.128
-				}, {
-					name: 'Peru',
-					value: 29262.83
-				}, {
-					name: 'Philippines',
-					value: 93444.322
-				}, {
-					name: 'Papua New Guinea',
-					value: 6858.945
-				}, {
-					name: 'Poland',
-					value: 38198.754
-				}, {
-					name: 'Puerto Rico',
-					value: 3709.671
-				}, {
-					name: 'North Korea',
-					value: 1.468
-				}, {
-					name: 'Portugal',
-					value: 10589.792
-				}, {
-					name: 'Paraguay',
-					value: 6459.721
-				}, {
-					name: 'Qatar',
-					value: 1749.713
-				}, {
-					name: 'Romania',
-					value: 21861.476
-				}, {
-					name: 'Russia',
-					value: 21861.476
-				}, {
-					name: 'Rwanda',
-					value: 10836.732
-				}, {
-					name: 'Western Sahara',
-					value: 514.648
-				}, {
-					name: 'Saudi Arabia',
-					value: 27258.387
-				}, {
-					name: 'Sudan',
-					value: 35652.002
-				}, {
-					name: 'South Sudan',
-					value: 9940.929
-				}, {
-					name: 'Senegal',
-					value: 12950.564
-				}, {
-					name: 'Solomon Islands',
-					value: 526.447
-				}, {
-					name: 'Sierra Leone',
-					value: 5751.976
-				}, {
-					name: 'El Salvador',
-					value: 6218.195
-				}, {
-					name: 'Somaliland',
-					value: 9636.173
-				}, {
-					name: 'Somalia',
-					value: 9636.173
-				}, {
-					name: 'Republic of Serbia',
-					value: 3573.024
-				}, {
-					name: 'Suriname',
-					value: 524.96
-				}, {
-					name: 'Slovakia',
-					value: 5433.437
-				}, {
-					name: 'Slovenia',
-					value: 2054.232
-				}, {
-					name: 'Sweden',
-					value: 9382.297
-				}, {
-					name: 'Swaziland',
-					value: 1193.148
-				}, {
-					name: 'Syria',
-					value: 7830.534
-				}, {
-					name: 'Chad',
-					value: 11720.781
-				}, {
-					name: 'Togo',
-					value: 6306.014
-				}, {
-					name: 'Thailand',
-					value: 66402.316
-				}, {
-					name: 'Tajikistan',
-					value: 7627.326
-				}, {
-					name: 'Turkmenistan',
-					value: 5041.995
-				}, {
-					name: 'East Timor',
-					value: 10016.797
-				}, {
-					name: 'Trinidad and Tobago',
-					value: 1328.095
-				}, {
-					name: 'Tunisia',
-					value: 10631.83
-				}, {
-					name: 'Turkey',
-					value: 72137.546
-				}, {
-					name: 'United Republic of Tanzania',
-					value: 44973.33
-				}, {
-					name: 'Uganda',
-					value: 33987.213
-				}, {
-					name: 'Ukraine',
-					value: 46050.22
-				}, {
-					name: 'Uruguay',
-					value: 3371.982
-				}, {
-					name: 'United States of America',
-					value: 312247.116
-				}, {
-					name: 'Uzbekistan',
-					value: 27769.27
-				}, {
-					name: 'Venezuela',
-					value: 236.299
-				}, {
-					name: 'Vietnam',
-					value: 89047.397
-				}, {
-					name: 'Vanuatu',
-					value: 236.299
-				}, {
-					name: 'West Bank',
-					value: 13.565
-				}, {
-					name: 'Yemen',
-					value: 22763.008
-				}, {
-					name: 'South Africa',
-					value: 51452.352
-				}, {
-					name: 'Zambia',
-					value: 13216.985
-				}, {
-					name: 'Zimbabwe',
-					value: 13076.978
-				}]
-			}]
-		});
-	}
-}
-
-$(document).ready(function () {
-
-	init_sparklines();
-	init_flot_chart();
-	init_sidebar();
-	init_wysiwyg();
-	init_InputMask();
-	init_JQVmap();
-	init_cropper();
-	init_knob();
-	init_IonRangeSlider();
-	init_ColorPicker();
-	init_TagsInput();
-	init_parsley();
-	init_daterangepicker();
-	init_daterangepicker_right();
-	init_daterangepicker_single_call();
-	init_daterangepicker_reservation();
-	init_SmartWizard();
-	init_EasyPieChart();
-	init_charts();
-	init_echarts();
-	init_morris_charts();
-	init_skycons();
-	init_select2();
-	init_validator();
-	init_DataTables();
-	init_chart_doughnut();
-	init_gauge();
-	init_PNotify();
-	init_starrr();
-	init_calendar();
-	init_compose();
-	init_CustomNotification();
-	init_autosize();
-	init_autocomplete();
-});
-
-/***/ }),
-/* 101 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/** 
- * @overview datejs
- * @version 1.0.0-rc3
- * @author Gregory Wild-Smith <gregory@wild-smith.com>
- * @copyright 2014 Gregory Wild-Smith
- * @license MIT
- * @homepage https://github.com/abritinthebay/datejs
- */(function () {
-	var $D = Date;
-	var lang = Date.CultureStrings ? Date.CultureStrings.lang : null;
-	var loggedKeys = {}; // for debug purposes.
-	var getText = {
-		getFromKey: function getFromKey(key, countryCode) {
-			var output;
-			if (Date.CultureStrings && Date.CultureStrings[countryCode] && Date.CultureStrings[countryCode][key]) {
-				output = Date.CultureStrings[countryCode][key];
-			} else {
-				output = getText.buildFromDefault(key);
-			}
-			if (key.charAt(0) === "/") {
-				// Assume it's a regex
-				output = getText.buildFromRegex(key, countryCode);
-			}
-			return output;
-		},
-		getFromObjectValues: function getFromObjectValues(obj, countryCode) {
-			var key,
-			    output = {};
-			for (key in obj) {
-				if (obj.hasOwnProperty(key)) {
-					output[key] = getText.getFromKey(obj[key], countryCode);
-				}
-			}
-			return output;
-		},
-		getFromObjectKeys: function getFromObjectKeys(obj, countryCode) {
-			var key,
-			    output = {};
-			for (key in obj) {
-				if (obj.hasOwnProperty(key)) {
-					output[getText.getFromKey(key, countryCode)] = obj[key];
-				}
-			}
-			return output;
-		},
-		getFromArray: function getFromArray(arr, countryCode) {
-			var output = [];
-			for (var i = 0; i < arr.length; i++) {
-				if (i in arr) {
-					output[i] = getText.getFromKey(arr[i], countryCode);
-				}
-			}
-			return output;
-		},
-		buildFromDefault: function buildFromDefault(key) {
-			var output, length, split, last;
-			switch (key) {
-				case "name":
-					output = "en-US";
-					break;
-				case "englishName":
-					output = "English (United States)";
-					break;
-				case "nativeName":
-					output = "English (United States)";
-					break;
-				case "twoDigitYearMax":
-					output = 2049;
-					break;
-				case "firstDayOfWeek":
-					output = 0;
-					break;
-				default:
-					output = key;
-					split = key.split("_");
-					length = split.length;
-					if (length > 1 && key.charAt(0) !== "/") {
-						// if the key isn't a regex and it has a split.
-						last = split[length - 1].toLowerCase();
-						if (last === "initial" || last === "abbr") {
-							output = split[0];
-						}
-					}
-					break;
-			}
-			return output;
-		},
-		buildFromRegex: function buildFromRegex(key, countryCode) {
-			var output;
-			if (Date.CultureStrings && Date.CultureStrings[countryCode] && Date.CultureStrings[countryCode][key]) {
-				output = new RegExp(Date.CultureStrings[countryCode][key], "i");
-			} else {
-				output = new RegExp(key.replace(new RegExp("/", "g"), ""), "i");
-			}
-			return output;
-		}
-	};
-
-	var shallowMerge = function shallowMerge(obj1, obj2) {
-		for (var attrname in obj2) {
-			if (obj2.hasOwnProperty(attrname)) {
-				obj1[attrname] = obj2[attrname];
-			}
-		}
-	};
-
-	var _2 = function _2(key, language) {
-		var countryCode = language ? language : lang;
-		loggedKeys[key] = key;
-		if ((typeof key === "undefined" ? "undefined" : _typeof(key)) === "object") {
-			if (key instanceof Array) {
-				return getText.getFromArray(key, countryCode);
-			} else {
-				return getText.getFromObjectKeys(key, countryCode);
-			}
-		} else {
-			return getText.getFromKey(key, countryCode);
-		}
-	};
-
-	var loadI18nScript = function loadI18nScript(code) {
-		// paatterned after jQuery's getScript.
-		var url = Date.Config.i18n + code + ".js";
-		var head = document.getElementsByTagName("head")[0] || document.documentElement;
-		var script = document.createElement("script");
-		script.src = url;
-
-		var completed = false;
-		var events = {
-			done: function done() {} // placeholder function
-		};
-		// Attach handlers for all browsers
-		script.onload = script.onreadystatechange = function () {
-			if (!completed && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
-				events.done();
-				head.removeChild(script);
-			}
-		};
-
-		setTimeout(function () {
-			head.insertBefore(script, head.firstChild);
-		}, 0); // allows return to execute first
-
-		return {
-			done: function done(cb) {
-				events.done = function () {
-					if (cb) {
-						setTimeout(cb, 0);
-					}
-				};
-			}
-		};
-	};
-
-	var buildInfo = {
-		buildFromMethodHash: function buildFromMethodHash(obj) {
-			var key;
-			for (key in obj) {
-				if (obj.hasOwnProperty(key)) {
-					obj[key] = buildInfo[obj[key]]();
-				}
-			}
-			return obj;
-		},
-		timeZoneDST: function timeZoneDST() {
-			var DST = {
-				"CHADT": "+1345",
-				"NZDT": "+1300",
-				"AEDT": "+1100",
-				"ACDT": "+1030",
-				"AZST": "+0500",
-				"IRDT": "+0430",
-				"EEST": "+0300",
-				"CEST": "+0200",
-				"BST": "+0100",
-				"PMDT": "-0200",
-				"ADT": "-0300",
-				"NDT": "-0230",
-				"EDT": "-0400",
-				"CDT": "-0500",
-				"MDT": "-0600",
-				"PDT": "-0700",
-				"AKDT": "-0800",
-				"HADT": "-0900"
-			};
-			return _2(DST);
-		},
-		timeZoneStandard: function timeZoneStandard() {
-			var standard = {
-				"LINT": "+1400",
-				"TOT": "+1300",
-				"CHAST": "+1245",
-				"NZST": "+1200",
-				"NFT": "+1130",
-				"SBT": "+1100",
-				"AEST": "+1000",
-				"ACST": "+0930",
-				"JST": "+0900",
-				"CWST": "+0845",
-				"CT": "+0800",
-				"ICT": "+0700",
-				"MMT": "+0630",
-				"BST": "+0600",
-				"NPT": "+0545",
-				"IST": "+0530",
-				"PKT": "+0500",
-				"AFT": "+0430",
-				"MSK": "+0400",
-				"IRST": "+0330",
-				"FET": "+0300",
-				"EET": "+0200",
-				"CET": "+0100",
-				"GMT": "+0000",
-				"UTC": "+0000",
-				"CVT": "-0100",
-				"GST": "-0200",
-				"BRT": "-0300",
-				"NST": "-0330",
-				"AST": "-0400",
-				"EST": "-0500",
-				"CST": "-0600",
-				"MST": "-0700",
-				"PST": "-0800",
-				"AKST": "-0900",
-				"MIT": "-0930",
-				"HST": "-1000",
-				"SST": "-1100",
-				"BIT": "-1200"
-			};
-			return _2(standard);
-		},
-		timeZones: function timeZones(data) {
-			var zone;
-			data.timezones = [];
-			for (zone in data.abbreviatedTimeZoneStandard) {
-				if (data.abbreviatedTimeZoneStandard.hasOwnProperty(zone)) {
-					data.timezones.push({ name: zone, offset: data.abbreviatedTimeZoneStandard[zone] });
-				}
-			}
-			for (zone in data.abbreviatedTimeZoneDST) {
-				if (data.abbreviatedTimeZoneDST.hasOwnProperty(zone)) {
-					data.timezones.push({ name: zone, offset: data.abbreviatedTimeZoneDST[zone], dst: true });
-				}
-			}
-			return data.timezones;
-		},
-		days: function days() {
-			return _2(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]);
-		},
-		dayAbbr: function dayAbbr() {
-			return _2(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
-		},
-		dayShortNames: function dayShortNames() {
-			return _2(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]);
-		},
-		dayFirstLetters: function dayFirstLetters() {
-			return _2(["S_Sun_Initial", "M_Mon_Initial", "T_Tues_Initial", "W_Wed_Initial", "T_Thu_Initial", "F_Fri_Initial", "S_Sat_Initial"]);
-		},
-		months: function months() {
-			return _2(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]);
-		},
-		monthAbbr: function monthAbbr() {
-			return _2(["Jan_Abbr", "Feb_Abbr", "Mar_Abbr", "Apr_Abbr", "May_Abbr", "Jun_Abbr", "Jul_Abbr", "Aug_Abbr", "Sep_Abbr", "Oct_Abbr", "Nov_Abbr", "Dec_Abbr"]);
-		},
-		formatPatterns: function formatPatterns() {
-			return getText.getFromObjectValues({
-				shortDate: "M/d/yyyy",
-				longDate: "dddd, MMMM dd, yyyy",
-				shortTime: "h:mm tt",
-				longTime: "h:mm:ss tt",
-				fullDateTime: "dddd, MMMM dd, yyyy h:mm:ss tt",
-				sortableDateTime: "yyyy-MM-ddTHH:mm:ss",
-				universalSortableDateTime: "yyyy-MM-dd HH:mm:ssZ",
-				rfc1123: "ddd, dd MMM yyyy HH:mm:ss",
-				monthDay: "MMMM dd",
-				yearMonth: "MMMM, yyyy"
-			}, Date.i18n.currentLanguage());
-		},
-		regex: function regex() {
-			return getText.getFromObjectValues({
-				inTheMorning: "/( in the )(morn(ing)?)\\b/",
-				thisMorning: "/(this )(morn(ing)?)\\b/",
-				amThisMorning: "/(\b\\d(am)? )(this )(morn(ing)?)/",
-				inTheEvening: "/( in the )(even(ing)?)\\b/",
-				thisEvening: "/(this )(even(ing)?)\\b/",
-				pmThisEvening: "/(\b\\d(pm)? )(this )(even(ing)?)/",
-				jan: "/jan(uary)?/",
-				feb: "/feb(ruary)?/",
-				mar: "/mar(ch)?/",
-				apr: "/apr(il)?/",
-				may: "/may/",
-				jun: "/jun(e)?/",
-				jul: "/jul(y)?/",
-				aug: "/aug(ust)?/",
-				sep: "/sep(t(ember)?)?/",
-				oct: "/oct(ober)?/",
-				nov: "/nov(ember)?/",
-				dec: "/dec(ember)?/",
-				sun: "/^su(n(day)?)?/",
-				mon: "/^mo(n(day)?)?/",
-				tue: "/^tu(e(s(day)?)?)?/",
-				wed: "/^we(d(nesday)?)?/",
-				thu: "/^th(u(r(s(day)?)?)?)?/",
-				fri: "/fr(i(day)?)?/",
-				sat: "/^sa(t(urday)?)?/",
-				future: "/^next/",
-				past: "/^last|past|prev(ious)?/",
-				add: "/^(\\+|aft(er)?|from|hence)/",
-				subtract: "/^(\\-|bef(ore)?|ago)/",
-				yesterday: "/^yes(terday)?/",
-				today: "/^t(od(ay)?)?/",
-				tomorrow: "/^tom(orrow)?/",
-				now: "/^n(ow)?/",
-				millisecond: "/^ms|milli(second)?s?/",
-				second: "/^sec(ond)?s?/",
-				minute: "/^mn|min(ute)?s?/",
-				hour: "/^h(our)?s?/",
-				week: "/^w(eek)?s?/",
-				month: "/^m(onth)?s?/",
-				day: "/^d(ay)?s?/",
-				year: "/^y(ear)?s?/",
-				shortMeridian: "/^(a|p)/",
-				longMeridian: "/^(a\\.?m?\\.?|p\\.?m?\\.?)/",
-				timezone: "/^((e(s|d)t|c(s|d)t|m(s|d)t|p(s|d)t)|((gmt)?\\s*(\\+|\\-)\\s*\\d\\d\\d\\d?)|gmt|utc)/",
-				ordinalSuffix: "/^\\s*(st|nd|rd|th)/",
-				timeContext: "/^\\s*(\\:|a(?!u|p)|p)/"
-			}, Date.i18n.currentLanguage());
-		}
-	};
-
-	var CultureInfo = function CultureInfo() {
-		var info = getText.getFromObjectValues({
-			name: "name",
-			englishName: "englishName",
-			nativeName: "nativeName",
-			amDesignator: "AM",
-			pmDesignator: "PM",
-			firstDayOfWeek: "firstDayOfWeek",
-			twoDigitYearMax: "twoDigitYearMax",
-			dateElementOrder: "mdy"
-		}, Date.i18n.currentLanguage());
-
-		var constructedInfo = buildInfo.buildFromMethodHash({
-			dayNames: "days",
-			abbreviatedDayNames: "dayAbbr",
-			shortestDayNames: "dayShortNames",
-			firstLetterDayNames: "dayFirstLetters",
-			monthNames: "months",
-			abbreviatedMonthNames: "monthAbbr",
-			formatPatterns: "formatPatterns",
-			regexPatterns: "regex",
-			abbreviatedTimeZoneDST: "timeZoneDST",
-			abbreviatedTimeZoneStandard: "timeZoneStandard"
-		});
-
-		shallowMerge(info, constructedInfo);
-		buildInfo.timeZones(info);
-		return info;
-	};
-
-	$D.i18n = {
-		__: function __(key, lang) {
-			return _2(key, lang);
-		},
-		currentLanguage: function currentLanguage() {
-			return lang || "en-US";
-		},
-		setLanguage: function setLanguage(code, force, cb) {
-			var async = false;
-			if (force || code === "en-US" || !!Date.CultureStrings && !!Date.CultureStrings[code]) {
-				lang = code;
-				Date.CultureStrings = Date.CultureStrings || {};
-				Date.CultureStrings.lang = code;
-				Date.CultureInfo = new CultureInfo();
-			} else {
-				if (!(!!Date.CultureStrings && !!Date.CultureStrings[code])) {
-					if (typeof exports !== "undefined" && this.exports !== exports) {
-						// we're in a Node enviroment, load it using require
-						try {
-							!(function webpackMissingModule() { var e = new Error("Cannot find module \"../i18n\""); e.code = 'MODULE_NOT_FOUND'; throw e; }());
-							lang = code;
-							Date.CultureStrings.lang = code;
-							Date.CultureInfo = new CultureInfo();
-						} catch (e) {
-							// var str = "The language for '" + code + "' could not be loaded by Node. It likely does not exist.";
-							throw new Error("The DateJS IETF language tag '" + code + "' could not be loaded by Node. It likely does not exist.");
-						}
-					} else if (Date.Config && Date.Config.i18n) {
-						// we know the location of the files, so lets load them					
-						async = true;
-						loadI18nScript(code).done(function () {
-							lang = code;
-							Date.CultureStrings = Date.CultureStrings || {};
-							Date.CultureStrings.lang = code;
-							Date.CultureInfo = new CultureInfo();
-							$D.Parsing.Normalizer.buildReplaceData(); // because this is async
-							if ($D.Grammar) {
-								$D.Grammar.buildGrammarFormats(); // so we can parse those strings...
-							}
-							if (cb) {
-								setTimeout(cb, 0);
-							}
-						});
-					} else {
-						Date.console.error("The DateJS IETF language tag '" + code + "' is not available and has not been loaded.");
-						return false;
-					}
-				}
-			}
-			$D.Parsing.Normalizer.buildReplaceData(); // rebuild normalizer strings
-			if ($D.Grammar) {
-				$D.Grammar.buildGrammarFormats(); // so we can parse those strings...
-			}
-			if (!async && cb) {
-				setTimeout(cb, 0);
-			}
-		},
-		getLoggedKeys: function getLoggedKeys() {
-			return loggedKeys;
-		},
-		updateCultureInfo: function updateCultureInfo() {
-			Date.CultureInfo = new CultureInfo();
-		}
-	};
-	$D.i18n.updateCultureInfo(); // run automatically
-})();
-(function () {
-	var $D = Date,
-	    $P = $D.prototype,
-	    p = function p(s, l) {
-		if (!l) {
-			l = 2;
-		}
-		return ("000" + s).slice(l * -1);
-	};
-
-	if (typeof window !== "undefined" && typeof window.console !== "undefined" && typeof window.console.log !== "undefined") {
-		$D.console = console; // used only to raise non-critical errors if available
-	} else {
-		// set mock so we don't give errors.
-		$D.console = {
-			log: function log() {},
-			error: function error() {}
-		};
-	}
-	$D.Config = $D.Config || {};
-
-	$D.initOverloads = function () {
-		/** 
-   * Overload of Date.now. Allows an alternate call for Date.now where it returns the 
-   * current Date as an object rather than just milliseconds since the Unix Epoch.
-   *
-   * Also provides an implementation of now() for browsers (IE<9) that don't have it.
-   * 
-   * Backwards compatible so with work with either:
-   *  Date.now() [returns ms]
-   * or
-   *  Date.now(true) [returns Date]
-   */
-		if (!$D.now) {
-			$D._now = function now() {
-				return new Date().getTime();
-			};
-		} else if (!$D._now) {
-			$D._now = $D.now;
-		}
-
-		$D.now = function (returnObj) {
-			if (returnObj) {
-				return $D.present();
-			} else {
-				return $D._now();
-			}
-		};
-
-		if (!$P.toISOString) {
-			$P.toISOString = function () {
-				return this.getUTCFullYear() + "-" + p(this.getUTCMonth() + 1) + "-" + p(this.getUTCDate()) + "T" + p(this.getUTCHours()) + ":" + p(this.getUTCMinutes()) + ":" + p(this.getUTCSeconds()) + "." + String((this.getUTCMilliseconds() / 1000).toFixed(3)).slice(2, 5) + "Z";
-			};
-		}
-
-		// private
-		if ($P._toString === undefined) {
-			$P._toString = $P.toString;
-		}
-	};
-	$D.initOverloads();
-
-	/** 
-  * Gets a date that is set to the current date. The time is set to the start of the day (00:00 or 12:00 AM).
-  * @return {Date}    The current date.
-  */
-	$D.today = function () {
-		return new Date().clearTime();
-	};
-
-	/** 
-  * Gets a date that is set to the current date and time (same as new Date, but chainable)
-  * @return {Date}    The current date.
-  */
-	$D.present = function () {
-		return new Date();
-	};
-
-	/**
-  * Compares the first date to the second date and returns an number indication of their relative values.  
-  * @param {Date}     First Date object to compare [Required].
-  * @param {Date}     Second Date object to compare to [Required].
-  * @return {Number}  -1 = date1 is lessthan date2. 0 = values are equal. 1 = date1 is greaterthan date2.
-  */
-	$D.compare = function (date1, date2) {
-		if (isNaN(date1) || isNaN(date2)) {
-			throw new Error(date1 + " - " + date2);
-		} else if (date1 instanceof Date && date2 instanceof Date) {
-			return date1 < date2 ? -1 : date1 > date2 ? 1 : 0;
-		} else {
-			throw new TypeError(date1 + " - " + date2);
-		}
-	};
-
-	/**
-  * Compares the first Date object to the second Date object and returns true if they are equal.  
-  * @param {Date}     First Date object to compare [Required]
-  * @param {Date}     Second Date object to compare to [Required]
-  * @return {Boolean} true if dates are equal. false if they are not equal.
-  */
-	$D.equals = function (date1, date2) {
-		return date1.compareTo(date2) === 0;
-	};
-
-	/**
-  * Gets the language appropriate day name when given the day number(0-6)
-  * eg - 0 == Sunday
-  * @return {String}  The day name
-  */
-	$D.getDayName = function (n) {
-		return Date.CultureInfo.dayNames[n];
-	};
-
-	/**
-  * Gets the day number (0-6) if given a CultureInfo specific string which is a valid dayName, abbreviatedDayName or shortestDayName (two char).
-  * @param {String}   The name of the day (eg. "Monday, "Mon", "tuesday", "tue", "We", "we").
-  * @return {Number}  The day number
-  */
-	$D.getDayNumberFromName = function (name) {
-		var n = Date.CultureInfo.dayNames,
-		    m = Date.CultureInfo.abbreviatedDayNames,
-		    o = Date.CultureInfo.shortestDayNames,
-		    s = name.toLowerCase();
-		for (var i = 0; i < n.length; i++) {
-			if (n[i].toLowerCase() === s || m[i].toLowerCase() === s || o[i].toLowerCase() === s) {
-				return i;
-			}
-		}
-		return -1;
-	};
-
-	/**
-  * Gets the month number (0-11) if given a Culture Info specific string which is a valid monthName or abbreviatedMonthName.
-  * @param {String}   The name of the month (eg. "February, "Feb", "october", "oct").
-  * @return {Number}  The day number
-  */
-	$D.getMonthNumberFromName = function (name) {
-		var n = Date.CultureInfo.monthNames,
-		    m = Date.CultureInfo.abbreviatedMonthNames,
-		    s = name.toLowerCase();
-		for (var i = 0; i < n.length; i++) {
-			if (n[i].toLowerCase() === s || m[i].toLowerCase() === s) {
-				return i;
-			}
-		}
-		return -1;
-	};
-
-	/**
-  * Gets the language appropriate month name when given the month number(0-11)
-  * eg - 0 == January
-  * @return {String}  The month name
-  */
-	$D.getMonthName = function (n) {
-		return Date.CultureInfo.monthNames[n];
-	};
-
-	/**
-  * Determines if the current date instance is within a LeapYear.
-  * @param {Number}   The year.
-  * @return {Boolean} true if date is within a LeapYear, otherwise false.
-  */
-	$D.isLeapYear = function (year) {
-		return year % 4 === 0 && year % 100 !== 0 || year % 400 === 0;
-	};
-
-	/**
-  * Gets the number of days in the month, given a year and month value. Automatically corrects for LeapYear.
-  * @param {Number}   The year.
-  * @param {Number}   The month (0-11).
-  * @return {Number}  The number of days in the month.
-  */
-	$D.getDaysInMonth = function (year, month) {
-		if (!month && $D.validateMonth(year)) {
-			month = year;
-			year = Date.today().getFullYear();
-		}
-		return [31, $D.isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
-	};
-
-	$P.getDaysInMonth = function () {
-		return $D.getDaysInMonth(this.getFullYear(), this.getMonth());
-	};
-
-	$D.getTimezoneAbbreviation = function (offset, dst) {
-		var p,
-		    n = dst || false ? Date.CultureInfo.abbreviatedTimeZoneDST : Date.CultureInfo.abbreviatedTimeZoneStandard;
-		for (p in n) {
-			if (n.hasOwnProperty(p)) {
-				if (n[p] === offset) {
-					return p;
-				}
-			}
-		}
-		return null;
-	};
-
-	$D.getTimezoneOffset = function (name, dst) {
-		var i,
-		    a = [],
-		    z = Date.CultureInfo.timezones;
-		if (!name) {
-			name = new Date().getTimezone();
-		}
-		for (i = 0; i < z.length; i++) {
-			if (z[i].name === name.toUpperCase()) {
-				a.push(i);
-			}
-		}
-		if (!z[a[0]]) {
-			return null;
-		}
-		if (a.length === 1 || !dst) {
-			return z[a[0]].offset;
-		} else {
-			for (i = 0; i < a.length; i++) {
-				if (z[a[i]].dst) {
-					return z[a[i]].offset;
-				}
-			}
-		}
-	};
-
-	$D.getQuarter = function (d) {
-		d = d || new Date(); // If no date supplied, use today
-		var q = [1, 2, 3, 4];
-		return q[Math.floor(d.getMonth() / 3)]; // ~~~ is a bitwise op. Faster than Math.floor
-	};
-
-	$D.getDaysLeftInQuarter = function (d) {
-		d = d || new Date();
-		var qEnd = new Date(d);
-		qEnd.setMonth(qEnd.getMonth() + 3 - qEnd.getMonth() % 3, 0);
-		return Math.floor((qEnd - d) / 8.64e7);
-	};
-
-	// private
-	var validate = function validate(n, min, max, name) {
-		name = name ? name : "Object";
-		if (typeof n === "undefined") {
-			return false;
-		} else if (typeof n !== "number") {
-			throw new TypeError(n + " is not a Number.");
-		} else if (n < min || n > max) {
-			// As failing validation is *not* an exceptional circumstance 
-			// lets not throw a RangeError Exception here. 
-			// It's semantically correct but it's not sensible.
-			return false;
-		}
-		return true;
-	};
-
-	/**
-  * Validates the number is within an acceptable range for milliseconds [0-999].
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateMillisecond = function (value) {
-		return validate(value, 0, 999, "millisecond");
-	};
-
-	/**
-  * Validates the number is within an acceptable range for seconds [0-59].
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateSecond = function (value) {
-		return validate(value, 0, 59, "second");
-	};
-
-	/**
-  * Validates the number is within an acceptable range for minutes [0-59].
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateMinute = function (value) {
-		return validate(value, 0, 59, "minute");
-	};
-
-	/**
-  * Validates the number is within an acceptable range for hours [0-23].
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateHour = function (value) {
-		return validate(value, 0, 23, "hour");
-	};
-
-	/**
-  * Validates the number is within an acceptable range for the days in a month [0-MaxDaysInMonth].
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateDay = function (value, year, month) {
-		if (year === undefined || year === null || month === undefined || month === null) {
-			return false;
-		}
-		return validate(value, 1, $D.getDaysInMonth(year, month), "day");
-	};
-
-	/**
-  * Validates the number is within an acceptable range for months [0-11].
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateWeek = function (value) {
-		return validate(value, 0, 53, "week");
-	};
-
-	/**
-  * Validates the number is within an acceptable range for months [0-11].
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateMonth = function (value) {
-		return validate(value, 0, 11, "month");
-	};
-
-	/**
-  * Validates the number is within an acceptable range for years.
-  * @param {Number}   The number to check if within range.
-  * @return {Boolean} true if within range, otherwise false.
-  */
-	$D.validateYear = function (value) {
-		/**
-   * Per ECMAScript spec the range of times supported by Date objects is 
-   * exactly -100,000,000 days to +100,000,000 days measured relative to 
-   * midnight at the beginning of 01 January, 1970 UTC. 
-   * This gives a range of 8,640,000,000,000,000 milliseconds to either 
-   * side of 01 January, 1970 UTC.
-   *
-   * Earliest possible date: Tue, 20 Apr 271,822 B.C. 00:00:00 UTC
-   * Latest possible date: Sat, 13 Sep 275,760 00:00:00 UTC
-   */
-		return validate(value, -271822, 275760, "year");
-	};
-	$D.validateTimezone = function (value) {
-		var timezones = { "ACDT": 1, "ACST": 1, "ACT": 1, "ADT": 1, "AEDT": 1, "AEST": 1, "AFT": 1, "AKDT": 1, "AKST": 1, "AMST": 1, "AMT": 1, "ART": 1, "AST": 1, "AWDT": 1, "AWST": 1, "AZOST": 1, "AZT": 1, "BDT": 1, "BIOT": 1, "BIT": 1, "BOT": 1, "BRT": 1, "BST": 1, "BTT": 1, "CAT": 1, "CCT": 1, "CDT": 1, "CEDT": 1, "CEST": 1, "CET": 1, "CHADT": 1, "CHAST": 1, "CHOT": 1, "ChST": 1, "CHUT": 1, "CIST": 1, "CIT": 1, "CKT": 1, "CLST": 1, "CLT": 1, "COST": 1, "COT": 1, "CST": 1, "CT": 1, "CVT": 1, "CWST": 1, "CXT": 1, "DAVT": 1, "DDUT": 1, "DFT": 1, "EASST": 1, "EAST": 1, "EAT": 1, "ECT": 1, "EDT": 1, "EEDT": 1, "EEST": 1, "EET": 1, "EGST": 1, "EGT": 1, "EIT": 1, "EST": 1, "FET": 1, "FJT": 1, "FKST": 1, "FKT": 1, "FNT": 1, "GALT": 1, "GAMT": 1, "GET": 1, "GFT": 1, "GILT": 1, "GIT": 1, "GMT": 1, "GST": 1, "GYT": 1, "HADT": 1, "HAEC": 1, "HAST": 1, "HKT": 1, "HMT": 1, "HOVT": 1, "HST": 1, "ICT": 1, "IDT": 1, "IOT": 1, "IRDT": 1, "IRKT": 1, "IRST": 1, "IST": 1, "JST": 1, "KGT": 1, "KOST": 1, "KRAT": 1, "KST": 1, "LHST": 1, "LINT": 1, "MAGT": 1, "MART": 1, "MAWT": 1, "MDT": 1, "MET": 1, "MEST": 1, "MHT": 1, "MIST": 1, "MIT": 1, "MMT": 1, "MSK": 1, "MST": 1, "MUT": 1, "MVT": 1, "MYT": 1, "NCT": 1, "NDT": 1, "NFT": 1, "NPT": 1, "NST": 1, "NT": 1, "NUT": 1, "NZDT": 1, "NZST": 1, "OMST": 1, "ORAT": 1, "PDT": 1, "PET": 1, "PETT": 1, "PGT": 1, "PHOT": 1, "PHT": 1, "PKT": 1, "PMDT": 1, "PMST": 1, "PONT": 1, "PST": 1, "PYST": 1, "PYT": 1, "RET": 1, "ROTT": 1, "SAKT": 1, "SAMT": 1, "SAST": 1, "SBT": 1, "SCT": 1, "SGT": 1, "SLST": 1, "SRT": 1, "SST": 1, "SYOT": 1, "TAHT": 1, "THA": 1, "TFT": 1, "TJT": 1, "TKT": 1, "TLT": 1, "TMT": 1, "TOT": 1, "TVT": 1, "UCT": 1, "ULAT": 1, "UTC": 1, "UYST": 1, "UYT": 1, "UZT": 1, "VET": 1, "VLAT": 1, "VOLT": 1, "VOST": 1, "VUT": 1, "WAKT": 1, "WAST": 1, "WAT": 1, "WEDT": 1, "WEST": 1, "WET": 1, "WST": 1, "YAKT": 1, "YEKT": 1, "Z": 1 };
-		return timezones[value] === 1;
-	};
-	$D.validateTimezoneOffset = function (value) {
-		// timezones go from +14hrs to -12hrs, the +X hours are negative offsets.
-		return value > -841 && value < 721;
-	};
-})();
-
-(function () {
-	var $D = Date,
-	    $P = $D.prototype,
-	    p = function p(s, l) {
-		if (!l) {
-			l = 2;
-		}
-		return ("000" + s).slice(l * -1);
-	};
-
-	var validateConfigObject = function validateConfigObject(obj) {
-		var result = {},
-		    self = this,
-		    prop,
-		    testFunc;
-		testFunc = function testFunc(prop, func, value) {
-			if (prop === "day") {
-				var month = obj.month !== undefined ? obj.month : self.getMonth();
-				var year = obj.year !== undefined ? obj.year : self.getFullYear();
-				return $D[func](value, year, month);
-			} else {
-				return $D[func](value);
-			}
-		};
-		for (prop in obj) {
-			if (hasOwnProperty.call(obj, prop)) {
-				var func = "validate" + prop.charAt(0).toUpperCase() + prop.slice(1);
-
-				if ($D[func] && obj[prop] !== null && testFunc(prop, func, obj[prop])) {
-					result[prop] = obj[prop];
-				}
-			}
-		}
-		return result;
-	};
-	/**
-  * Resets the time of this Date object to 12:00 AM (00:00), which is the start of the day.
-  * @param {Boolean}  .clone() this date instance before clearing Time
-  * @return {Date}    this
-  */
-	$P.clearTime = function () {
-		this.setHours(0);
-		this.setMinutes(0);
-		this.setSeconds(0);
-		this.setMilliseconds(0);
-		return this;
-	};
-
-	/**
-  * Resets the time of this Date object to the current time ('now').
-  * @return {Date}    this
-  */
-	$P.setTimeToNow = function () {
-		var n = new Date();
-		this.setHours(n.getHours());
-		this.setMinutes(n.getMinutes());
-		this.setSeconds(n.getSeconds());
-		this.setMilliseconds(n.getMilliseconds());
-		return this;
-	};
-	/**
-  * Returns a new Date object that is an exact date and time copy of the original instance.
-  * @return {Date}    A new Date instance
-  */
-	$P.clone = function () {
-		return new Date(this.getTime());
-	};
-
-	/**
-  * Compares this instance to a Date object and returns an number indication of their relative values.  
-  * @param {Date}     Date object to compare [Required]
-  * @return {Number}  -1 = this is lessthan date. 0 = values are equal. 1 = this is greaterthan date.
-  */
-	$P.compareTo = function (date) {
-		return Date.compare(this, date);
-	};
-
-	/**
-  * Compares this instance to another Date object and returns true if they are equal.  
-  * @param {Date}     Date object to compare. If no date to compare, new Date() [now] is used.
-  * @return {Boolean} true if dates are equal. false if they are not equal.
-  */
-	$P.equals = function (date) {
-		return Date.equals(this, date !== undefined ? date : new Date());
-	};
-
-	/**
-  * Determines if this instance is between a range of two dates or equal to either the start or end dates.
-  * @param {Date}     Start of range [Required]
-  * @param {Date}     End of range [Required]
-  * @return {Boolean} true is this is between or equal to the start and end dates, else false
-  */
-	$P.between = function (start, end) {
-		return this.getTime() >= start.getTime() && this.getTime() <= end.getTime();
-	};
-
-	/**
-  * Determines if this date occurs after the date to compare to.
-  * @param {Date}     Date object to compare. If no date to compare, new Date() ("now") is used.
-  * @return {Boolean} true if this date instance is greater than the date to compare to (or "now"), otherwise false.
-  */
-	$P.isAfter = function (date) {
-		return this.compareTo(date || new Date()) === 1;
-	};
-
-	/**
-  * Determines if this date occurs before the date to compare to.
-  * @param {Date}     Date object to compare. If no date to compare, new Date() ("now") is used.
-  * @return {Boolean} true if this date instance is less than the date to compare to (or "now").
-  */
-	$P.isBefore = function (date) {
-		return this.compareTo(date || new Date()) === -1;
-	};
-
-	/**
-  * Determines if the current Date instance occurs today.
-  * @return {Boolean} true if this date instance is 'today', otherwise false.
-  */
-
-	/**
-  * Determines if the current Date instance occurs on the same Date as the supplied 'date'. 
-  * If no 'date' to compare to is provided, the current Date instance is compared to 'today'. 
-  * @param {date}     Date object to compare. If no date to compare, the current Date ("now") is used.
-  * @return {Boolean} true if this Date instance occurs on the same Day as the supplied 'date'.
-  */
-	$P.isToday = $P.isSameDay = function (date) {
-		return this.clone().clearTime().equals((date || new Date()).clone().clearTime());
-	};
-
-	/**
-  * Adds the specified number of milliseconds to this instance. 
-  * @param {Number}   The number of milliseconds to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addMilliseconds = function (value) {
-		if (!value) {
-			return this;
-		}
-		this.setTime(this.getTime() + value * 1);
-		return this;
-	};
-
-	/**
-  * Adds the specified number of seconds to this instance. 
-  * @param {Number}   The number of seconds to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addSeconds = function (value) {
-		if (!value) {
-			return this;
-		}
-		return this.addMilliseconds(value * 1000);
-	};
-
-	/**
-  * Adds the specified number of seconds to this instance. 
-  * @param {Number}   The number of seconds to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addMinutes = function (value) {
-		if (!value) {
-			return this;
-		}
-		return this.addMilliseconds(value * 60000); // 60*1000
-	};
-
-	/**
-  * Adds the specified number of hours to this instance. 
-  * @param {Number}   The number of hours to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addHours = function (value) {
-		if (!value) {
-			return this;
-		}
-		return this.addMilliseconds(value * 3600000); // 60*60*1000
-	};
-
-	/**
-  * Adds the specified number of days to this instance. 
-  * @param {Number}   The number of days to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addDays = function (value) {
-		if (!value) {
-			return this;
-		}
-		this.setDate(this.getDate() + value * 1);
-		return this;
-	};
-
-	/**
-  * Adds the specified number of weekdays (ie - not sat or sun) to this instance. 
-  * @param {Number}   The number of days to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addWeekdays = function (value) {
-		if (!value) {
-			return this;
-		}
-		var day = this.getDay();
-		var weeks = Math.ceil(Math.abs(value) / 7);
-		if (day === 0 || day === 6) {
-			if (value > 0) {
-				this.next().monday();
-				this.addDays(-1);
-				day = this.getDay();
-			}
-		}
-
-		if (value < 0) {
-			while (value < 0) {
-				this.addDays(-1);
-				day = this.getDay();
-				if (day !== 0 && day !== 6) {
-					value++;
-				}
-			}
-			return this;
-		} else if (value > 5 || 6 - day <= value) {
-			value = value + weeks * 2;
-		}
-
-		return this.addDays(value);
-	};
-
-	/**
-  * Adds the specified number of weeks to this instance. 
-  * @param {Number}   The number of weeks to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addWeeks = function (value) {
-		if (!value) {
-			return this;
-		}
-		return this.addDays(value * 7);
-	};
-
-	/**
-  * Adds the specified number of months to this instance. 
-  * @param {Number}   The number of months to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addMonths = function (value) {
-		if (!value) {
-			return this;
-		}
-		var n = this.getDate();
-		this.setDate(1);
-		this.setMonth(this.getMonth() + value * 1);
-		this.setDate(Math.min(n, $D.getDaysInMonth(this.getFullYear(), this.getMonth())));
-		return this;
-	};
-
-	$P.addQuarters = function (value) {
-		if (!value) {
-			return this;
-		}
-		// note this will take you to the same point in the quarter as you are now.
-		// i.e. - if you are 15 days into the quarter you'll be 15 days into the resulting one.
-		// bonus: this allows adding fractional quarters
-		return this.addMonths(value * 3);
-	};
-
-	/**
-  * Adds the specified number of years to this instance. 
-  * @param {Number}   The number of years to add. The number can be positive or negative [Required]
-  * @return {Date}    this
-  */
-	$P.addYears = function (value) {
-		if (!value) {
-			return this;
-		}
-		return this.addMonths(value * 12);
-	};
-
-	/**
-  * Adds (or subtracts) to the value of the years, months, weeks, days, hours, minutes, seconds, milliseconds of the date instance using given configuration object. Positive and Negative values allowed.
-  * Example
- <pre><code>
- Date.today().add( { days: 1, months: 1 } )
-  
- new Date().add( { years: -1 } )
- </code></pre> 
-  * @param {Object}   Configuration object containing attributes (months, days, etc.)
-  * @return {Date}    this
-  */
-	$P.add = function (config) {
-		if (typeof config === "number") {
-			this._orient = config;
-			return this;
-		}
-
-		var x = config;
-
-		if (x.day) {
-			// If we should be a different date than today (eg: for 'tomorrow -1d', etc).
-			// Should only effect parsing, not direct usage (eg, Finish and FinishExact)
-			if (x.day - this.getDate() !== 0) {
-				this.setDate(x.day);
-			}
-		}
-		if (x.milliseconds) {
-			this.addMilliseconds(x.milliseconds);
-		}
-		if (x.seconds) {
-			this.addSeconds(x.seconds);
-		}
-		if (x.minutes) {
-			this.addMinutes(x.minutes);
-		}
-		if (x.hours) {
-			this.addHours(x.hours);
-		}
-		if (x.weeks) {
-			this.addWeeks(x.weeks);
-		}
-		if (x.months) {
-			this.addMonths(x.months);
-		}
-		if (x.years) {
-			this.addYears(x.years);
-		}
-		if (x.days) {
-			this.addDays(x.days);
-		}
-		return this;
-	};
-
-	/**
-  * Get the week number. Week one (1) is the week which contains the first Thursday of the year. Monday is considered the first day of the week.
-  * The .getWeek() function does NOT convert the date to UTC. The local datetime is used. 
-  * Please use .getISOWeek() to get the week of the UTC converted date.
-  * @return {Number}  1 to 53
-  */
-	$P.getWeek = function (utc) {
-		// Create a copy of this date object  
-		var self,
-		    target = new Date(this.valueOf());
-		if (utc) {
-			target.addMinutes(target.getTimezoneOffset());
-			self = target.clone();
-		} else {
-			self = this;
-		}
-		// ISO week date weeks start on monday  
-		// so correct the day number  
-		var dayNr = (self.getDay() + 6) % 7;
-		// ISO 8601 states that week 1 is the week  
-		// with the first thursday of that year.  
-		// Set the target date to the thursday in the target week  
-		target.setDate(target.getDate() - dayNr + 3);
-		// Store the millisecond value of the target date  
-		var firstThursday = target.valueOf();
-		// Set the target to the first thursday of the year  
-		// First set the target to january first  
-		target.setMonth(0, 1);
-		// Not a thursday? Correct the date to the next thursday  
-		if (target.getDay() !== 4) {
-			target.setMonth(0, 1 + (4 - target.getDay() + 7) % 7);
-		}
-		// The weeknumber is the number of weeks between the   
-		// first thursday of the year and the thursday in the target week  
-		return 1 + Math.ceil((firstThursday - target) / 604800000); // 604800000 = 7 * 24 * 3600 * 1000  
-	};
-
-	/**
-  * Get the ISO 8601 week number. Week one ("01") is the week which contains the first Thursday of the year. Monday is considered the first day of the week.
-  * The .getISOWeek() function does convert the date to it's UTC value. Please use .getWeek() to get the week of the local date.
-  * @return {String}  "01" to "53"
-  */
-	$P.getISOWeek = function () {
-		return p(this.getWeek(true));
-	};
-
-	/**
-  * Moves the date to Monday of the week set. Week one (1) is the week which contains the first Thursday of the year.
-  * @param {Number}   A Number (1 to 53) that represents the week of the year.
-  * @return {Date}    this
-  */
-	$P.setWeek = function (n) {
-		if (n - this.getWeek() === 0) {
-			if (this.getDay() !== 1) {
-				return this.moveToDayOfWeek(1, this.getDay() > 1 ? -1 : 1);
-			} else {
-				return this;
-			}
-		} else {
-			return this.moveToDayOfWeek(1, this.getDay() > 1 ? -1 : 1).addWeeks(n - this.getWeek());
-		}
-	};
-
-	$P.setQuarter = function (qtr) {
-		var month = Math.abs((qtr - 1) * 3 + 1);
-		return this.setMonth(month, 1);
-	};
-
-	$P.getQuarter = function () {
-		return Date.getQuarter(this);
-	};
-
-	$P.getDaysLeftInQuarter = function () {
-		return Date.getDaysLeftInQuarter(this);
-	};
-
-	/**
-  * Moves the date to the next n'th occurrence of the dayOfWeek starting from the beginning of the month. The number (-1) is a magic number and will return the last occurrence of the dayOfWeek in the month.
-  * @param {Number}   The dayOfWeek to move to
-  * @param {Number}   The n'th occurrence to move to. Use (-1) to return the last occurrence in the month
-  * @return {Date}    this
-  */
-	$P.moveToNthOccurrence = function (dayOfWeek, occurrence) {
-		if (dayOfWeek === "Weekday") {
-			if (occurrence > 0) {
-				this.moveToFirstDayOfMonth();
-				if (this.is().weekday()) {
-					occurrence -= 1;
-				}
-			} else if (occurrence < 0) {
-				this.moveToLastDayOfMonth();
-				if (this.is().weekday()) {
-					occurrence += 1;
-				}
-			} else {
-				return this;
-			}
-			return this.addWeekdays(occurrence);
-		}
-		var shift = 0;
-		if (occurrence > 0) {
-			shift = occurrence - 1;
-		} else if (occurrence === -1) {
-			this.moveToLastDayOfMonth();
-			if (this.getDay() !== dayOfWeek) {
-				this.moveToDayOfWeek(dayOfWeek, -1);
-			}
-			return this;
-		}
-		return this.moveToFirstDayOfMonth().addDays(-1).moveToDayOfWeek(dayOfWeek, +1).addWeeks(shift);
-	};
-
-	var moveToN = function moveToN(getFunc, addFunc, nVal) {
-		return function (value, orient) {
-			var diff = (value - this[getFunc]() + nVal * (orient || +1)) % nVal;
-			return this[addFunc](diff === 0 ? diff += nVal * (orient || +1) : diff);
-		};
-	};
-	/**
-  * Move to the next or last dayOfWeek based on the orient value.
-  * @param {Number}   The dayOfWeek to move to
-  * @param {Number}   Forward (+1) or Back (-1). Defaults to +1. [Optional]
-  * @return {Date}    this
-  */
-	$P.moveToDayOfWeek = moveToN("getDay", "addDays", 7);
-	/**
-  * Move to the next or last month based on the orient value.
-  * @param {Number}   The month to move to. 0 = January, 11 = December
-  * @param {Number}   Forward (+1) or Back (-1). Defaults to +1. [Optional]
-  * @return {Date}    this
-  */
-	$P.moveToMonth = moveToN("getMonth", "addMonths", 12);
-	/**
-  * Get the Ordinate of the current day ("th", "st", "rd").
-  * @return {String} 
-  */
-	$P.getOrdinate = function () {
-		var num = this.getDate();
-		return ord(num);
-	};
-	/**
-  * Get the Ordinal day (numeric day number) of the year, adjusted for leap year.
-  * @return {Number} 1 through 365 (366 in leap years)
-  */
-	$P.getOrdinalNumber = function () {
-		return Math.ceil((this.clone().clearTime() - new Date(this.getFullYear(), 0, 1)) / 86400000) + 1;
-	};
-
-	/**
-  * Get the time zone abbreviation of the current date.
-  * @return {String} The abbreviated time zone name (e.g. "EST")
-  */
-	$P.getTimezone = function () {
-		return $D.getTimezoneAbbreviation(this.getUTCOffset(), this.isDaylightSavingTime());
-	};
-
-	$P.setTimezoneOffset = function (offset) {
-		var here = this.getTimezoneOffset(),
-		    there = Number(offset) * -6 / 10;
-		return there || there === 0 ? this.addMinutes(there - here) : this;
-	};
-
-	$P.setTimezone = function (offset) {
-		return this.setTimezoneOffset($D.getTimezoneOffset(offset));
-	};
-
-	/**
-  * Indicates whether Daylight Saving Time is observed in the current time zone.
-  * @return {Boolean} true|false
-  */
-	$P.hasDaylightSavingTime = function () {
-		return Date.today().set({ month: 0, day: 1 }).getTimezoneOffset() !== Date.today().set({ month: 6, day: 1 }).getTimezoneOffset();
-	};
-
-	/**
-  * Indicates whether this Date instance is within the Daylight Saving Time range for the current time zone.
-  * @return {Boolean} true|false
-  */
-	$P.isDaylightSavingTime = function () {
-		return Date.today().set({ month: 0, day: 1 }).getTimezoneOffset() !== this.getTimezoneOffset();
-	};
-
-	/**
-  * Get the offset from UTC of the current date.
-  * @return {String} The 4-character offset string prefixed with + or - (e.g. "-0500")
-  */
-	$P.getUTCOffset = function (offset) {
-		var n = (offset || this.getTimezoneOffset()) * -10 / 6,
-		    r;
-		if (n < 0) {
-			r = (n - 10000).toString();
-			return r.charAt(0) + r.substr(2);
-		} else {
-			r = (n + 10000).toString();
-			return "+" + r.substr(1);
-		}
-	};
-
-	/**
-  * Returns the number of milliseconds between this date and date.
-  * @param {Date} Defaults to now
-  * @return {Number} The diff in milliseconds
-  */
-	$P.getElapsed = function (date) {
-		return (date || new Date()) - this;
-	};
-
-	/**
-  * Set the value of year, month, day, hour, minute, second, millisecond of date instance using given configuration object.
-  * Example
- <pre><code>
- Date.today().set( { day: 20, month: 1 } )
- 	new Date().set( { millisecond: 0 } )
- </code></pre>
-  * 
-  * @param {Object}   Configuration object containing attributes (month, day, etc.)
-  * @return {Date}    this
-  */
-	$P.set = function (config) {
-		config = validateConfigObject.call(this, config);
-		var key;
-		for (key in config) {
-			if (hasOwnProperty.call(config, key)) {
-				var name = key.charAt(0).toUpperCase() + key.slice(1);
-				var addFunc, getFunc;
-				if (key !== "week" && key !== "month" && key !== "timezone" && key !== "timezoneOffset") {
-					name += "s";
-				}
-				addFunc = "add" + name;
-				getFunc = "get" + name;
-				if (key === "month") {
-					addFunc = addFunc + "s";
-				} else if (key === "year") {
-					getFunc = "getFullYear";
-				}
-				if (key !== "day" && key !== "timezone" && key !== "timezoneOffset" && key !== "week" && key !== "hour") {
-					this[addFunc](config[key] - this[getFunc]());
-				} else if (key === "timezone" || key === "timezoneOffset" || key === "week" || key === "hour") {
-					this["set" + name](config[key]);
-				}
-			}
-		}
-		// day has to go last because you can't validate the day without first knowing the month
-		if (config.day) {
-			this.addDays(config.day - this.getDate());
-		}
-
-		return this;
-	};
-
-	/**
-  * Moves the date to the first day of the month.
-  * @return {Date}    this
-  */
-	$P.moveToFirstDayOfMonth = function () {
-		return this.set({ day: 1 });
-	};
-
-	/**
-  * Moves the date to the last day of the month.
-  * @return {Date}    this
-  */
-	$P.moveToLastDayOfMonth = function () {
-		return this.set({ day: $D.getDaysInMonth(this.getFullYear(), this.getMonth()) });
-	};
-
-	/**
-  * Converts the value of the current Date object to its equivalent string representation.
-  * Format Specifiers
-  * CUSTOM DATE AND TIME FORMAT STRINGS
-  * Format  Description                                                                  Example
-  * ------  ---------------------------------------------------------------------------  -----------------------
-  * s      The seconds of the minute between 0-59.                                      "0" to "59"
-  * ss     The seconds of the minute with leading zero if required.                     "00" to "59"
-  * 
-  * m      The minute of the hour between 0-59.                                         "0"  or "59"
-  * mm     The minute of the hour with leading zero if required.                        "00" or "59"
-  * 
-  * h      The hour of the day between 1-12.                                            "1"  to "12"
-  * hh     The hour of the day with leading zero if required.                           "01" to "12"
-  * 
-  * H      The hour of the day between 0-23.                                            "0"  to "23"
-  * HH     The hour of the day with leading zero if required.                           "00" to "23"
-  * 
-  * d      The day of the month between 1 and 31.                                       "1"  to "31"
-  * dd     The day of the month with leading zero if required.                          "01" to "31"
-  * ddd    Abbreviated day name. Date.CultureInfo.abbreviatedDayNames.                                "Mon" to "Sun" 
-  * dddd   The full day name. Date.CultureInfo.dayNames.                                              "Monday" to "Sunday"
-  * 
-  * M      The month of the year between 1-12.                                          "1" to "12"
-  * MM     The month of the year with leading zero if required.                         "01" to "12"
-  * MMM    Abbreviated month name. Date.CultureInfo.abbreviatedMonthNames.                            "Jan" to "Dec"
-  * MMMM   The full month name. Date.CultureInfo.monthNames.                                          "January" to "December"
-  *
-  * yy     The year as a two-digit number.                                              "99" or "08"
-  * yyyy   The full four digit year.                                                    "1999" or "2008"
-  * 
-  * t      Displays the first character of the A.M./P.M. designator.                    "A" or "P"
-  *		Date.CultureInfo.amDesignator or Date.CultureInfo.pmDesignator
-  * tt     Displays the A.M./P.M. designator.                                           "AM" or "PM"
-  *		Date.CultureInfo.amDesignator or Date.CultureInfo.pmDesignator
-  * 
-  * S      The ordinal suffix ("st, "nd", "rd" or "th") of the current day.            "st, "nd", "rd" or "th"
-  *
-  * STANDARD DATE AND TIME FORMAT STRINGS
-  * Format  Description                                                                  Example
-  *------  ---------------------------------------------------------------------------  -----------------------
-  * d      The CultureInfo shortDate Format Pattern                                     "M/d/yyyy"
-  * D      The CultureInfo longDate Format Pattern                                      "dddd, MMMM dd, yyyy"
-  * F      The CultureInfo fullDateTime Format Pattern                                  "dddd, MMMM dd, yyyy h:mm:ss tt"
-  * m      The CultureInfo monthDay Format Pattern                                      "MMMM dd"
-  * r      The CultureInfo rfc1123 Format Pattern                                       "ddd, dd MMM yyyy HH:mm:ss GMT"
-  * s      The CultureInfo sortableDateTime Format Pattern                              "yyyy-MM-ddTHH:mm:ss"
-  * t      The CultureInfo shortTime Format Pattern                                     "h:mm tt"
-  * T      The CultureInfo longTime Format Pattern                                      "h:mm:ss tt"
-  * u      The CultureInfo universalSortableDateTime Format Pattern                     "yyyy-MM-dd HH:mm:ssZ"
-  * y      The CultureInfo yearMonth Format Pattern                                     "MMMM, yyyy"
-  *
-  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
-  * @return {String}  A string representation of the current Date object.
-  */
-
-	var ord = function ord(n) {
-		switch (n * 1) {
-			case 1:
-			case 21:
-			case 31:
-				return "st";
-			case 2:
-			case 22:
-				return "nd";
-			case 3:
-			case 23:
-				return "rd";
-			default:
-				return "th";
-		}
-	};
-	var parseStandardFormats = function parseStandardFormats(format) {
-		var y,
-		    c = Date.CultureInfo.formatPatterns;
-		switch (format) {
-			case "d":
-				return this.toString(c.shortDate);
-			case "D":
-				return this.toString(c.longDate);
-			case "F":
-				return this.toString(c.fullDateTime);
-			case "m":
-				return this.toString(c.monthDay);
-			case "r":
-			case "R":
-				y = this.clone().addMinutes(this.getTimezoneOffset());
-				return y.toString(c.rfc1123) + " GMT";
-			case "s":
-				return this.toString(c.sortableDateTime);
-			case "t":
-				return this.toString(c.shortTime);
-			case "T":
-				return this.toString(c.longTime);
-			case "u":
-				y = this.clone().addMinutes(this.getTimezoneOffset());
-				return y.toString(c.universalSortableDateTime);
-			case "y":
-				return this.toString(c.yearMonth);
-			default:
-				return false;
-		}
-	};
-	var parseFormatStringsClosure = function parseFormatStringsClosure(context) {
-		return function (m) {
-			if (m.charAt(0) === "\\") {
-				return m.replace("\\", "");
-			}
-			switch (m) {
-				case "hh":
-					return p(context.getHours() < 13 ? context.getHours() === 0 ? 12 : context.getHours() : context.getHours() - 12);
-				case "h":
-					return context.getHours() < 13 ? context.getHours() === 0 ? 12 : context.getHours() : context.getHours() - 12;
-				case "HH":
-					return p(context.getHours());
-				case "H":
-					return context.getHours();
-				case "mm":
-					return p(context.getMinutes());
-				case "m":
-					return context.getMinutes();
-				case "ss":
-					return p(context.getSeconds());
-				case "s":
-					return context.getSeconds();
-				case "yyyy":
-					return p(context.getFullYear(), 4);
-				case "yy":
-					return p(context.getFullYear());
-				case "y":
-					return context.getFullYear();
-				case "E":
-				case "dddd":
-					return Date.CultureInfo.dayNames[context.getDay()];
-				case "ddd":
-					return Date.CultureInfo.abbreviatedDayNames[context.getDay()];
-				case "dd":
-					return p(context.getDate());
-				case "d":
-					return context.getDate();
-				case "MMMM":
-					return Date.CultureInfo.monthNames[context.getMonth()];
-				case "MMM":
-					return Date.CultureInfo.abbreviatedMonthNames[context.getMonth()];
-				case "MM":
-					return p(context.getMonth() + 1);
-				case "M":
-					return context.getMonth() + 1;
-				case "t":
-					return context.getHours() < 12 ? Date.CultureInfo.amDesignator.substring(0, 1) : Date.CultureInfo.pmDesignator.substring(0, 1);
-				case "tt":
-					return context.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator;
-				case "S":
-					return ord(context.getDate());
-				case "W":
-					return context.getWeek();
-				case "WW":
-					return context.getISOWeek();
-				case "Q":
-					return "Q" + context.getQuarter();
-				case "q":
-					return String(context.getQuarter());
-				case "z":
-					return context.getTimezone();
-				case "Z":
-				case "X":
-					return Date.getTimezoneOffset(context.getTimezone());
-				case "ZZ":
-					// Timezone offset in seconds
-					return context.getTimezoneOffset() * -60;
-				case "u":
-					return context.getDay();
-				case "L":
-					return $D.isLeapYear(context.getFullYear()) ? 1 : 0;
-				case "B":
-					// Swatch Internet Time (.beats)
-					return "@" + (context.getUTCSeconds() + context.getUTCMinutes() * 60 + (context.getUTCHours() + 1) * 3600) / 86.4;
-				default:
-					return m;
-			}
-		};
-	};
-	$P.toString = function (format, ignoreStandards) {
-
-		// Standard Date and Time Format Strings. Formats pulled from CultureInfo file and
-		// may vary by culture. 
-		if (!ignoreStandards && format && format.length === 1) {
-			output = parseStandardFormats.call(this, format);
-			if (output) {
-				return output;
-			}
-		}
-		var parseFormatStrings = parseFormatStringsClosure(this);
-		return format ? format.replace(/((\\)?(dd?d?d?|MM?M?M?|yy?y?y?|hh?|HH?|mm?|ss?|tt?|S|q|Q|WW?W?W?)(?![^\[]*\]))/g, parseFormatStrings).replace(/\[|\]/g, "") : this._toString();
-	};
-})();
-/*************************************************************
- * SugarPak - Domain Specific Language -  Syntactical Sugar  *
- *************************************************************/
-
-(function () {
-	var $D = Date,
-	    $P = $D.prototype,
-	    $N = Number.prototype;
-
-	// private
-	$P._orient = +1;
-
-	// private
-	$P._nth = null;
-
-	// private
-	$P._is = false;
-
-	// private
-	$P._same = false;
-
-	// private
-	$P._isSecond = false;
-
-	// private
-	$N._dateElement = "days";
-
-	/** 
-  * Moves the date to the next instance of a date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
-  * Example
- <pre><code>
- Date.today().next().friday();
- Date.today().next().fri();
- Date.today().next().march();
- Date.today().next().mar();
- Date.today().next().week();
- </code></pre>
-  * 
-  * @return {Date}    date
-  */
-	$P.next = function () {
-		this._move = true;
-		this._orient = +1;
-		return this;
-	};
-
-	/** 
-  * Creates a new Date (Date.today()) and moves the date to the next instance of the date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
-  * Example
- <pre><code>
- Date.next().friday();
- Date.next().fri();
- Date.next().march();
- Date.next().mar();
- Date.next().week();
- </code></pre>
-  * 
-  * @return {Date}    date
-  */
-	$D.next = function () {
-		return $D.today().next();
-	};
-
-	/** 
-  * Moves the date to the previous instance of a date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
-  * Example
- <pre><code>
- Date.today().last().friday();
- Date.today().last().fri();
- Date.today().last().march();
- Date.today().last().mar();
- Date.today().last().week();
- </code></pre>
-  *  
-  * @return {Date}    date
-  */
-	$P.last = $P.prev = $P.previous = function () {
-		this._move = true;
-		this._orient = -1;
-		return this;
-	};
-
-	/** 
-  * Creates a new Date (Date.today()) and moves the date to the previous instance of the date as specified by the subsequent date element function (eg. .day(), .month()), month name function (eg. .january(), .jan()) or day name function (eg. .friday(), fri()).
-  * Example
- <pre><code>
- Date.last().friday();
- Date.last().fri();
- Date.previous().march();
- Date.prev().mar();
- Date.last().week();
- </code></pre>
-  *  
-  * @return {Date}    date
-  */
-	$D.last = $D.prev = $D.previous = function () {
-		return $D.today().last();
-	};
-
-	/** 
-  * Performs a equality check when followed by either a month name, day name or .weekday() function.
-  * Example
- <pre><code>
- Date.today().is().friday(); // true|false
- Date.today().is().fri();
- Date.today().is().march();
- Date.today().is().mar();
- </code></pre>
-  *  
-  * @return {Boolean}    true|false
-  */
-	$P.is = function () {
-		this._is = true;
-		return this;
-	};
-
-	/** 
-  * Determines if two date objects occur on/in exactly the same instance of the subsequent date part function.
-  * The function .same() must be followed by a date part function (example: .day(), .month(), .year(), etc).
-  *
-  * An optional Date can be passed in the date part function. If now date is passed as a parameter, 'Now' is used. 
-  *
-  * The following example demonstrates how to determine if two dates fall on the exact same day.
-  *
-  * Example
- <pre><code>
- var d1 = Date.today(); // today at 00:00
- var d2 = new Date();   // exactly now.
- 
- // Do they occur on the same day?
- d1.same().day(d2); // true
- 
- // Do they occur on the same hour?
- d1.same().hour(d2); // false, unless d2 hour is '00' (midnight).
- 
- // What if it's the same day, but one year apart?
- var nextYear = Date.today().add(1).year();
- 
- d1.same().day(nextYear); // false, because the dates must occur on the exact same day. 
- </code></pre>
-  *
-  * Scenario: Determine if a given date occurs during some week period 2 months from now. 
-  *
-  * Example
- <pre><code>
- var future = Date.today().add(2).months();
- return someDate.same().week(future); // true|false;
- </code></pre>
-  *  
-  * @return {Boolean}    true|false
-  */
-	$P.same = function () {
-		this._same = true;
-		this._isSecond = false;
-		return this;
-	};
-
-	/** 
-  * Determines if the current date/time occurs during Today. Must be preceded by the .is() function.
-  * Example
- <pre><code>
- someDate.is().today();    // true|false
- new Date().is().today();  // true
- Date.today().is().today();// true
- Date.today().add(-1).day().is().today(); // false
- </code></pre>
-  *  
-  * @return {Boolean}    true|false
-  */
-	$P.today = function () {
-		return this.same().day();
-	};
-
-	/** 
-  * Determines if the current date is a weekday. This function must be preceded by the .is() function.
-  * Example
- <pre><code>
- Date.today().is().weekday(); // true|false
- </code></pre>
-  *  
-  * @return {Boolean}    true|false
-  */
-	$P.weekday = function () {
-		if (this._nth) {
-			return df("Weekday").call(this);
-		}
-		if (this._move) {
-			return this.addWeekdays(this._orient);
-		}
-		if (this._is) {
-			this._is = false;
-			return !this.is().sat() && !this.is().sun();
-		}
-		return false;
-	};
-	/** 
-  * Determines if the current date is on the weekend. This function must be preceded by the .is() function.
-  * Example
- <pre><code>
- Date.today().is().weekend(); // true|false
- </code></pre>
-  *  
-  * @return {Boolean}    true|false
-  */
-	$P.weekend = function () {
-		if (this._is) {
-			this._is = false;
-			return this.is().sat() || this.is().sun();
-		}
-		return false;
-	};
-
-	/** 
-  * Sets the Time of the current Date instance. A string "6:15 pm" or config object {hour:18, minute:15} are accepted.
-  * Example
- <pre><code>
- // Set time to 6:15pm with a String
- Date.today().at("6:15pm");
- 
- // Set time to 6:15pm with a config object
- Date.today().at({hour:18, minute:15});
- </code></pre>
-  *  
-  * @return {Date}    date
-  */
-	$P.at = function (time) {
-		return typeof time === "string" ? $D.parse(this.toString("d") + " " + time) : this.set(time);
-	};
-
-	/** 
-  * Creates a new Date() and adds this (Number) to the date based on the preceding date element function (eg. second|minute|hour|day|month|year).
-  * Example
- <pre><code>
- // Undeclared Numbers must be wrapped with parentheses. Requirment of JavaScript.
- (3).days().fromNow();
- (6).months().fromNow();
- 
- // Declared Number variables do not require parentheses. 
- var n = 6;
- n.months().fromNow();
- </code></pre>
-  *  
-  * @return {Date}    A new Date instance
-  */
-	$N.fromNow = $N.after = function (date) {
-		var c = {};
-		c[this._dateElement] = this;
-		return (!date ? new Date() : date.clone()).add(c);
-	};
-
-	/** 
-  * Creates a new Date() and subtract this (Number) from the date based on the preceding date element function (eg. second|minute|hour|day|month|year).
-  * Example
- <pre><code>
- // Undeclared Numbers must be wrapped with parentheses. Requirment of JavaScript.
- (3).days().ago();
- (6).months().ago();
- 
- // Declared Number variables do not require parentheses. 
- var n = 6;
- n.months().ago();
- </code></pre>
-  *  
-  * @return {Date}    A new Date instance
-  */
-	$N.ago = $N.before = function (date) {
-		var c = {},
-		    s = this._dateElement[this._dateElement.length - 1] !== "s" ? this._dateElement + "s" : this._dateElement;
-		c[s] = this * -1;
-		return (!date ? new Date() : date.clone()).add(c);
-	};
-
-	// Do NOT modify the following string tokens. These tokens are used to build dynamic functions.
-	// All culture-specific strings can be found in the CultureInfo files.
-	var dx = "sunday monday tuesday wednesday thursday friday saturday".split(/\s/),
-	    mx = "january february march april may june july august september october november december".split(/\s/),
-	    px = "Millisecond Second Minute Hour Day Week Month Year Quarter Weekday".split(/\s/),
-	    pxf = "Milliseconds Seconds Minutes Hours Date Week Month FullYear Quarter".split(/\s/),
-	    nth = "final first second third fourth fifth".split(/\s/),
-	    de;
-
-	/** 
- * Returns an object literal of all the date parts.
- * Example
- <pre><code>
- var o = new Date().toObject();
- 	// { year: 2008, month: 4, week: 20, day: 13, hour: 18, minute: 9, second: 32, millisecond: 812 }
- 	// The object properties can be referenced directly from the object.
- 	alert(o.day);  // alerts "13"
- alert(o.year); // alerts "2008"
- </code></pre>
- *  
- * @return {Date}    An object literal representing the original date object.
- */
-	$P.toObject = function () {
-		var o = {};
-		for (var i = 0; i < px.length; i++) {
-			if (this["get" + pxf[i]]) {
-				o[px[i].toLowerCase()] = this["get" + pxf[i]]();
-			}
-		}
-		return o;
-	};
-
-	/** 
- * Returns a date created from an object literal. Ignores the .week property if set in the config. 
- * Example
- <pre><code>
- var o = new Date().toObject();
- 	return Date.fromObject(o); // will return the same date. 
- var o2 = {month: 1, day: 20, hour: 18}; // birthday party!
- Date.fromObject(o2);
- </code></pre>
- *  
- * @return {Date}    An object literal representing the original date object.
- */
-	$D.fromObject = function (config) {
-		config.week = null;
-		return Date.today().set(config);
-	};
-
-	// Create day name functions and abbreviated day name functions (eg. monday(), friday(), fri()).
-
-	var df = function df(n) {
-		return function () {
-			if (this._is) {
-				this._is = false;
-				return this.getDay() === n;
-			}
-			if (this._move) {
-				this._move = null;
-			}
-			if (this._nth !== null) {
-				// If the .second() function was called earlier, remove the _orient 
-				// from the date, and then continue.
-				// This is required because 'second' can be used in two different context.
-				// 
-				// Example
-				//
-				//   Date.today().add(1).second();
-				//   Date.march().second().monday();
-				// 
-				// Things get crazy with the following...
-				//   Date.march().add(1).second().second().monday(); // but it works!!
-				//  
-				if (this._isSecond) {
-					this.addSeconds(this._orient * -1);
-				}
-				// make sure we reset _isSecond
-				this._isSecond = false;
-
-				var ntemp = this._nth;
-				this._nth = null;
-				var temp = this.clone().moveToLastDayOfMonth();
-				this.moveToNthOccurrence(n, ntemp);
-				if (this > temp) {
-					throw new RangeError($D.getDayName(n) + " does not occur " + ntemp + " times in the month of " + $D.getMonthName(temp.getMonth()) + " " + temp.getFullYear() + ".");
-				}
-				return this;
-			}
-			return this.moveToDayOfWeek(n, this._orient);
-		};
-	};
-
-	var sdf = function sdf(n) {
-		return function () {
-			var t = $D.today(),
-			    shift = n - t.getDay();
-			if (n === 0 && Date.CultureInfo.firstDayOfWeek === 1 && t.getDay() !== 0) {
-				shift = shift + 7;
-			}
-			return t.addDays(shift);
-		};
-	};
-
-	// Create month name functions and abbreviated month name functions (eg. january(), march(), mar()).
-	var month_instance_functions = function month_instance_functions(n) {
-		return function () {
-			if (this._is) {
-				this._is = false;
-				return this.getMonth() === n;
-			}
-			return this.moveToMonth(n, this._orient);
-		};
-	};
-
-	var month_static_functions = function month_static_functions(n) {
-		return function () {
-			return $D.today().set({ month: n, day: 1 });
-		};
-	};
-
-	var processTerms = function processTerms(names, staticFunc, instanceFunc) {
-		for (var i = 0; i < names.length; i++) {
-			// Create constant static Name variables.
-			$D[names[i].toUpperCase()] = $D[names[i].toUpperCase().substring(0, 3)] = i;
-			// Create Name functions.
-			$D[names[i]] = $D[names[i].substring(0, 3)] = staticFunc(i);
-			// Create Name instance functions.
-			$P[names[i]] = $P[names[i].substring(0, 3)] = instanceFunc(i);
-		}
-	};
-
-	processTerms(dx, sdf, df);
-	processTerms(mx, month_static_functions, month_instance_functions);
-
-	// Create date element functions and plural date element functions used with Date (eg. day(), days(), months()).
-	var ef = function ef(j) {
-		return function () {
-			// if the .second() function was called earlier, the _orient 
-			// has alread been added. Just return this and reset _isSecond.
-			if (this._isSecond) {
-				this._isSecond = false;
-				return this;
-			}
-
-			if (this._same) {
-				this._same = this._is = false;
-				var o1 = this.toObject(),
-				    o2 = (arguments[0] || new Date()).toObject(),
-				    v = "",
-				    k = j.toLowerCase();
-
-				// the substr trick with -1 doesn't work in IE8 or less
-				k = k[k.length - 1] === "s" ? k.substring(0, k.length - 1) : k;
-
-				for (var m = px.length - 1; m > -1; m--) {
-					v = px[m].toLowerCase();
-					if (o1[v] !== o2[v]) {
-						return false;
-					}
-					if (k === v) {
-						break;
-					}
-				}
-				return true;
-			}
-
-			if (j.substring(j.length - 1) !== "s") {
-				j += "s";
-			}
-			if (this._move) {
-				this._move = null;
-			}
-			return this["add" + j](this._orient);
-		};
-	};
-
-	var nf = function nf(n) {
-		return function () {
-			this._dateElement = n;
-			return this;
-		};
-	};
-
-	for (var k = 0; k < px.length; k++) {
-		de = px[k].toLowerCase();
-		if (de !== "weekday") {
-			// Create date element functions and plural date element functions used with Date (eg. day(), days(), months()).
-			$P[de] = $P[de + "s"] = ef(px[k]);
-
-			// Create date element functions and plural date element functions used with Number (eg. day(), days(), months()).
-			$N[de] = $N[de + "s"] = nf(de + "s");
-		}
-	}
-
-	$P._ss = ef("Second");
-
-	var nthfn = function nthfn(n) {
-		return function (dayOfWeek) {
-			if (this._same) {
-				return this._ss(arguments[0]);
-			}
-			if (dayOfWeek || dayOfWeek === 0) {
-				return this.moveToNthOccurrence(dayOfWeek, n);
-			}
-			this._nth = n;
-
-			// if the operator is 'second' add the _orient, then deal with it later...
-			if (n === 2 && (dayOfWeek === undefined || dayOfWeek === null)) {
-				this._isSecond = true;
-				return this.addSeconds(this._orient);
-			}
-			return this;
-		};
-	};
-
-	for (var l = 0; l < nth.length; l++) {
-		$P[nth[l]] = l === 0 ? nthfn(-1) : nthfn(l);
-	}
-})();
-
-(function () {
-	"use strict";
-
-	Date.Parsing = {
-		Exception: function Exception(s) {
-			this.message = "Parse error at '" + s.substring(0, 10) + " ...'";
-		}
-	};
-	var $P = Date.Parsing;
-	var dayOffsets = {
-		standard: [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],
-		leap: [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
-	};
-
-	$P.isLeapYear = function (year) {
-		return year % 4 === 0 && year % 100 !== 0 || year % 400 === 0;
-	};
-
-	var utils = {
-		multiReplace: function multiReplace(str, hash) {
-			var key;
-			for (key in hash) {
-				if (Object.prototype.hasOwnProperty.call(hash, key)) {
-					var regex;
-					if (typeof hash[key] === "function") {} else {
-						regex = hash[key] instanceof RegExp ? hash[key] : new RegExp(hash[key], "g");
-					}
-					str = str.replace(regex, key);
-				}
-			}
-			return str;
-		},
-		getDayOfYearFromWeek: function getDayOfYearFromWeek(obj) {
-			var d, jan4, offset;
-			obj.weekDay = !obj.weekDay && obj.weekDay !== 0 ? 1 : obj.weekDay;
-			d = new Date(obj.year, 0, 4);
-			jan4 = d.getDay() === 0 ? 7 : d.getDay(); // JS is 0 indexed on Sunday.
-			offset = jan4 + 3;
-			obj.dayOfYear = obj.week * 7 + (obj.weekDay === 0 ? 7 : obj.weekDay) - offset;
-			return obj;
-		},
-		getDayOfYear: function getDayOfYear(obj, dayOffset) {
-			if (!obj.dayOfYear) {
-				obj = utils.getDayOfYearFromWeek(obj);
-			}
-			for (var i = 0; i <= dayOffset.length; i++) {
-				if (obj.dayOfYear < dayOffset[i] || i === dayOffset.length) {
-					obj.day = obj.day ? obj.day : obj.dayOfYear - dayOffset[i - 1];
-					break;
-				} else {
-					obj.month = i;
-				}
-			}
-			return obj;
-		},
-		adjustForTimeZone: function adjustForTimeZone(obj, date) {
-			var offset;
-			if (obj.zone.toUpperCase() === "Z" || obj.zone_hours === 0 && obj.zone_minutes === 0) {
-				// it's UTC/GML so work out the current timeszone offset
-				offset = -date.getTimezoneOffset();
-			} else {
-				offset = obj.zone_hours * 60 + (obj.zone_minutes || 0);
-				if (obj.zone_sign === "+") {
-					offset *= -1;
-				}
-				offset -= date.getTimezoneOffset();
-			}
-			date.setMinutes(date.getMinutes() + offset);
-			return date;
-		},
-		setDefaults: function setDefaults(obj) {
-			obj.year = obj.year || Date.today().getFullYear();
-			obj.hours = obj.hours || 0;
-			obj.minutes = obj.minutes || 0;
-			obj.seconds = obj.seconds || 0;
-			obj.milliseconds = obj.milliseconds || 0;
-			if (!(!obj.month && (obj.week || obj.dayOfYear))) {
-				// if we have a month, or if we don't but don't have the day calculation data
-				obj.month = obj.month || 0;
-				obj.day = obj.day || 1;
-			}
-			return obj;
-		},
-		dataNum: function dataNum(data, mod, explict, postProcess) {
-			var dataNum = data * 1;
-			if (mod) {
-				if (postProcess) {
-					return data ? mod(data) * 1 : data;
-				} else {
-					return data ? mod(dataNum) : data;
-				}
-			} else if (!explict) {
-				return data ? dataNum : data;
-			} else {
-				return data && typeof data !== "undefined" ? dataNum : data;
-			}
-		},
-		timeDataProcess: function timeDataProcess(obj) {
-			var timeObj = {};
-			for (var x in obj.data) {
-				if (obj.data.hasOwnProperty(x)) {
-					timeObj[x] = obj.ignore[x] ? obj.data[x] : utils.dataNum(obj.data[x], obj.mods[x], obj.explict[x], obj.postProcess[x]);
-				}
-			}
-			if (obj.data.secmins) {
-				obj.data.secmins = obj.data.secmins.replace(",", ".") * 60;
-				if (!timeObj.minutes) {
-					timeObj.minutes = obj.data.secmins;
-				} else if (!timeObj.seconds) {
-					timeObj.seconds = obj.data.secmins;
-				}
-				delete obj.secmins;
-			}
-			return timeObj;
-		},
-		buildTimeObjectFromData: function buildTimeObjectFromData(data) {
-			var time = utils.timeDataProcess({
-				data: {
-					year: data[1],
-					month: data[5],
-					day: data[7],
-					week: data[8],
-					dayOfYear: data[10],
-					hours: data[15],
-					zone_hours: data[23],
-					zone_minutes: data[24],
-					zone: data[21],
-					zone_sign: data[22],
-					weekDay: data[9],
-					minutes: data[16],
-					seconds: data[19],
-					milliseconds: data[20],
-					secmins: data[18]
-				},
-				mods: {
-					month: function month(data) {
-						return data - 1;
-					},
-					weekDay: function weekDay(data) {
-						data = Math.abs(data);
-						return data === 7 ? 0 : data;
-					},
-					minutes: function minutes(data) {
-						return data.replace(":", "");
-					},
-					seconds: function seconds(data) {
-						return Math.floor(data.replace(":", "").replace(",", ".") * 1);
-					},
-					milliseconds: function milliseconds(data) {
-						return data.replace(",", ".") * 1000;
-					}
-				},
-				postProcess: {
-					minutes: true,
-					seconds: true,
-					milliseconds: true
-				},
-				explict: {
-					zone_hours: true,
-					zone_minutes: true
-				},
-				ignore: {
-					zone: true,
-					zone_sign: true,
-					secmins: true
-				}
-			});
-			return time;
-		},
-		addToHash: function addToHash(hash, keys, data) {
-			keys = keys;
-			data = data;
-			var len = keys.length;
-			for (var i = 0; i < len; i++) {
-				hash[keys[i]] = data[i];
-			}
-			return hash;
-		},
-		combineRegex: function combineRegex(r1, r2) {
-			return new RegExp("((" + r1.source + ")\\s(" + r2.source + "))");
-		},
-		getDateNthString: function getDateNthString(add, last, inc) {
-			if (add) {
-				return Date.today().addDays(inc).toString("d");
-			} else if (last) {
-				return Date.today().last()[inc]().toString("d");
-			}
-		},
-		buildRegexData: function buildRegexData(array) {
-			var arr = [];
-			var len = array.length;
-			for (var i = 0; i < len; i++) {
-				if (Object.prototype.toString.call(array[i]) === '[object Array]') {
-					// oldIE compat version of Array.isArray
-					arr.push(this.combineRegex(array[i][0], array[i][1]));
-				} else {
-					arr.push(array[i]);
-				}
-			}
-			return arr;
-		}
-	};
-
-	$P.processTimeObject = function (obj) {
-		var date, dayOffset;
-
-		utils.setDefaults(obj);
-		dayOffset = $P.isLeapYear(obj.year) ? dayOffsets.leap : dayOffsets.standard;
-
-		if (!obj.month && (obj.week || obj.dayOfYear)) {
-			utils.getDayOfYear(obj, dayOffset);
-		} else {
-			obj.dayOfYear = dayOffset[obj.month] + obj.day;
-		}
-
-		date = new Date(obj.year, obj.month, obj.day, obj.hours, obj.minutes, obj.seconds, obj.milliseconds);
-
-		if (obj.zone) {
-			utils.adjustForTimeZone(obj, date); // adjust (and calculate) for timezone
-		}
-		return date;
-	};
-
-	$P.ISO = {
-		regex: /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-3])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-4])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?\s?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/,
-		parse: function parse(s) {
-			var time,
-			    data = s.match(this.regex);
-			if (!data || !data.length) {
-				return null;
-			}
-
-			time = utils.buildTimeObjectFromData(data);
-
-			if (!time.year || !time.year && !time.month && !time.day && !time.week && !time.dayOfYear) {
-				return null;
-			}
-			return $P.processTimeObject(time);
-		}
-	};
-
-	$P.Numeric = {
-		isNumeric: function isNumeric(e) {
-			return !isNaN(parseFloat(e)) && isFinite(e);
-		},
-		regex: /\b([0-1]?[0-9])([0-3]?[0-9])([0-2]?[0-9]?[0-9][0-9])\b/i,
-		parse: function parse(s) {
-			var data,
-			    i,
-			    time = {},
-			    order = Date.CultureInfo.dateElementOrder.split("");
-			if (!this.isNumeric(s) || // if it's non-numeric OR
-			s[0] === "+" && s[0] === "-") {
-				// It's an arithmatic string (eg +/-1000)
-				return null;
-			}
-			if (s.length < 5 && s.indexOf(".") < 0 && s.indexOf("/") < 0) {
-				// assume it's just a year.
-				time.year = s;
-				return $P.processTimeObject(time);
-			}
-			data = s.match(this.regex);
-			if (!data || !data.length) {
-				return null;
-			}
-			for (i = 0; i < order.length; i++) {
-				switch (order[i]) {
-					case "d":
-						time.day = data[i + 1];
-						break;
-					case "m":
-						time.month = data[i + 1] - 1;
-						break;
-					case "y":
-						time.year = data[i + 1];
-						break;
-				}
-			}
-			return $P.processTimeObject(time);
-		}
-	};
-
-	$P.Normalizer = {
-		regexData: function regexData() {
-			var $R = Date.CultureInfo.regexPatterns;
-			return utils.buildRegexData([$R.tomorrow, $R.yesterday, [$R.past, $R.mon], [$R.past, $R.tue], [$R.past, $R.wed], [$R.past, $R.thu], [$R.past, $R.fri], [$R.past, $R.sat], [$R.past, $R.sun]]);
-		},
-		basicReplaceHash: function basicReplaceHash() {
-			var $R = Date.CultureInfo.regexPatterns;
-			return {
-				"January": $R.jan.source,
-				"February": $R.feb,
-				"March": $R.mar,
-				"April": $R.apr,
-				"May": $R.may,
-				"June": $R.jun,
-				"July": $R.jul,
-				"August": $R.aug,
-				"September": $R.sep,
-				"October": $R.oct,
-				"November": $R.nov,
-				"December": $R.dec,
-				"": /\bat\b/gi,
-				" ": /\s{2,}/,
-				"am": $R.inTheMorning,
-				"9am": $R.thisMorning,
-				"pm": $R.inTheEvening,
-				"7pm": $R.thisEvening
-			};
-		},
-		keys: function keys() {
-			return [utils.getDateNthString(true, false, 1), // tomorrow
-			utils.getDateNthString(true, false, -1), // yesterday
-			utils.getDateNthString(false, true, "monday"), //last mon
-			utils.getDateNthString(false, true, "tuesday"), //last tues
-			utils.getDateNthString(false, true, "wednesday"), //last wed
-			utils.getDateNthString(false, true, "thursday"), //last thurs
-			utils.getDateNthString(false, true, "friday"), //last fri
-			utils.getDateNthString(false, true, "saturday"), //last sat
-			utils.getDateNthString(false, true, "sunday") //last sun
-			];
-		},
-		buildRegexFunctions: function buildRegexFunctions() {
-			var $R = Date.CultureInfo.regexPatterns;
-			var __ = Date.i18n.__;
-			var tomorrowRE = new RegExp("(\\b\\d\\d?(" + __("AM") + "|" + __("PM") + ")? )(" + $R.tomorrow.source.slice(1) + ")", "i"); // adapted tomorrow regex for AM PM relative dates
-			var todayRE = new RegExp($R.today.source + "(?!\\s*([+-]))\\b"); // today, but excludes the math operators (eg "today + 2h")
-
-			this.replaceFuncs = [[todayRE, function (full) {
-				return full.length > 1 ? Date.today().toString("d") : full;
-			}], [tomorrowRE, function (full, m1) {
-				var t = Date.today().addDays(1).toString("d");
-				return t + " " + m1;
-			}], [$R.amThisMorning, function (str, am) {
-				return am;
-			}], [$R.pmThisEvening, function (str, pm) {
-				return pm;
-			}]];
-		},
-		buildReplaceData: function buildReplaceData() {
-			this.buildRegexFunctions();
-			this.replaceHash = utils.addToHash(this.basicReplaceHash(), this.keys(), this.regexData());
-		},
-		stringReplaceFuncs: function stringReplaceFuncs(s) {
-			for (var i = 0; i < this.replaceFuncs.length; i++) {
-				s = s.replace(this.replaceFuncs[i][0], this.replaceFuncs[i][1]);
-			}
-			return s;
-		},
-		parse: function parse(s) {
-			s = this.stringReplaceFuncs(s);
-			s = utils.multiReplace(s, this.replaceHash);
-
-			try {
-				var n = s.split(/([\s\-\.\,\/\x27]+)/);
-				if (n.length === 3 && $P.Numeric.isNumeric(n[0]) && $P.Numeric.isNumeric(n[2]) && n[2].length >= 4) {
-					// ok, so we're dealing with x/year. But that's not a full date.
-					// This fixes wonky dateElementOrder parsing when set to dmy order.
-					if (Date.CultureInfo.dateElementOrder[0] === "d") {
-						s = "1/" + n[0] + "/" + n[2]; // set to 1st of month and normalize the seperator
-					}
-				}
-			} catch (e) {}
-
-			return s;
-		}
-	};
-	$P.Normalizer.buildReplaceData();
-})();
-(function () {
-	var $P = Date.Parsing;
-	var _ = $P.Operators = {
-		//
-		// Tokenizers
-		//
-		rtoken: function rtoken(r) {
-			// regex token
-			return function (s) {
-				var mx = s.match(r);
-				if (mx) {
-					return [mx[0], s.substring(mx[0].length)];
-				} else {
-					throw new $P.Exception(s);
-				}
-			};
-		},
-		token: function token() {
-			// whitespace-eating token
-			return function (s) {
-				return _.rtoken(new RegExp("^\\s*" + s + "\\s*"))(s);
-			};
-		},
-		stoken: function stoken(s) {
-			// string token
-			return _.rtoken(new RegExp("^" + s));
-		},
-
-		// Atomic Operators
-
-		until: function until(p) {
-			return function (s) {
-				var qx = [],
-				    rx = null;
-				while (s.length) {
-					try {
-						rx = p.call(this, s);
-					} catch (e) {
-						qx.push(rx[0]);
-						s = rx[1];
-						continue;
-					}
-					break;
-				}
-				return [qx, s];
-			};
-		},
-		many: function many(p) {
-			return function (s) {
-				var rx = [],
-				    r = null;
-				while (s.length) {
-					try {
-						r = p.call(this, s);
-					} catch (e) {
-						return [rx, s];
-					}
-					rx.push(r[0]);
-					s = r[1];
-				}
-				return [rx, s];
-			};
-		},
-
-		// generator operators -- see below
-		optional: function optional(p) {
-			return function (s) {
-				var r = null;
-				try {
-					r = p.call(this, s);
-				} catch (e) {
-					return [null, s];
-				}
-				return [r[0], r[1]];
-			};
-		},
-		not: function not(p) {
-			return function (s) {
-				try {
-					p.call(this, s);
-				} catch (e) {
-					return [null, s];
-				}
-				throw new $P.Exception(s);
-			};
-		},
-		ignore: function ignore(p) {
-			return p ? function (s) {
-				var r = null;
-				r = p.call(this, s);
-				return [null, r[1]];
-			} : null;
-		},
-		product: function product() {
-			var px = arguments[0],
-			    qx = Array.prototype.slice.call(arguments, 1),
-			    rx = [];
-			for (var i = 0; i < px.length; i++) {
-				rx.push(_.each(px[i], qx));
-			}
-			return rx;
-		},
-		cache: function cache(rule) {
-			var cache = {},
-			    cache_length = 0,
-			    cache_keys = [],
-			    CACHE_MAX = Date.Config.CACHE_MAX || 100000,
-			    r = null;
-			var cacheCheck = function cacheCheck() {
-				if (cache_length === CACHE_MAX) {
-					// kill several keys, don't want to have to do this all the time...
-					for (var i = 0; i < 10; i++) {
-						var key = cache_keys.shift();
-						if (key) {
-							delete cache[key];
-							cache_length--;
-						}
-					}
-				}
-			};
-			return function (s) {
-				cacheCheck();
-				try {
-					r = cache[s] = cache[s] || rule.call(this, s);
-				} catch (e) {
-					r = cache[s] = e;
-				}
-				cache_length++;
-				cache_keys.push(s);
-				if (r instanceof $P.Exception) {
-					throw r;
-				} else {
-					return r;
-				}
-			};
-		},
-
-		// vector operators -- see below
-		any: function any() {
-			var px = arguments;
-			return function (s) {
-				var r = null;
-				for (var i = 0; i < px.length; i++) {
-					if (px[i] == null) {
-						continue;
-					}
-					try {
-						r = px[i].call(this, s);
-					} catch (e) {
-						r = null;
-					}
-					if (r) {
-						return r;
-					}
-				}
-				throw new $P.Exception(s);
-			};
-		},
-		each: function each() {
-			var px = arguments;
-			return function (s) {
-				var rx = [],
-				    r = null;
-				for (var i = 0; i < px.length; i++) {
-					if (px[i] == null) {
-						continue;
-					}
-					try {
-						r = px[i].call(this, s);
-					} catch (e) {
-						throw new $P.Exception(s);
-					}
-					rx.push(r[0]);
-					s = r[1];
-				}
-				return [rx, s];
-			};
-		},
-		all: function all() {
-			var px = arguments,
-			    _ = _;
-			return _.each(_.optional(px));
-		},
-
-		// delimited operators
-		sequence: function sequence(px, d, c) {
-			d = d || _.rtoken(/^\s*/);
-			c = c || null;
-
-			if (px.length === 1) {
-				return px[0];
-			}
-			return function (s) {
-				var r = null,
-				    q = null;
-				var rx = [];
-				for (var i = 0; i < px.length; i++) {
-					try {
-						r = px[i].call(this, s);
-					} catch (e) {
-						break;
-					}
-					rx.push(r[0]);
-					try {
-						q = d.call(this, r[1]);
-					} catch (ex) {
-						q = null;
-						break;
-					}
-					s = q[1];
-				}
-				if (!r) {
-					throw new $P.Exception(s);
-				}
-				if (q) {
-					throw new $P.Exception(q[1]);
-				}
-				if (c) {
-					try {
-						r = c.call(this, r[1]);
-					} catch (ey) {
-						throw new $P.Exception(r[1]);
-					}
-				}
-				return [rx, r ? r[1] : s];
-			};
-		},
-
-		//
-		// Composite Operators
-		//
-
-		between: function between(d1, p, d2) {
-			d2 = d2 || d1;
-			var _fn = _.each(_.ignore(d1), p, _.ignore(d2));
-			return function (s) {
-				var rx = _fn.call(this, s);
-				return [[rx[0][0], r[0][2]], rx[1]];
-			};
-		},
-		list: function list(p, d, c) {
-			d = d || _.rtoken(/^\s*/);
-			c = c || null;
-			return p instanceof Array ? _.each(_.product(p.slice(0, -1), _.ignore(d)), p.slice(-1), _.ignore(c)) : _.each(_.many(_.each(p, _.ignore(d))), px, _.ignore(c));
-		},
-		set: function set(px, d, c) {
-			d = d || _.rtoken(/^\s*/);
-			c = c || null;
-			return function (s) {
-				// r is the current match, best the current 'best' match
-				// which means it parsed the most amount of input
-				var r = null,
-				    p = null,
-				    q = null,
-				    rx = null,
-				    best = [[], s],
-				    last = false;
-				// go through the rules in the given set
-				for (var i = 0; i < px.length; i++) {
-
-					// last is a flag indicating whether this must be the last element
-					// if there is only 1 element, then it MUST be the last one
-					q = null;
-					p = null;
-					r = null;
-					last = px.length === 1;
-					// first, we try simply to match the current pattern
-					// if not, try the next pattern
-					try {
-						r = px[i].call(this, s);
-					} catch (e) {
-						continue;
-					}
-					// since we are matching against a set of elements, the first
-					// thing to do is to add r[0] to matched elements
-					rx = [[r[0]], r[1]];
-					// if we matched and there is still input to parse and 
-					// we don't already know this is the last element,
-					// we're going to next check for the delimiter ...
-					// if there's none, or if there's no input left to parse
-					// than this must be the last element after all ...
-					if (r[1].length > 0 && !last) {
-						try {
-							q = d.call(this, r[1]);
-						} catch (ex) {
-							last = true;
-						}
-					} else {
-						last = true;
-					}
-
-					// if we parsed the delimiter and now there's no more input,
-					// that means we shouldn't have parsed the delimiter at all
-					// so don't update r and mark this as the last element ...
-					if (!last && q[1].length === 0) {
-						last = true;
-					}
-
-					// so, if this isn't the last element, we're going to see if
-					// we can get any more matches from the remaining (unmatched)
-					// elements ...
-					if (!last) {
-						// build a list of the remaining rules we can match against,
-						// i.e., all but the one we just matched against
-						var qx = [];
-						for (var j = 0; j < px.length; j++) {
-							if (i !== j) {
-								qx.push(px[j]);
-							}
-						}
-
-						// now invoke recursively set with the remaining input
-						// note that we don't include the closing delimiter ...
-						// we'll check for that ourselves at the end
-						p = _.set(qx, d).call(this, q[1]);
-
-						// if we got a non-empty set as a result ...
-						// (otw rx already contains everything we want to match)
-						if (p[0].length > 0) {
-							// update current result, which is stored in rx ...
-							// basically, pick up the remaining text from p[1]
-							// and concat the result from p[0] so that we don't
-							// get endless nesting ...
-							rx[0] = rx[0].concat(p[0]);
-							rx[1] = p[1];
-						}
-					}
-
-					// at this point, rx either contains the last matched element
-					// or the entire matched set that starts with this element.
-
-					// now we just check to see if this variation is better than
-					// our best so far, in terms of how much of the input is parsed
-					if (rx[1].length < best[1].length) {
-						best = rx;
-					}
-
-					// if we've parsed all the input, then we're finished
-					if (best[1].length === 0) {
-						break;
-					}
-				}
-
-				// so now we've either gone through all the patterns trying them
-				// as the initial match; or we found one that parsed the entire
-				// input string ...
-
-				// if best has no matches, just return empty set ...
-				if (best[0].length === 0) {
-					return best;
-				}
-
-				// if a closing delimiter is provided, then we have to check it also
-				if (c) {
-					// we try this even if there is no remaining input because the pattern
-					// may well be optional or match empty input ...
-					try {
-						q = c.call(this, best[1]);
-					} catch (ey) {
-						throw new $P.Exception(best[1]);
-					}
-
-					// it parsed ... be sure to update the best match remaining input
-					best[1] = q[1];
-				}
-				// if we're here, either there was no closing delimiter or we parsed it
-				// so now we have the best match; just return it!
-				return best;
-			};
-		},
-		forward: function forward(gr, fname) {
-			return function (s) {
-				return gr[fname].call(this, s);
-			};
-		},
-
-		//
-		// Translation Operators
-		//
-		replace: function replace(rule, repl) {
-			return function (s) {
-				var r = rule.call(this, s);
-				return [repl, r[1]];
-			};
-		},
-		process: function process(rule, fn) {
-			return function (s) {
-				var r = rule.call(this, s);
-				return [fn.call(this, r[0]), r[1]];
-			};
-		},
-		min: function min(_min, rule) {
-			return function (s) {
-				var rx = rule.call(this, s);
-				if (rx[0].length < _min) {
-					throw new $P.Exception(s);
-				}
-				return rx;
-			};
-		}
-	};
-
-	// Generator Operators And Vector Operators
-
-	// Generators are operators that have a signature of F(R) => R,
-	// taking a given rule and returning another rule, such as 
-	// ignore, which parses a given rule and throws away the result.
-
-	// Vector operators are those that have a signature of F(R1,R2,...) => R,
-	// take a list of rules and returning a new rule, such as each.
-
-	// Generator operators are converted (via the following _generator
-	// function) into functions that can also take a list or array of rules
-	// and return an array of new rules as though the function had been
-	// called on each rule in turn (which is what actually happens).
-
-	// This allows generators to be used with vector operators more easily.
-	// Example:
-	// each(ignore(foo, bar)) instead of each(ignore(foo), ignore(bar))
-
-	// This also turns generators into vector operators, which allows
-	// constructs like:
-	// not(cache(foo, bar))
-
-	var _generator = function _generator(op) {
-		function gen() {
-			var args = null,
-			    rx = [],
-			    px,
-			    i;
-			if (arguments.length > 1) {
-				args = Array.prototype.slice.call(arguments);
-			} else if (arguments[0] instanceof Array) {
-				args = arguments[0];
-			}
-			if (args) {
-				px = args.shift();
-				if (px.length > 0) {
-					args.unshift(px[i]);
-					rx.push(op.apply(null, args));
-					args.shift();
-					return rx;
-				}
-			} else {
-				return op.apply(null, arguments);
-			}
-		}
-
-		return gen;
-	};
-
-	var gx = "optional not ignore cache".split(/\s/);
-
-	for (var i = 0; i < gx.length; i++) {
-		_[gx[i]] = _generator(_[gx[i]]);
-	}
-
-	var _vector = function _vector(op) {
-		return function () {
-			if (arguments[0] instanceof Array) {
-				return op.apply(null, arguments[0]);
-			} else {
-				return op.apply(null, arguments);
-			}
-		};
-	};
-
-	var vx = "each any all".split(/\s/);
-
-	for (var j = 0; j < vx.length; j++) {
-		_[vx[j]] = _vector(_[vx[j]]);
-	}
-})();
-(function () {
-	var $D = Date;
-
-	var flattenAndCompact = function flattenAndCompact(ax) {
-		var rx = [];
-		for (var i = 0; i < ax.length; i++) {
-			if (ax[i] instanceof Array) {
-				rx = rx.concat(flattenAndCompact(ax[i]));
-			} else {
-				if (ax[i]) {
-					rx.push(ax[i]);
-				}
-			}
-		}
-		return rx;
-	};
-
-	var parseMeridian = function parseMeridian() {
-		if (this.meridian && (this.hour || this.hour === 0)) {
-			if (this.meridian === "a" && this.hour > 11 && Date.Config.strict24hr) {
-				throw "Invalid hour and meridian combination";
-			} else if (this.meridian === "p" && this.hour < 12 && Date.Config.strict24hr) {
-				throw "Invalid hour and meridian combination";
-			} else if (this.meridian === "p" && this.hour < 12) {
-				this.hour = this.hour + 12;
-			} else if (this.meridian === "a" && this.hour === 12) {
-				this.hour = 0;
-			}
-		}
-	};
-
-	var setDefaults = function setDefaults() {
-		var now = new Date();
-		if ((this.hour || this.minute) && !this.month && !this.year && !this.day) {
-			this.day = now.getDate();
-		}
-
-		if (!this.year) {
-			this.year = now.getFullYear();
-		}
-
-		if (!this.month && this.month !== 0) {
-			this.month = now.getMonth();
-		}
-
-		if (!this.day) {
-			this.day = 1;
-		}
-
-		if (!this.hour) {
-			this.hour = 0;
-		}
-
-		if (!this.minute) {
-			this.minute = 0;
-		}
-
-		if (!this.second) {
-			this.second = 0;
-		}
-		if (!this.millisecond) {
-			this.millisecond = 0;
-		}
-	};
-
-	var finishUtils = {
-		getToday: function getToday() {
-			if (this.now || "hour minute second".indexOf(this.unit) !== -1) {
-				return new Date();
-			} else {
-				return $D.today();
-			}
-		},
-		setDaysFromWeekday: function setDaysFromWeekday(today, orient) {
-			var gap;
-			orient = orient || 1;
-			this.unit = "day";
-			gap = $D.getDayNumberFromName(this.weekday) - today.getDay();
-			this.days = gap ? (gap + orient * 7) % 7 : orient * 7;
-			return this;
-		},
-		setMonthsFromMonth: function setMonthsFromMonth(today, orient) {
-			var gap;
-			orient = orient || 1;
-			this.unit = "month";
-			gap = this.month - today.getMonth();
-			this.months = gap ? (gap + orient * 12) % 12 : orient * 12;
-			this.month = null;
-			return this;
-		},
-		setDMYFromWeekday: function setDMYFromWeekday() {
-			var d = Date[this.weekday]();
-			this.day = d.getDate();
-			if (!this.month) {
-				this.month = d.getMonth();
-			}
-			this.year = d.getFullYear();
-			return this;
-		},
-		setUnitValue: function setUnitValue(orient) {
-			if (!this.value && this.operator && this.operator !== null && this[this.unit + "s"] && this[this.unit + "s"] !== null) {
-				this[this.unit + "s"] = this[this.unit + "s"] + (this.operator === "add" ? 1 : -1) + (this.value || 0) * orient;
-			} else if (this[this.unit + "s"] == null || this.operator != null) {
-				if (!this.value) {
-					this.value = 1;
-				}
-				this[this.unit + "s"] = this.value * orient;
-			}
-		},
-		generateDateFromWeeks: function generateDateFromWeeks() {
-			var weekday = this.weekday !== undefined ? this.weekday : "today";
-			var d = Date[weekday]().addWeeks(this.weeks);
-			if (this.now) {
-				d.setTimeToNow();
-			}
-			return d;
-		}
-	};
-
-	$D.Translator = {
-		hour: function hour(s) {
-			return function () {
-				this.hour = Number(s);
-			};
-		},
-		minute: function minute(s) {
-			return function () {
-				this.minute = Number(s);
-			};
-		},
-		second: function second(s) {
-			return function () {
-				this.second = Number(s);
-			};
-		},
-		/* for ss.s format */
-		secondAndMillisecond: function secondAndMillisecond(s) {
-			return function () {
-				var mx = s.match(/^([0-5][0-9])\.([0-9]{1,3})/);
-				this.second = Number(mx[1]);
-				this.millisecond = Number(mx[2]);
-			};
-		},
-		meridian: function meridian(s) {
-			return function () {
-				this.meridian = s.slice(0, 1).toLowerCase();
-			};
-		},
-		timezone: function timezone(s) {
-			return function () {
-				var n = s.replace(/[^\d\+\-]/g, "");
-				if (n.length) {
-					this.timezoneOffset = Number(n);
-				} else {
-					this.timezone = s.toLowerCase();
-				}
-			};
-		},
-		day: function day(x) {
-			var s = x[0];
-			return function () {
-				this.day = Number(s.match(/\d+/)[0]);
-				if (this.day < 1) {
-					throw "invalid day";
-				}
-			};
-		},
-		month: function month(s) {
-			return function () {
-				this.month = s.length === 3 ? "jan feb mar apr may jun jul aug sep oct nov dec".indexOf(s) / 4 : Number(s) - 1;
-				if (this.month < 0) {
-					throw "invalid month";
-				}
-			};
-		},
-		year: function year(s) {
-			return function () {
-				var n = Number(s);
-				this.year = s.length > 2 ? n : n + (n + 2000 < Date.CultureInfo.twoDigitYearMax ? 2000 : 1900);
-			};
-		},
-		rday: function rday(s) {
-			return function () {
-				switch (s) {
-					case "yesterday":
-						this.days = -1;
-						break;
-					case "tomorrow":
-						this.days = 1;
-						break;
-					case "today":
-						this.days = 0;
-						break;
-					case "now":
-						this.days = 0;
-						this.now = true;
-						break;
-				}
-			};
-		},
-		finishExact: function finishExact(x) {
-			var d;
-			x = x instanceof Array ? x : [x];
-
-			for (var i = 0; i < x.length; i++) {
-				if (x[i]) {
-					x[i].call(this);
-				}
-			}
-
-			setDefaults.call(this);
-			parseMeridian.call(this);
-
-			if (this.day > $D.getDaysInMonth(this.year, this.month)) {
-				throw new RangeError(this.day + " is not a valid value for days.");
-			}
-
-			d = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
-			if (this.year < 100) {
-				d.setFullYear(this.year); // means years less that 100 are process correctly. JS will parse it otherwise as 1900-1999.
-			}
-			if (this.timezone) {
-				d.set({ timezone: this.timezone });
-			} else if (this.timezoneOffset) {
-				d.set({ timezoneOffset: this.timezoneOffset });
-			}
-
-			return d;
-		},
-		finish: function finish(x) {
-			var today, expression, orient, temp;
-
-			x = x instanceof Array ? flattenAndCompact(x) : [x];
-
-			if (x.length === 0) {
-				return null;
-			}
-
-			for (var i = 0; i < x.length; i++) {
-				if (typeof x[i] === "function") {
-					x[i].call(this);
-				}
-			}
-			if (this.now && !this.unit && !this.operator) {
-				return new Date();
-			} else {
-				today = finishUtils.getToday.call(this);
-			}
-
-			expression = !!(this.days && this.days !== null || this.orient || this.operator);
-			orient = this.orient === "past" || this.operator === "subtract" ? -1 : 1;
-
-			if (this.month && this.unit === "week") {
-				this.value = this.month + 1;
-				delete this.month;
-				delete this.day;
-			}
-
-			if ((this.month || this.month === 0) && "year day hour minute second".indexOf(this.unit) !== -1) {
-				if (!this.value) {
-					this.value = this.month + 1;
-				}
-				this.month = null;
-				expression = true;
-			}
-
-			if (!expression && this.weekday && !this.day && !this.days) {
-				finishUtils.setDMYFromWeekday.call(this);
-			}
-
-			if (expression && this.weekday && this.unit !== "month" && this.unit !== "week") {
-				finishUtils.setDaysFromWeekday.call(this, today, orient);
-			}
-
-			if (this.weekday && this.unit !== "week" && !this.day && !this.days) {
-				temp = Date[this.weekday]();
-				this.day = temp.getDate();
-				if (temp.getMonth() !== today.getMonth()) {
-					this.month = temp.getMonth();
-				}
-			}
-
-			if (this.month && this.unit === "day" && this.operator) {
-				if (!this.value) {
-					this.value = this.month + 1;
-				}
-				this.month = null;
-			}
-
-			if (this.value != null && this.month != null && this.year != null) {
-				this.day = this.value * 1;
-			}
-
-			if (this.month && !this.day && this.value) {
-				today.set({ day: this.value * 1 });
-				if (!expression) {
-					this.day = this.value * 1;
-				}
-			}
-
-			if (!this.month && this.value && this.unit === "month" && !this.now) {
-				this.month = this.value;
-				expression = true;
-			}
-
-			if (expression && (this.month || this.month === 0) && this.unit !== "year") {
-				finishUtils.setMonthsFromMonth.call(this, today, orient);
-			}
-
-			if (!this.unit) {
-				this.unit = "day";
-			}
-
-			finishUtils.setUnitValue.call(this, orient);
-			parseMeridian.call(this);
-
-			if ((this.month || this.month === 0) && !this.day) {
-				this.day = 1;
-			}
-
-			if (!this.orient && !this.operator && this.unit === "week" && this.value && !this.day && !this.month) {
-				return Date.today().setWeek(this.value);
-			}
-
-			if (this.unit === "week" && this.weeks && !this.day && !this.month) {
-				return finishUtils.generateDateFromWeeks.call(this);
-			}
-
-			if (expression && this.timezone && this.day && this.days) {
-				this.day = this.days;
-			}
-
-			if (expression) {
-				today.add(this);
-			} else {
-				today.set(this);
-			}
-
-			if (this.timezone) {
-				this.timezone = this.timezone.toUpperCase();
-				var offset = $D.getTimezoneOffset(this.timezone);
-				var timezone;
-				if (today.hasDaylightSavingTime()) {
-					// lets check that we're being sane with timezone setting
-					timezone = $D.getTimezoneAbbreviation(offset, today.isDaylightSavingTime());
-					if (timezone !== this.timezone) {
-						// bugger, we're in a place where things like EST vs EDT matters.
-						if (today.isDaylightSavingTime()) {
-							today.addHours(-1);
-						} else {
-							today.addHours(1);
-						}
-					}
-				}
-				today.setTimezoneOffset(offset);
-			}
-
-			return today;
-		}
-	};
-})();
-(function () {
-	var $D = Date;
-	$D.Grammar = {};
-	var _ = $D.Parsing.Operators,
-	    g = $D.Grammar,
-	    t = $D.Translator,
-	    _fn;
-	// Allow rolling up into general purpose rules
-	_fn = function _fn() {
-		return _.each(_.any.apply(null, arguments), _.not(g.ctoken2("timeContext")));
-	};
-
-	g.datePartDelimiter = _.rtoken(/^([\s\-\.\,\/\x27]+)/);
-	g.timePartDelimiter = _.stoken(":");
-	g.whiteSpace = _.rtoken(/^\s*/);
-	g.generalDelimiter = _.rtoken(/^(([\s\,]|at|@|on)+)/);
-
-	var _C = {};
-	g.ctoken = function (keys) {
-		var fn = _C[keys];
-		if (!fn) {
-			var c = Date.CultureInfo.regexPatterns;
-			var kx = keys.split(/\s+/),
-			    px = [];
-			for (var i = 0; i < kx.length; i++) {
-				px.push(_.replace(_.rtoken(c[kx[i]]), kx[i]));
-			}
-			fn = _C[keys] = _.any.apply(null, px);
-		}
-		return fn;
-	};
-	g.ctoken2 = function (key) {
-		return _.rtoken(Date.CultureInfo.regexPatterns[key]);
-	};
-	var cacheProcessRtoken = function cacheProcessRtoken(key, token, type, eachToken) {
-		if (eachToken) {
-			g[key] = _.cache(_.process(_.each(_.rtoken(token), _.optional(g.ctoken2(eachToken))), type));
-		} else {
-			g[key] = _.cache(_.process(_.rtoken(token), type));
-		}
-	};
-	var cacheProcessCtoken = function cacheProcessCtoken(token, type) {
-		return _.cache(_.process(g.ctoken2(token), type));
-	};
-	var _F = {}; //function cache
-
-	var _get = function _get(f) {
-		_F[f] = _F[f] || g.format(f)[0];
-		return _F[f];
-	};
-
-	g.allformats = function (fx) {
-		var rx = [];
-		if (fx instanceof Array) {
-			for (var i = 0; i < fx.length; i++) {
-				rx.push(_get(fx[i]));
-			}
-		} else {
-			rx.push(_get(fx));
-		}
-		return rx;
-	};
-
-	g.formats = function (fx) {
-		if (fx instanceof Array) {
-			var rx = [];
-			for (var i = 0; i < fx.length; i++) {
-				rx.push(_get(fx[i]));
-			}
-			return _.any.apply(null, rx);
-		} else {
-			return _get(fx);
-		}
-	};
-
-	var grammarFormats = {
-		timeFormats: function timeFormats() {
-			var i,
-			    RTokenKeys = ["h", "hh", "H", "HH", "m", "mm", "s", "ss", "ss.s", "z", "zz"],
-			    RToken = [/^(0[0-9]|1[0-2]|[1-9])/, /^(0[0-9]|1[0-2])/, /^([0-1][0-9]|2[0-3]|[0-9])/, /^([0-1][0-9]|2[0-3])/, /^([0-5][0-9]|[0-9])/, /^[0-5][0-9]/, /^([0-5][0-9]|[0-9])/, /^[0-5][0-9]/, /^[0-5][0-9]\.[0-9]{1,3}/, /^((\+|\-)\s*\d\d\d\d)|((\+|\-)\d\d\:?\d\d)/, /^((\+|\-)\s*\d\d\d\d)|((\+|\-)\d\d\:?\d\d)/],
-			    tokens = [t.hour, t.hour, t.hour, t.minute, t.minute, t.second, t.second, t.secondAndMillisecond, t.timezone, t.timezone, t.timezone];
-
-			for (i = 0; i < RTokenKeys.length; i++) {
-				cacheProcessRtoken(RTokenKeys[i], RToken[i], tokens[i]);
-			}
-
-			g.hms = _.cache(_.sequence([g.H, g.m, g.s], g.timePartDelimiter));
-
-			g.t = cacheProcessCtoken("shortMeridian", t.meridian);
-			g.tt = cacheProcessCtoken("longMeridian", t.meridian);
-			g.zzz = cacheProcessCtoken("timezone", t.timezone);
-
-			g.timeSuffix = _.each(_.ignore(g.whiteSpace), _.set([g.tt, g.zzz]));
-			g.time = _.each(_.optional(_.ignore(_.stoken("T"))), g.hms, g.timeSuffix);
-		},
-		dateFormats: function dateFormats() {
-			// pre-loaded rules for different date part order preferences
-			var _setfn = function _setfn() {
-				return _.set(arguments, g.datePartDelimiter);
-			};
-			var i,
-			    RTokenKeys = ["d", "dd", "M", "MM", "y", "yy", "yyy", "yyyy"],
-			    RToken = [/^([0-2]\d|3[0-1]|\d)/, /^([0-2]\d|3[0-1])/, /^(1[0-2]|0\d|\d)/, /^(1[0-2]|0\d)/, /^(\d+)/, /^(\d\d)/, /^(\d\d?\d?\d?)/, /^(\d\d\d\d)/],
-			    tokens = [t.day, t.day, t.month, t.month, t.year, t.year, t.year, t.year],
-			    eachToken = ["ordinalSuffix", "ordinalSuffix"];
-			for (i = 0; i < RTokenKeys.length; i++) {
-				cacheProcessRtoken(RTokenKeys[i], RToken[i], tokens[i], eachToken[i]);
-			}
-
-			g.MMM = g.MMMM = _.cache(_.process(g.ctoken("jan feb mar apr may jun jul aug sep oct nov dec"), t.month));
-			g.ddd = g.dddd = _.cache(_.process(g.ctoken("sun mon tue wed thu fri sat"), function (s) {
-				return function () {
-					this.weekday = s;
-				};
-			}));
-
-			g.day = _fn(g.d, g.dd);
-			g.month = _fn(g.M, g.MMM);
-			g.year = _fn(g.yyyy, g.yy);
-
-			g.mdy = _setfn(g.ddd, g.month, g.day, g.year);
-			g.ymd = _setfn(g.ddd, g.year, g.month, g.day);
-			g.dmy = _setfn(g.ddd, g.day, g.month, g.year);
-
-			g.date = function (s) {
-				return (g[Date.CultureInfo.dateElementOrder] || g.mdy).call(this, s);
-			};
-		},
-		relative: function relative() {
-			// relative date / time expressions
-			g.orientation = _.process(g.ctoken("past future"), function (s) {
-				return function () {
-					this.orient = s;
-				};
-			});
-
-			g.operator = _.process(g.ctoken("add subtract"), function (s) {
-				return function () {
-					this.operator = s;
-				};
-			});
-			g.rday = _.process(g.ctoken("yesterday tomorrow today now"), t.rday);
-			g.unit = _.process(g.ctoken("second minute hour day week month year"), function (s) {
-				return function () {
-					this.unit = s;
-				};
-			});
-		}
-	};
-
-	g.buildGrammarFormats = function () {
-		// these need to be rebuilt every time the language changes.
-		_C = {};
-
-		grammarFormats.timeFormats();
-		grammarFormats.dateFormats();
-		grammarFormats.relative();
-
-		g.value = _.process(_.rtoken(/^([-+]?\d+)?(st|nd|rd|th)?/), function (s) {
-			return function () {
-				this.value = s.replace(/\D/g, "");
-			};
-		});
-		g.expression = _.set([g.rday, g.operator, g.value, g.unit, g.orientation, g.ddd, g.MMM]);
-
-		g.format = _.process(_.many(_.any(
-		// translate format specifiers into grammar rules
-		_.process(_.rtoken(/^(dd?d?d?(?!e)|MM?M?M?|yy?y?y?|hh?|HH?|mm?|ss?|tt?|zz?z?)/), function (fmt) {
-			if (g[fmt]) {
-				return g[fmt];
-			} else {
-				throw $D.Parsing.Exception(fmt);
-			}
-		}),
-		// translate separator tokens into token rules
-		_.process(_.rtoken(/^[^dMyhHmstz]+/), // all legal separators 
-		function (s) {
-			return _.ignore(_.stoken(s));
-		}))),
-		// construct the parser ...
-		function (rules) {
-			return _.process(_.each.apply(null, rules), t.finishExact);
-		});
-
-		// starting rule for general purpose grammar
-		g._start = _.process(_.set([g.date, g.time, g.expression], g.generalDelimiter, g.whiteSpace), t.finish);
-	};
-
-	g.buildGrammarFormats();
-	// parsing date format specifiers - ex: "h:m:s tt" 
-	// this little guy will generate a custom parser based
-	// on the format string, ex: g.format("h:m:s tt")
-	// check for these formats first
-	g._formats = g.formats(["\"yyyy-MM-ddTHH:mm:ssZ\"", "yyyy-MM-ddTHH:mm:ss.sz", "yyyy-MM-ddTHH:mm:ssZ", "yyyy-MM-ddTHH:mm:ssz", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mmZ", "yyyy-MM-ddTHH:mmz", "yyyy-MM-ddTHH:mm", "ddd, MMM dd, yyyy H:mm:ss tt", "ddd MMM d yyyy HH:mm:ss zzz", "MMddyyyy", "ddMMyyyy", "Mddyyyy", "ddMyyyy", "Mdyyyy", "dMyyyy", "yyyy", "Mdyy", "dMyy", "d"]);
-
-	// real starting rule: tries selected formats first, 
-	// then general purpose rule
-	g.start = function (s) {
-		try {
-			var r = g._formats.call({}, s);
-			if (r[1].length === 0) {
-				return r;
-			}
-		} catch (e) {}
-		return g._start.call({}, s);
-	};
-})();
-(function () {
-	var $D = Date;
-
-	/**
-  * @desc Converts the specified string value into its JavaScript Date equivalent using CultureInfo specific format information.
-  * 
-  * Example
- <pre><code>
- ///////////
- // Dates //
- ///////////
- 
- // 15-Oct-2004
- var d1 = Date.parse("10/15/2004");
- 
- // 15-Oct-2004
- var d1 = Date.parse("15-Oct-2004");
- 
- // 15-Oct-2004
- var d1 = Date.parse("2004.10.15");
- 
- //Fri Oct 15, 2004
- var d1 = Date.parse("Fri Oct 15, 2004");
- 
- ///////////
- // Times //
- ///////////
- 
- // Today at 10 PM.
- var d1 = Date.parse("10 PM");
- 
- // Today at 10:30 PM.
- var d1 = Date.parse("10:30 P.M.");
- 
- // Today at 6 AM.
- var d1 = Date.parse("06am");
- 
- /////////////////////
- // Dates and Times //
- /////////////////////
- 
- // 8-July-2004 @ 10:30 PM
- var d1 = Date.parse("July 8th, 2004, 10:30 PM");
- 
- // 1-July-2004 @ 10:30 PM
- var d1 = Date.parse("2004-07-01T22:30:00");
- 
- ////////////////////
- // Relative Dates //
- ////////////////////
- 
- // Returns today's date. The string "today" is culture specific.
- var d1 = Date.parse("today");
- 
- // Returns yesterday's date. The string "yesterday" is culture specific.
- var d1 = Date.parse("yesterday");
- 
- // Returns the date of the next thursday.
- var d1 = Date.parse("Next thursday");
- 
- // Returns the date of the most previous monday.
- var d1 = Date.parse("last monday");
- 
- // Returns today's day + one year.
- var d1 = Date.parse("next year");
- 
- ///////////////
- // Date Math //
- ///////////////
- 
- // Today + 2 days
- var d1 = Date.parse("t+2");
- 
- // Today + 2 days
- var d1 = Date.parse("today + 2 days");
- 
- // Today + 3 months
- var d1 = Date.parse("t+3m");
- 
- // Today - 1 year
- var d1 = Date.parse("today - 1 year");
- 
- // Today - 1 year
- var d1 = Date.parse("t-1y"); 
- 
- 
- /////////////////////////////
- // Partial Dates and Times //
- /////////////////////////////
- 
- // July 15th of this year.
- var d1 = Date.parse("July 15");
- 
- // 15th day of current day and year.
- var d1 = Date.parse("15");
- 
- // July 1st of current year at 10pm.
- var d1 = Date.parse("7/1 10pm");
- </code></pre>
-  *
-  * @param {String}   The string value to convert into a Date object [Required]
-  * @return {Date}    A Date object or null if the string cannot be converted into a Date.
-  */
-	var parseUtils = {
-		removeOrds: function removeOrds(s) {
-			ords = s.match(/\b(\d+)(?:st|nd|rd|th)\b/); // find ordinal matches
-			s = ords && ords.length === 2 ? s.replace(ords[0], ords[1]) : s;
-			return s;
-		},
-		grammarParser: function grammarParser(s) {
-			var r = null;
-			try {
-				r = $D.Grammar.start.call({}, s.replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1"));
-			} catch (e) {
-				return null;
-			}
-
-			return r[1].length === 0 ? r[0] : null;
-		},
-		nativeFallback: function nativeFallback(s) {
-			var t;
-			try {
-				// ok we haven't parsed it, last ditch attempt with the built-in parser.
-				t = Date._parse(s);
-				return t || t === 0 ? new Date(t) : null;
-			} catch (e) {
-				return null;
-			}
-		}
-	};
-	function parse(s) {
-		var d;
-		if (!s) {
-			return null;
-		}
-		if (s instanceof Date) {
-			return s.clone();
-		}
-		if (s.length >= 4 && s.charAt(0) !== "0" && s.charAt(0) !== "+" && s.charAt(0) !== "-") {
-			// ie: 2004 will pass, 0800 won't.
-			//  Start with specific formats
-			d = $D.Parsing.ISO.parse(s) || $D.Parsing.Numeric.parse(s);
-		}
-		if (d instanceof Date && !isNaN(d.getTime())) {
-			return d;
-		} else {
-			// find ordinal dates (1st, 3rd, 8th, etc and remove them as they cause parsing issues)
-			s = $D.Parsing.Normalizer.parse(parseUtils.removeOrds(s));
-			d = parseUtils.grammarParser(s);
-			if (d !== null) {
-				return d;
-			} else {
-				return parseUtils.nativeFallback(s);
-			}
-		}
-	}
-
-	if (!$D._parse) {
-		$D._parse = $D.parse;
-	}
-	$D.parse = parse;
-
-	Date.getParseFunction = function (fx) {
-		var fns = Date.Grammar.allformats(fx);
-		return function (s) {
-			var r = null;
-			for (var i = 0; i < fns.length; i++) {
-				try {
-					r = fns[i].call({}, s);
-				} catch (e) {
-					continue;
-				}
-				if (r[1].length === 0) {
-					return r[0];
-				}
-			}
-			return null;
-		};
-	};
-
-	/**
-  * Converts the specified string value into its JavaScript Date equivalent using the specified format {String} or formats {Array} and the CultureInfo specific format information.
-  * The format of the string value must match one of the supplied formats exactly.
-  * 
-  * Example
- <pre><code>
- // 15-Oct-2004
- var d1 = Date.parseExact("10/15/2004", "M/d/yyyy");
- 
- // 15-Oct-2004
- var d1 = Date.parse("15-Oct-2004", "M-ddd-yyyy");
- 
- // 15-Oct-2004
- var d1 = Date.parse("2004.10.15", "yyyy.MM.dd");
- 
- // Multiple formats
- var d1 = Date.parseExact("10/15/2004", ["M/d/yyyy", "MMMM d, yyyy"]);
- </code></pre>
-  *
-  * @param {String}   The string value to convert into a Date object [Required].
-  * @param {Object}   The expected format {String} or an array of expected formats {Array} of the date string [Required].
-  * @return {Date}    A Date object or null if the string cannot be converted into a Date.
-  */
-	$D.parseExact = function (s, fx) {
-		return $D.getParseFunction(fx)(s);
-	};
-})();
-
-(function () {
-	var $D = Date,
-	    $P = $D.prototype,
-
-	// $C = $D.CultureInfo, // not used atm
-	p = function p(s, l) {
-		if (!l) {
-			l = 2;
-		}
-		return ("000" + s).slice(l * -1);
-	};
-	/**
-  * Converts a PHP format string to Java/.NET format string.
-  * A PHP format string can be used with ._format or .format.
-  * A Java/.NET format string can be used with .toString().
-  * The .parseExact function will only accept a Java/.NET format string
-  *
-  * Example
-  * var f1 = "%m/%d/%y"
-  * var f2 = Date.normalizeFormat(f1);	// "MM/dd/yy"
-  *
-  * new Date().format(f1);	// "04/13/08"
-  * new Date()._format(f1);	// "04/13/08"
-  * new Date().toString(f2);	// "04/13/08"
-  *
-  * var date = Date.parseExact("04/13/08", f2); // Sun Apr 13 2008
-  *
-  * @param {String}   A PHP format string consisting of one or more format spcifiers.
-  * @return {String}  The PHP format converted to a Java/.NET format string.
-  */
-	var normalizerSubstitutions = {
-		"d": "dd",
-		"%d": "dd",
-		"D": "ddd",
-		"%a": "ddd",
-		"j": "dddd",
-		"l": "dddd",
-		"%A": "dddd",
-		"S": "S",
-		"F": "MMMM",
-		"%B": "MMMM",
-		"m": "MM",
-		"%m": "MM",
-		"M": "MMM",
-		"%b": "MMM",
-		"%h": "MMM",
-		"n": "M",
-		"Y": "yyyy",
-		"%Y": "yyyy",
-		"y": "yy",
-		"%y": "yy",
-		"g": "h",
-		"%I": "h",
-		"G": "H",
-		"h": "hh",
-		"H": "HH",
-		"%H": "HH",
-		"i": "mm",
-		"%M": "mm",
-		"s": "ss",
-		"%S": "ss",
-		"%r": "hh:mm tt",
-		"%R": "H:mm",
-		"%T": "H:mm:ss",
-		"%X": "t",
-		"%x": "d",
-		"%e": "d",
-		"%D": "MM/dd/yy",
-		"%n": "\\n",
-		"%t": "\\t",
-		"e": "z",
-		"T": "z",
-		"%z": "z",
-		"%Z": "z",
-		"Z": "ZZ",
-		"N": "u",
-		"w": "u",
-		"%w": "u",
-		"W": "W",
-		"%V": "W"
-	};
-	var normalizer = {
-		substitutes: function substitutes(m) {
-			return normalizerSubstitutions[m];
-		},
-		interpreted: function interpreted(m, x) {
-			var y;
-			switch (m) {
-				case "%u":
-					return x.getDay() + 1;
-				case "z":
-					return x.getOrdinalNumber();
-				case "%j":
-					return p(x.getOrdinalNumber(), 3);
-				case "%U":
-					var d1 = x.clone().set({ month: 0, day: 1 }).addDays(-1).moveToDayOfWeek(0),
-					    d2 = x.clone().addDays(1).moveToDayOfWeek(0, -1);
-					return d2 < d1 ? "00" : p((d2.getOrdinalNumber() - d1.getOrdinalNumber()) / 7 + 1);
-
-				case "%W":
-					return p(x.getWeek());
-				case "t":
-					return $D.getDaysInMonth(x.getFullYear(), x.getMonth());
-				case "o":
-				case "%G":
-					return x.setWeek(x.getISOWeek()).toString("yyyy");
-				case "%g":
-					return x._format("%G").slice(-2);
-				case "a":
-				case "%p":
-					return t("tt").toLowerCase();
-				case "A":
-					return t("tt").toUpperCase();
-				case "u":
-					return p(x.getMilliseconds(), 3);
-				case "I":
-					return x.isDaylightSavingTime() ? 1 : 0;
-				case "O":
-					return x.getUTCOffset();
-				case "P":
-					y = x.getUTCOffset();
-					return y.substring(0, y.length - 2) + ":" + y.substring(y.length - 2);
-				case "B":
-					var now = new Date();
-					return Math.floor((now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() + (now.getTimezoneOffset() + 60) * 60) / 86.4);
-				case "c":
-					return x.toISOString().replace(/\"/g, "");
-				case "U":
-					return $D.strtotime("now");
-				case "%c":
-					return t("d") + " " + t("t");
-				case "%C":
-					return Math.floor(x.getFullYear() / 100 + 1);
-			}
-		},
-		shouldOverrideDefaults: function shouldOverrideDefaults(m) {
-			switch (m) {
-				case "%e":
-					return true;
-				default:
-					return false;
-			}
-		},
-		parse: function parse(m, context) {
-			var formatString,
-			    c = context || new Date();
-			formatString = normalizer.substitutes(m);
-			if (formatString) {
-				return formatString;
-			}
-			formatString = normalizer.interpreted(m, c);
-
-			if (formatString) {
-				return formatString;
-			} else {
-				return m;
-			}
-		}
-	};
-
-	$D.normalizeFormat = function (format, context) {
-		return format.replace(/(%|\\)?.|%%/g, function (t) {
-			return normalizer.parse(t, context);
-		});
-	};
-	/**
-  * Format a local Unix timestamp according to locale settings
-  *
-  * Example:
-  * Date.strftime("%m/%d/%y", new Date());		// "04/13/08"
-  * Date.strftime("c", "2008-04-13T17:52:03Z");	// "04/13/08"
-  *
-  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
-  * @param {Number|String}   The number representing the number of seconds that have elapsed since January 1, 1970 (local time).
-  * @return {String}  A string representation of the current Date object.
-  */
-	$D.strftime = function (format, time) {
-		var d = Date.parse(time);
-		return d._format(format);
-	};
-	/**
-  * Parse any textual datetime description into a Unix timestamp.
-  * A Unix timestamp is the number of seconds that have elapsed since January 1, 1970 (midnight UTC/GMT).
-  *
-  * Example:
-  * Date.strtotime("04/13/08");				// 1208044800
-  * Date.strtotime("1970-01-01T00:00:00Z");	// 0
-  *
-  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
-  * @param {Object}   A string or date object.
-  * @return {String}  A string representation of the current Date object.
-  */
-	$D.strtotime = function (time) {
-		var d = $D.parse(time);
-		return Math.round($D.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds()) / 1000);
-	};
-	/**
-  * Converts the value of the current Date object to its equivalent string representation using a PHP/Unix style of date format specifiers.
-  * Format Specifiers
-  * Format  Description																	Example
-  * ------  ---------------------------------------------------------------------------	-----------------------
-  * %a		abbreviated weekday name according to the current localed					"Mon" through "Sun"
-  * %A		full weekday name according to the current localed							"Sunday" through "Saturday"
-  * %b		abbreviated month name according to the current localed						"Jan" through "Dec"
-  * %B		full month name according to the current locale								"January" through "December"
-  * %c		preferred date and time representation for the current locale				"4/13/2008 12:33 PM"
-  * %C		century number (the year divided by 100 and truncated to an integer)		"00" to "99"
-  * %d		day of the month as a decimal number										"01" to "31"
-  * %D		same as %m/%d/%y															"04/13/08"
-  * %e		day of the month as a decimal number, a single digit is preceded by a space	"1" to "31"
-  * %g		like %G, but without the century											"08"
-  * %G		The 4-digit year corresponding to the ISO week number (see %V).				"2008"
-  *		This has the same format and value as %Y, except that if the ISO week number
-  *		belongs to the previous or next year, that year is used instead.
-  * %h		same as %b																	"Jan" through "Dec"
-  * %H		hour as a decimal number using a 24-hour clock.								"00" to "23"
-  * %I		hour as a decimal number using a 12-hour clock.								"01" to "12"
-  * %j		day of the year as a decimal number.										"001" to "366"
-  * %m		month as a decimal number.													"01" to "12"
-  * %M		minute as a decimal number.													"00" to "59"
-  * %n		newline character		"\n"
-  * %p		either "am" or "pm" according to the given time value, or the				"am" or "pm"
-  *		corresponding strings for the current locale.
-  * %r		time in a.m. and p.m. notation												"8:44 PM"
-  * %R		time in 24 hour notation													"20:44"
-  * %S		second as a decimal number													"00" to "59"
-  * %t		tab character																"\t"
-  * %T		current time, equal to %H:%M:%S												"12:49:11"
-  * %u		weekday as a decimal number ["1", "7"], with "1" representing Monday		"1" to "7"
-  * %U		week number of the current year as a decimal number, starting with the		"0" to ("52" or "53")
-  *		first Sunday as the first day of the first week
-  * %V		The ISO 8601:1988 week number of the current year as a decimal number,		"00" to ("52" or "53")
-  *		range 01 to 53, where week 1 is the first week that has at least 4 days
-  *		in the current year, and with Monday as the first day of the week.
-  *		(Use %G or %g for the year component that corresponds to the week number
-  *		for the specified timestamp.)
-  * %W		week number of the current year as a decimal number, starting with the		"00" to ("52" or "53")
-  *		first Monday as the first day of the first week
-  * %w		day of the week as a decimal, Sunday being "0"								"0" to "6"
-  * %x		preferred date representation for the current locale without the time		"4/13/2008"
-  * %X		preferred time representation for the current locale without the date		"12:53:05"
-  * %y		year as a decimal number without a century									"00" "99"
-  * %Y		year as a decimal number including the century								"2008"
-  * %Z		time zone or name or abbreviation											"UTC", "EST", "PST"
-  * %z		same as %Z
-  * %%		a literal "%" characters													"%"
-  * d		Day of the month, 2 digits with leading zeros								"01" to "31"
-  * D		A textual representation of a day, three letters							"Mon" through "Sun"
-  * j		Day of the month without leading zeros										"1" to "31"
-  * l		A full textual representation of the day of the week (lowercase "L")		"Sunday" through "Saturday"
-  * N		ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0)	"1" (for Monday) through "7" (for Sunday)
-  * S		English ordinal suffix for the day of the month, 2 characters				"st", "nd", "rd" or "th". Works well with j
-  * w		Numeric representation of the day of the week								"0" (for Sunday) through "6" (for Saturday)
-  * z		The day of the year (starting from "0")										"0" through "365"
-  * W		ISO-8601 week number of year, weeks starting on Monday						"00" to ("52" or "53")
-  * F		A full textual representation of a month, such as January or March			"January" through "December"
-  * m		Numeric representation of a month, with leading zeros						"01" through "12"
-  * M		A short textual representation of a month, three letters					"Jan" through "Dec"
-  * n		Numeric representation of a month, without leading zeros					"1" through "12"
-  * t		Number of days in the given month											"28" through "31"
-  * L		Whether it's a leap year													"1" if it is a leap year, "0" otherwise
-  * o		ISO-8601 year number. This has the same value as Y, except that if the		"2008"
-  *		ISO week number (W) belongs to the previous or next year, that year
-  *		is used instead.
-  * Y		A full numeric representation of a year, 4 digits							"2008"
-  * y		A two digit representation of a year										"08"
-  * a		Lowercase Ante meridiem and Post meridiem									"am" or "pm"
-  * A		Uppercase Ante meridiem and Post meridiem									"AM" or "PM"
-  * B		Swatch Internet time														"000" through "999"
-  * g		12-hour format of an hour without leading zeros								"1" through "12"
-  * G		24-hour format of an hour without leading zeros								"0" through "23"
-  * h		12-hour format of an hour with leading zeros								"01" through "12"
-  * H		24-hour format of an hour with leading zeros								"00" through "23"
-  * i		Minutes with leading zeros													"00" to "59"
-  * s		Seconds, with leading zeros													"00" through "59"
-  * u		Milliseconds																"54321"
-  * e		Timezone identifier															"UTC", "EST", "PST"
-  * I		Whether or not the date is in daylight saving time (uppercase i)			"1" if Daylight Saving Time, "0" otherwise
-  * O		Difference to Greenwich time (GMT) in hours									"+0200", "-0600"
-  * P		Difference to Greenwich time (GMT) with colon between hours and minutes		"+02:00", "-06:00"
-  * T		Timezone abbreviation														"UTC", "EST", "PST"
-  * Z		Timezone offset in seconds. The offset for timezones west of UTC is			"-43200" through "50400"
-  *			always negative, and for those east of UTC is always positive.
-  * c		ISO 8601 date																"2004-02-12T15:19:21+00:00"
-  * r		RFC 2822 formatted date														"Thu, 21 Dec 2000 16:01:07 +0200"
-  * U		Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)					"0"
-  * @param {String}   A format string consisting of one or more format spcifiers [Optional].
-  * @return {String}  A string representation of the current Date object.
-  */
-	var formatReplace = function formatReplace(context) {
-		return function (m) {
-			var formatString,
-			    override = false;
-			if (m.charAt(0) === "\\" || m.substring(0, 2) === "%%") {
-				return m.replace("\\", "").replace("%%", "%");
-			}
-
-			override = normalizer.shouldOverrideDefaults(m);
-			formatString = $D.normalizeFormat(m, context);
-			if (formatString) {
-				return context.toString(formatString, override);
-			}
-		};
-	};
-	$P._format = function (format) {
-		var formatter = formatReplace(this);
-		if (!format) {
-			return this._toString();
-		} else {
-			return format.replace(/(%|\\)?.|%%/g, formatter);
-		}
-	};
-
-	if (!$P.format) {
-		$P.format = $P._format;
-	}
-})();
-(function () {
-	"use strict";
-
-	var gFn = function gFn(attr) {
-		return function () {
-			return this[attr];
-		};
-	};
-
-	var sFn = function sFn(attr) {
-		return function (val) {
-			this[attr] = val;
-			return this;
-		};
-	};
-	var attrs = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds"];
-	var addSetFuncs = function addSetFuncs(context, attrs) {
-		for (var i = 0; i < attrs.length; i++) {
-			var $a = attrs[i],
-			    $b = $a.slice(0, 1).toUpperCase() + $a.slice(1);
-			context.prototype[$a] = 0;
-			context.prototype["get" + $b] = gFn($a);
-			context.prototype["set" + $b] = sFn($a);
-		}
-	};
-	/**
-  * new TimeSpan(milliseconds);
-  * new TimeSpan(days, hours, minutes, seconds);
-  * new TimeSpan(days, hours, minutes, seconds, milliseconds);
-  */
-	var TimeSpan = function TimeSpan(days, hours, minutes, seconds, milliseconds) {
-		if (arguments.length === 1 && typeof days === "number") {
-			var orient = days < 0 ? -1 : +1;
-			var millsLeft = Math.abs(days);
-			this.setDays(Math.floor(millsLeft / 86400000) * orient);
-			millsLeft = millsLeft % 86400000;
-			this.setHours(Math.floor(millsLeft / 3600000) * orient);
-			millsLeft = millsLeft % 3600000;
-			this.setMinutes(Math.floor(millsLeft / 60000) * orient);
-			millsLeft = millsLeft % 60000;
-			this.setSeconds(Math.floor(millsLeft / 1000) * orient);
-			millsLeft = millsLeft % 1000;
-			this.setMilliseconds(millsLeft * orient);
-		} else {
-			this.set(days, hours, minutes, seconds, milliseconds);
-		}
-
-		this.getTotalMilliseconds = function () {
-			return this.getDays() * 86400000 + this.getHours() * 3600000 + this.getMinutes() * 60000 + this.getSeconds() * 1000;
-		};
-
-		this.compareTo = function (time) {
-			var t1 = new Date(1970, 1, 1, this.getHours(), this.getMinutes(), this.getSeconds()),
-			    t2;
-			if (time === null) {
-				t2 = new Date(1970, 1, 1, 0, 0, 0);
-			} else {
-				t2 = new Date(1970, 1, 1, time.getHours(), time.getMinutes(), time.getSeconds());
-			}
-			return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-		};
-
-		this.equals = function (time) {
-			return this.compareTo(time) === 0;
-		};
-
-		this.add = function (time) {
-			return time === null ? this : this.addSeconds(time.getTotalMilliseconds() / 1000);
-		};
-
-		this.subtract = function (time) {
-			return time === null ? this : this.addSeconds(-time.getTotalMilliseconds() / 1000);
-		};
-
-		this.addDays = function (n) {
-			return new TimeSpan(this.getTotalMilliseconds() + n * 86400000);
-		};
-
-		this.addHours = function (n) {
-			return new TimeSpan(this.getTotalMilliseconds() + n * 3600000);
-		};
-
-		this.addMinutes = function (n) {
-			return new TimeSpan(this.getTotalMilliseconds() + n * 60000);
-		};
-
-		this.addSeconds = function (n) {
-			return new TimeSpan(this.getTotalMilliseconds() + n * 1000);
-		};
-
-		this.addMilliseconds = function (n) {
-			return new TimeSpan(this.getTotalMilliseconds() + n);
-		};
-
-		this.get12HourHour = function () {
-			return this.getHours() > 12 ? this.getHours() - 12 : this.getHours() === 0 ? 12 : this.getHours();
-		};
-
-		this.getDesignator = function () {
-			return this.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator;
-		};
-
-		this.toString = function (format) {
-			this._toString = function () {
-				if (this.getDays() !== null && this.getDays() > 0) {
-					return this.getDays() + "." + this.getHours() + ":" + this.p(this.getMinutes()) + ":" + this.p(this.getSeconds());
-				} else {
-					return this.getHours() + ":" + this.p(this.getMinutes()) + ":" + this.p(this.getSeconds());
-				}
-			};
-
-			this.p = function (s) {
-				return s.toString().length < 2 ? "0" + s : s;
-			};
-
-			var me = this;
-
-			return format ? format.replace(/dd?|HH?|hh?|mm?|ss?|tt?/g, function (format) {
-				switch (format) {
-					case "d":
-						return me.getDays();
-					case "dd":
-						return me.p(me.getDays());
-					case "H":
-						return me.getHours();
-					case "HH":
-						return me.p(me.getHours());
-					case "h":
-						return me.get12HourHour();
-					case "hh":
-						return me.p(me.get12HourHour());
-					case "m":
-						return me.getMinutes();
-					case "mm":
-						return me.p(me.getMinutes());
-					case "s":
-						return me.getSeconds();
-					case "ss":
-						return me.p(me.getSeconds());
-					case "t":
-						return (me.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator).substring(0, 1);
-					case "tt":
-						return me.getHours() < 12 ? Date.CultureInfo.amDesignator : Date.CultureInfo.pmDesignator;
-				}
-			}) : this._toString();
-		};
-		return this;
-	};
-	addSetFuncs(TimeSpan, attrs.slice(2));
-	TimeSpan.prototype.set = function (days, hours, minutes, seconds, milliseconds) {
-		this.setDays(days || this.getDays());
-		this.setHours(hours || this.getHours());
-		this.setMinutes(minutes || this.getMinutes());
-		this.setSeconds(seconds || this.getSeconds());
-		this.setMilliseconds(milliseconds || this.getMilliseconds());
-	};
-
-	/**
-  * Gets the time of day for this date instances. 
-  * @return {TimeSpan} TimeSpan
-  */
-	Date.prototype.getTimeOfDay = function () {
-		return new TimeSpan(0, this.getHours(), this.getMinutes(), this.getSeconds(), this.getMilliseconds());
-	};
-
-	Date.TimeSpan = TimeSpan;
-
-	if (typeof window !== "undefined") {
-		// keeping API compatible for v1.x 
-		window.TimeSpan = TimeSpan;
-	}
-})();
-(function () {
-	"use strict";
-
-	var attrs = ["years", "months", "days", "hours", "minutes", "seconds", "milliseconds"];
-	var gFn = function gFn(attr) {
-		return function () {
-			return this[attr];
-		};
-	};
-
-	var sFn = function sFn(attr) {
-		return function (val) {
-			this[attr] = val;
-			return this;
-		};
-	};
-	var addSetFuncs = function addSetFuncs(context, attrs) {
-		for (var i = 0; i < attrs.length; i++) {
-			var $a = attrs[i],
-			    $b = $a.slice(0, 1).toUpperCase() + $a.slice(1);
-			context.prototype[$a] = 0;
-			context.prototype["get" + $b] = gFn($a);
-			context.prototype["set" + $b] = sFn($a);
-		}
-	};
-
-	var setMonthsAndYears = function setMonthsAndYears(orient, d1, d2, context) {
-		function inc() {
-			d1.addMonths(-orient);
-			context.months++;
-			if (context.months === 12) {
-				context.years++;
-				context.months = 0;
-			}
-		}
-		if (orient === +1) {
-			while (d1 > d2) {
-				inc();
-			}
-		} else {
-			while (d1 < d2) {
-				inc();
-			}
-		}
-		context.months--;
-		context.months *= orient;
-		context.years *= orient;
-	};
-
-	var adjustForDST = function adjustForDST(orient, startDate, endDate) {
-		var hasDSTMismatch = false === (startDate.isDaylightSavingTime() === endDate.isDaylightSavingTime());
-		if (hasDSTMismatch && orient === 1) {
-			startDate.addHours(-1);
-		} else if (hasDSTMismatch) {
-			startDate.addHours(1);
-		}
-	};
-	/**
-  * TimePeriod(startDate, endDate);
-  * TimePeriod(years, months, days, hours, minutes, seconds, milliseconds);
-  */
-	var TimePeriod = function TimePeriod(years, months, days, hours, minutes, seconds, milliseconds) {
-		if (arguments.length === 7) {
-			this.set(years, months, days, hours, minutes, seconds, milliseconds);
-		} else if (arguments.length === 2 && arguments[0] instanceof Date && arguments[1] instanceof Date) {
-			var startDate = arguments[0].clone();
-			var endDate = arguments[1].clone();
-			var orient = startDate > endDate ? +1 : -1;
-			this.dates = {
-				start: arguments[0].clone(),
-				end: arguments[1].clone()
-			};
-
-			setMonthsAndYears(orient, startDate, endDate, this);
-			adjustForDST(orient, startDate, endDate);
-			// // TODO - adjust for DST
-			var diff = endDate - startDate;
-			if (diff !== 0) {
-				var ts = new TimeSpan(diff);
-				this.set(this.years, this.months, ts.getDays(), ts.getHours(), ts.getMinutes(), ts.getSeconds(), ts.getMilliseconds());
-			}
-		}
-		return this;
-	};
-	// create all the set functions.
-	addSetFuncs(TimePeriod, attrs);
-	TimePeriod.prototype.set = function (years, months, days, hours, minutes, seconds, milliseconds) {
-		this.setYears(years || this.getYears());
-		this.setMonths(months || this.getMonths());
-		this.setDays(days || this.getDays());
-		this.setHours(hours || this.getHours());
-		this.setMinutes(minutes || this.getMinutes());
-		this.setSeconds(seconds || this.getSeconds());
-		this.setMilliseconds(milliseconds || this.getMilliseconds());
-	};
-
-	Date.TimePeriod = TimePeriod;
-
-	if (typeof window !== "undefined") {
-		// keeping API compatible for v1.x 
-		window.TimePeriod = TimePeriod;
-	}
-})();
 
 /***/ })
 /******/ ]);
