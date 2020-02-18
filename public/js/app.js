@@ -56494,7 +56494,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "vueSingleRateCard",
@@ -57191,124 +57190,112 @@ var render = function() {
                         }),
                         _vm._v(" "),
                         _vm._l(_vm.view_rate_card_w, function(card, index) {
-                          return card.wsec1_rate !== ""
-                            ? _c(
-                                "tr",
+                          return _c(
+                            "tr",
+                            {
+                              directives: [
+                                {
+                                  name: "show",
+                                  rawName: "v-show",
+                                  value: _vm.weekends,
+                                  expression: "weekends"
+                                }
+                              ],
+                              key: index,
+                              staticClass: "animated fadeIn"
+                            },
+                            [
+                              _c("th", { attrs: { scope: "row" } }, [
+                                _vm._v(_vm._s(index + 1))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(
+                                  "\n                  " +
+                                    _vm._s(
+                                      card.sat_duration.substr(0, 2) +
+                                        ":" +
+                                        card.sat_b_duration
+                                    ) +
+                                    " - " +
+                                    _vm._s(
+                                      card.sat_c_duration.substr(0, 2) +
+                                        ":" +
+                                        card.sat_d_duration +
+                                        "" +
+                                        card.sat_c_duration.substr(2, 3)
+                                    ) +
+                                    "\n                  "
+                                ),
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass: "pull-right text-primary",
+                                    staticStyle: { "font-weight": "bolder" }
+                                  },
+                                  [_vm._v(_vm._s("SPOTS :" + card.sat_spots))]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(
+                                  "\n                  " +
+                                    _vm._s(
+                                      card.sun_duration.substr(0, 2) +
+                                        ":" +
+                                        card.sun_b_duration
+                                    ) +
+                                    " - " +
+                                    _vm._s(
+                                      card.sun_c_duration.substr(0, 2) +
+                                        ":" +
+                                        card.sun_d_duration +
+                                        "" +
+                                        card.sun_c_duration.substr(2, 3)
+                                    ) +
+                                    "\n                  "
+                                ),
+                                _c(
+                                  "span",
+                                  {
+                                    staticClass: "pull-right text-primary",
+                                    staticStyle: { "font-weight": "bolder" }
+                                  },
+                                  [_vm._v(_vm._s("SPOTS :" + card.sun_spots))]
+                                )
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "td",
                                 {
                                   directives: [
                                     {
                                       name: "show",
                                       rawName: "v-show",
-                                      value: _vm.weekends,
-                                      expression: "weekends"
+                                      value: _vm.days_of_weekend.wsec1 > 0,
+                                      expression: "days_of_weekend.wsec1 > 0 "
                                     }
-                                  ],
-                                  key: index,
-                                  staticClass: "animated fadeIn"
+                                  ]
                                 },
-                                [
-                                  _c("th", { attrs: { scope: "row" } }, [
-                                    _vm._v(_vm._s(index + 1))
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _vm._v(
-                                      "\n                  " +
-                                        _vm._s(
-                                          card.sat_duration.substr(0, 2) +
-                                            ":" +
-                                            card.sat_b_duration
-                                        ) +
-                                        " - " +
-                                        _vm._s(
-                                          card.sat_c_duration.substr(0, 2) +
-                                            ":" +
-                                            card.sat_d_duration +
-                                            "" +
-                                            card.sat_c_duration.substr(2, 3)
-                                        ) +
-                                        "\n                  "
-                                    ),
-                                    _c(
-                                      "span",
-                                      {
-                                        staticClass: "pull-right text-primary",
-                                        staticStyle: { "font-weight": "bolder" }
-                                      },
-                                      [
-                                        _vm._v(
-                                          _vm._s("SPOTS :" + card.sat_spots)
-                                        )
-                                      ]
-                                    )
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("td", [
-                                    _vm._v(
-                                      "\n                  " +
-                                        _vm._s(
-                                          card.sun_duration.substr(0, 2) +
-                                            ":" +
-                                            card.sun_b_duration
-                                        ) +
-                                        " - " +
-                                        _vm._s(
-                                          card.sun_c_duration.substr(0, 2) +
-                                            ":" +
-                                            card.sun_d_duration +
-                                            "" +
-                                            card.sun_c_duration.substr(2, 3)
-                                        ) +
-                                        "\n                  "
-                                    ),
-                                    _c(
-                                      "span",
-                                      {
-                                        staticClass: "pull-right text-primary",
-                                        staticStyle: { "font-weight": "bolder" }
-                                      },
-                                      [
-                                        _vm._v(
-                                          _vm._s("SPOTS :" + card.sun_spots)
-                                        )
-                                      ]
-                                    )
-                                  ]),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
+                                [_vm._v(_vm._s("GHS" + card.wsec1_rate))]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                {
+                                  directives: [
                                     {
-                                      directives: [
-                                        {
-                                          name: "show",
-                                          rawName: "v-show",
-                                          value: _vm.days_of_weekend.wsec1 > 0,
-                                          expression:
-                                            "days_of_weekend.wsec1 > 0 "
-                                        }
-                                      ]
-                                    },
-                                    [_vm._v(_vm._s("GHS" + card.wsec1_rate))]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
-                                    {
-                                      directives: [
-                                        {
-                                          name: "show",
-                                          rawName: "v-show",
-                                          value: _vm.days_of_weekend.wsec2 > 0,
-                                          expression:
-                                            "days_of_weekend.wsec2 > 0"
-                                        }
-                                      ]
-                                    },
-                                    [_vm._v(_vm._s("GHS" + card.wsec2_rate))]
-                                  )
-                                ]
+                                      name: "show",
+                                      rawName: "v-show",
+                                      value: _vm.days_of_weekend.wsec2 > 0,
+                                      expression: "days_of_weekend.wsec2 > 0"
+                                    }
+                                  ]
+                                },
+                                [_vm._v(_vm._s("GHS" + card.wsec2_rate))]
                               )
-                            : _vm._e()
+                            ]
+                          )
                         })
                       ],
                       2

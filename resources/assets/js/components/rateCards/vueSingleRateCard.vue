@@ -139,7 +139,6 @@
                   v-for="(card,index) in view_rate_card_w"
                   :key="index"
                   v-show="weekends"
-                  v-if="card.wsec1_rate !== ''"
                 >
                   <th scope="row">{{index + 1}}</th>
                   <!--<td>{{card.rate_card_id}}</td>-->
