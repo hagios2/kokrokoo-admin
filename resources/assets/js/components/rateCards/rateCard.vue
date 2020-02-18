@@ -179,7 +179,7 @@
 
 <script>
 export default {
-  name: "viewSingleRateCard",
+  name: "rateCard",
   props: ["id", "user_id"],
 
   data() {

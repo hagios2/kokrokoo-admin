@@ -28,7 +28,7 @@
             </div>
 
 
-             <view-single-rate-card></view-single-rate-card>
+             <rate-card></rate-card>
        </div>
     </div> 
 @endsection
