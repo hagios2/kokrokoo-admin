@@ -28,7 +28,7 @@
             </div>
 
 
-             <view-single-rate-card></view-single-rate-card>
+             <example-component></example-component>
        </div>
     </div> 
 @endsection
