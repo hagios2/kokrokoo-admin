@@ -19,21 +19,21 @@ $(document).ready(function () {
             { data: 'action', name: 'action', orderable: false },
         ],
         order: [[0, 'desc']],
-        oLanguage: { sProcessing: "<img src='/images/loading.gif' style='height: 20px; width: 20px;' />" }
+        // oLanguage: { sProcessing: "<img src='/images/loading.gif' style='height: 20px; width: 20px;' />" }
 
     });
 
 
     //hide datatable search box and label
-    $('input[type=search]').hide();
-    $('#laravel_datatable_filter label').hide();
+
 
     // key up event for custom search
     oTable = table.DataTable();   //pay attention to capital D, which is mandatory to retrieve "api" datatables' object, as @Lionel said
     $('#search').keyup(function () {
         oTable.search($(this).val()).draw();
     });
-
+    // $('input[type=search]').hide();
+    // $('#laravel_datatable_filter label').hide();
     //  $('#media_id').hide();
 
 });
