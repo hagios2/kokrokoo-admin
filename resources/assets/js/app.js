@@ -42,7 +42,7 @@ window.Vue = require('vue');
 
 Vue.component('example-component', require('./components/ExampleComponent.vue'));
 Vue.component('view-rate-card', require('./components/rateCards/viewRateCard'));
-Vue.component('view-single-rate-card', require('./components/rateCards/vueSingleRateCard'));
+Vue.component('view-single-rate-card', require('./components/rateCards/viewSingleRateCard'));
 Vue.component('testa', require('./components/test'));
 
 
