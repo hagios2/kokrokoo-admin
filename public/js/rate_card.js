@@ -19,7 +19,7 @@ $(document).ready(function () {
             { data: 'action', name: 'action', orderable: false },
         ],
         order: [[0, 'desc']],
-        // oLanguage: { sProcessing: "<img src='/images/loading.gif' style='height: 20px; width: 20px;' />" }
+         oLanguage: { sProcessing: "Processing ... <img src='/images/loading.gif' style='height: 20px; width: 20px;padding:20px;' />" }
 
     });
 
