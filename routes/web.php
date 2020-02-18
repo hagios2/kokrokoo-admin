@@ -30,9 +30,13 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/filter', 'FilterSubscriptionController@test')->name('filtered.subs');
 
     Route::get('/view-subscription/{id}', 'SubscriptionController@show')->name('subs.show');
-    Route::get('view-ratecard-api/{id}/{media_type}', 'RateCardsController@show')->name('view.rate.card');
+    Route::get('/view-ratecard-api/{id}/{media_type}', 'RateCardsController@show')->name('view.rate.card');
+   // Route::get('/view-print_ratecard-api/{id}/{media_type}', 'RateCardsController@show')->name('view.print.rate.card');
+
     Route::get('/subscriptions/view/file/{id}/{m_id}', 'SubscriptionController@download')->name('file.view');
     Route::get('/ratecards', 'RateCardsController@index')->name('rate.cards');
+    Route::get('/print-ratecards', 'RateCardsController@printRateCards')->name('print.rate.cards');
+
     Route::get('/ratecard/{id}', 'RateCardsController@show')->name('card.show');
     Route::get('/create/admin', 'AdminController@create')->name('create.admin');
     Route::post('/store', 'AdminController@store')->name('store.admin');

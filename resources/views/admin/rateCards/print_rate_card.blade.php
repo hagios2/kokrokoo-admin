@@ -3,7 +3,7 @@
    <div class="col-md-12 col-sm-12 col-xs-12">
        <div class="x_panel">
            <div class="x_title">
-               <h2>TV & Radio Rate cards <small></small></h2>
+               <h2>Print Rate cards <small></small></h2>
                <div class="clearfix"></div>
            </div>
            <div class="x_content">
@@ -34,5 +34,5 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/rate_card.js') }}"></script>
+    <script src="{{ asset('js/print_rate_card.js') }}"></script>
 @stop

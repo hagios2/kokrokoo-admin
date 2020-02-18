@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RateCard;
 use App\Models\RateCardTitle;
 use App\Models\ScheduledAd;
+use App\Models\PrintRateCard;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,8 +28,8 @@ class RateCardsController extends Controller
             return datatables()->of($rate_cards)
                 ->addColumn('action', function ($row) {
 
-                    $btn =  '<button  data-toggle="tooltip"   data-id="' . $row->rate_card_title_id . '"  data-media="' . $row->media . '"
-                    data-original-title="view" class="edit btn btn-success btn-sm view-sub viewRateCard"><i class="fa fa-eye"></i></button>';
+                    $btn =  '<i  data-toggle="tooltip"   data-id="' . $row->rate_card_title_id . '"  data-media="' . $row->media . '"
+                    data-original-title="view" class="edit btn btn-primary fa fa-eye btn-sm view-sub viewRateCard"></i>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -36,6 +37,30 @@ class RateCardsController extends Controller
                 ->make(true);
         }
         return  view('admin.rateCards.rate_cards');
+    }
+
+    // display print rate cards
+
+    public function printRateCards()
+    {
+        if (request()->ajax()) {
+            $rate_cards  =  DB::table('print_rate_cards')
+                ->join('rate_card_titles', 'print_rate_cards.rate_card_title_id', '=', 'rate_card_titles.rate_card_title_id')
+                ->join('users', 'print_rate_cards.media_house_id', '=', 'users.client_id')
+                ->select('print_rate_cards.*', 'rate_card_titles.rate_card_title', 'users.media_house', 'users.media')
+                ->get();
+            return datatables()->of($rate_cards)
+                ->addColumn('action', function ($row) {
+
+                    $btn =  '<i  data-toggle="tooltip"   data-id="' . $row->rate_card_title_id . '"  data-media="' . $row->media . '"
+                    data-original-title="view" class="edit btn btn-primary fa fa-eye btn-sm view-sub viewRateCard"></i>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->addIndexColumn()
+                ->make(true);
+        }
+        return  view('admin.rateCards.print_rate_card');
     }
 
     /**
@@ -86,11 +111,17 @@ class RateCardsController extends Controller
             }
         } else {
 
-            $rate_cards = PrintRateCard::whereMedia_house_id(auth()->user()->client_id)->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
-            $print_segments = json_decode($rate_cards[0]->rate_card_data);
-            $rate_cards_title = RateCardTitles::select('rate_card_title')->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
+            // $rate_cards = PrintRateCard::whereMedia_house_id(auth()->user()->client_id)->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
+            // $rate_cards_title = RateCardTitles::select('rate_card_title')->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
+
+            $rate_cards  = DB::table('rate_card_titles')
+                ->join('print_rate_cards', 'rate_card_titles.rate_card_title_id', '=', 'print_rate_cards.rate_card_title_id')
+                ->select('rate_card_titles.rate_card_title', 'print_rate_cards.*')
+                ->where('rate_card_titles.rate_card_title_id', '=', $id)->get();
             if (!empty($rate_cards)) {
-                return response()->json(['rate_card' => $print_segments, 'rate_card_title' => $rate_cards_title]);
+                $print_segments = json_decode($rate_cards[0]->rate_card_data);
+
+                return response()->json(['rate_card' => $print_segments, 'rate_card_title' => $rate_cards[0]->rate_card_title]);
             } else {
 
                 return response()->json(['response' => 'no records']);

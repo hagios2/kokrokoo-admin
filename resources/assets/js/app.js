@@ -44,6 +44,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue'))
 Vue.component('view-rate-card', require('./components/rateCards/viewRateCard'));
 Vue.component('rate-card', require('./components/rateCards/rateCard'));
 Vue.component('testa', require('./components/test'));
+Vue.component('view-print-rate-card', require('./components/rateCards/printRateCare'));
 
 
 

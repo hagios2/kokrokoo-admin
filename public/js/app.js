@@ -1471,6 +1471,7 @@ Vue.component('example-component', __webpack_require__(63));
 Vue.component('view-rate-card', __webpack_require__(66));
 Vue.component('rate-card', __webpack_require__(112));
 Vue.component('testa', __webpack_require__(75));
+Vue.component('view-print-rate-card', __webpack_require__(116));
 
 var app = new Vue({
   el: '#app'
@@ -56898,6 +56899,20 @@ var render = function() {
                 _c("div", { staticClass: "col-md-5" })
               ]),
               _vm._v(" "),
+              _vm.processing
+                ? _c("view-print-rate-card", {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: _vm.media == "Print",
+                        expression: "media == 'Print'"
+                      }
+                    ],
+                    attrs: { print_segments: _vm.print_segments }
+                  })
+                : _vm._e(),
+              _vm._v(" "),
               _c(
                 "div",
                 {
@@ -57497,7 +57512,8 @@ var render = function() {
                   ])
                 ]
               )
-            ]
+            ],
+            1
           ),
           _vm._v(" "),
           _c(
@@ -57554,6 +57570,165 @@ if (false) {
   module.hot.accept()
   if (module.hot.data) {
     require("vue-hot-reload-api")      .rerender("data-v-fab86ada", module.exports)
+  }
+}
+
+/***/ }),
+/* 115 */,
+/* 116 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(117)
+/* template */
+var __vue_template__ = __webpack_require__(119)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/rateCards/printRateCare.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-7e80606b", Component.options)
+  } else {
+    hotAPI.reload("data-v-7e80606b", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 117 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ["print_segments"],
+  name: "printRateCard",
+
+  mounted: function mounted() {},
+  created: function created() {},
+  data: function data() {
+    return {};
+  },
+
+  methods: {},
+
+  computed: {}
+});
+
+/***/ }),
+/* 118 */,
+/* 119 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("table", { staticClass: "table table-bordered" }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c(
+        "tbody",
+        _vm._l(_vm.print_segments, function(print, index) {
+          return _c("tr", { key: index }, [
+            _c("th", { attrs: { scope: "row" } }, [_vm._v(_vm._s(index + 1))]),
+            _vm._v(" "),
+            _c("td", { staticClass: "text-center" }, [
+              _vm._v(_vm._s(print.sizeAndPosition))
+            ]),
+            _vm._v(" "),
+            _c("td", { staticClass: "text-center" }, [
+              _vm._v(_vm._s(print.spots))
+            ]),
+            _vm._v(" "),
+            _c("td", { staticClass: "text-center" }, [
+              _vm._v("GHS" + _vm._s(print.rate))
+            ])
+          ])
+        }),
+        0
+      )
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", { staticStyle: { background: "#36475F", color: "#ffffff" } }, [
+        _c("th", [_vm._v("#")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [
+          _vm._v("Advert size & Positions")
+        ]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Spots")]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center" }, [_vm._v("Rate(GHC)")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-7e80606b", module.exports)
   }
 }
 

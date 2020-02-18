@@ -38,7 +38,7 @@
             <div class="col-md-5"></div>
           </div>
 
-          <!--                                <view-print-rate-card v-show="media == 'Print'" :print_segments="print_segments" v-if="processing"></view-print-rate-card>-->
+         <view-print-rate-card v-show="media == 'Print'" :print_segments="print_segments" v-if="processing"></view-print-rate-card>
           <div class v-show="media != 'Print'">
             <table class="table table-bordered">
               <thead>
