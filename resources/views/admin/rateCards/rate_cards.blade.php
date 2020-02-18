@@ -4,11 +4,11 @@
        <div class="x_panel">
            <div class="x_title">
                <h2>Rate cards <small></small></h2>
-
+<img src='/images/loading.gif' style='height: 20px; width: 20px;margin' />
                <div class="clearfix"></div>
            </div>
            <div class="x_content">
-               <input type="text" class="form-control pull-right" placeholder="search" id="search" style="width: 50%;border-radius: 15px;line-height: 160px;margin-bottom: -20px;">
+               {{-- <input type="text" class="form-control pull-right" placeholder="search" id="search" style="width: 50%;border-radius: 15px;line-height: 160px;margin-bottom: -20px;"> --}}
 
                <table id="laravel_datatable" class="table table-striped table-bordered table-responsive">
 
