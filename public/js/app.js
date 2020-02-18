@@ -1469,7 +1469,7 @@ window.Vue = __webpack_require__(59);
 
 Vue.component('example-component', __webpack_require__(63));
 Vue.component('view-rate-card', __webpack_require__(66));
-Vue.component('rate-card', __webpack_require__(112));
+Vue.component('rate-card', __webpack_require__(72));
 Vue.component('testa', __webpack_require__(75));
 
 var app = new Vue({
@@ -56263,190 +56263,15 @@ if (false) {
 }
 
 /***/ }),
-/* 72 */,
-/* 73 */,
-/* 74 */,
-/* 75 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-function injectStyle (ssrContext) {
-  if (disposed) return
-  __webpack_require__(76)
-}
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(78)
-/* template */
-var __vue_template__ = __webpack_require__(79)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = injectStyle
-/* scopeId */
-var __vue_scopeId__ = "data-v-bd7c2fae"
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/test.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-bd7c2fae", Component.options)
-  } else {
-    hotAPI.reload("data-v-bd7c2fae", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 76 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(77);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(13)("66d8066c", content, false, {});
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-bd7c2fae\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./test.vue", function() {
-     var newContent = require("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-bd7c2fae\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./test.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 77 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(12)(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 78 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    name: "test"
-});
-
-/***/ }),
-/* 79 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", [_c("h1", [_vm._v("Hello world")])])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-bd7c2fae", module.exports)
-  }
-}
-
-/***/ }),
-/* 80 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 81 */,
-/* 82 */,
-/* 83 */,
-/* 84 */,
-/* 85 */,
-/* 86 */,
-/* 87 */,
-/* 88 */,
-/* 89 */,
-/* 90 */,
-/* 91 */,
-/* 92 */,
-/* 93 */,
-/* 94 */,
-/* 95 */,
-/* 96 */,
-/* 97 */,
-/* 98 */,
-/* 99 */,
-/* 100 */,
-/* 101 */,
-/* 102 */,
-/* 103 */,
-/* 104 */,
-/* 105 */,
-/* 106 */,
-/* 107 */,
-/* 108 */,
-/* 109 */,
-/* 110 */,
-/* 111 */,
-/* 112 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(2)
 /* script */
-var __vue_script__ = __webpack_require__(113)
+var __vue_script__ = __webpack_require__(73)
 /* template */
-var __vue_template__ = __webpack_require__(114)
+var __vue_template__ = __webpack_require__(74)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -56485,7 +56310,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 113 */
+/* 73 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -56796,7 +56621,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 114 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -56840,7 +56665,7 @@ var render = function() {
                         "strong",
                         {
                           staticClass: "text-danger",
-                          staticStyle: { "padding-left": "20px" }
+                          staticStyle: { "padding-left": "10px" }
                         },
                         [_vm._v(_vm._s(_vm.rate_card_title))]
                       ),
@@ -56868,7 +56693,7 @@ var render = function() {
           _vm._v(" "),
           _c(
             "div",
-            { staticClass: "page-body", staticStyle: { padding: "20px" } },
+            { staticClass: "page-body", staticStyle: { padding: "10px" } },
             [
               _c("div", { staticClass: "row" }, [
                 _c("div", { staticClass: "col-md-5" }),
@@ -57126,242 +56951,264 @@ var render = function() {
                     _c(
                       "tbody",
                       [
-                        _vm._l(_vm.view_rate_card, function(card, key) {
-                          return _c(
-                            "tr",
-                            {
-                              directives: [
-                                {
-                                  name: "show",
-                                  rawName: "v-show",
-                                  value: _vm.weekdays,
-                                  expression: "weekdays"
-                                }
-                              ],
-                              key: key,
-                              staticClass: "animated fadeIn"
-                            },
-                            [
-                              _c("th", { attrs: { scope: "row" } }, [
-                                _vm._v(_vm._s(key + 1))
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\n                  " +
-                                    _vm._s(
-                                      card.mon_duration.substr(0, 2) +
-                                        ":" +
-                                        card.mon_b_duration
-                                    ) +
-                                    " - " +
-                                    _vm._s(
-                                      card.mon_c_duration.substr(0, 2) +
-                                        ":" +
-                                        card.mon_d_duration +
-                                        "" +
-                                        card.mon_c_duration.substr(2, 3)
-                                    ) +
-                                    "\n                  "
-                                ),
-                                _c(
-                                  "span",
-                                  {
-                                    staticClass: "pull-right text-primary",
-                                    staticStyle: { "font-weight": "bolder" }
-                                  },
-                                  [_vm._v(_vm._s("SPOTS :" + card.mon_spots))]
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\n                  " +
-                                    _vm._s(
-                                      card.tue_duration.substr(0, 2) +
-                                        ":" +
-                                        card.tue_b_duration
-                                    ) +
-                                    " - " +
-                                    _vm._s(
-                                      card.tue_c_duration.substr(0, 2) +
-                                        ":" +
-                                        card.tue_d_duration +
-                                        "" +
-                                        card.tue_c_duration.substr(2, 3)
-                                    ) +
-                                    "\n                  "
-                                ),
-                                _c(
-                                  "span",
-                                  {
-                                    staticClass: "pull-right text-primary",
-                                    staticStyle: { "font-weight": "bolder" }
-                                  },
-                                  [_vm._v(_vm._s("SPOTS :" + card.tue_spots))]
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\n                  " +
-                                    _vm._s(
-                                      card.wed_duration.substr(0, 2) +
-                                        ":" +
-                                        card.wed_b_duration
-                                    ) +
-                                    " - " +
-                                    _vm._s(
-                                      card.wed_c_duration.substr(0, 2) +
-                                        ":" +
-                                        card.wed_d_duration +
-                                        "" +
-                                        card.wed_c_duration.substr(2, 3)
-                                    ) +
-                                    "\n                  "
-                                ),
-                                _c(
-                                  "span",
-                                  {
-                                    staticClass: "pull-right text-primary",
-                                    staticStyle: { "font-weight": "bolder" }
-                                  },
-                                  [_vm._v(_vm._s("SPOTS :" + card.wed_spots))]
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\n                  " +
-                                    _vm._s(
-                                      card.thu_duration.substr(0, 2) +
-                                        ":" +
-                                        card.thu_b_duration
-                                    ) +
-                                    " - " +
-                                    _vm._s(
-                                      card.thu_c_duration.substr(0, 2) +
-                                        ":" +
-                                        card.thu_d_duration +
-                                        "" +
-                                        card.thu_c_duration.substr(2, 3)
-                                    ) +
-                                    "\n                  "
-                                ),
-                                _c(
-                                  "span",
-                                  {
-                                    staticClass: "pull-right text-primary",
-                                    staticStyle: { "font-weight": "bolder" }
-                                  },
-                                  [_vm._v(_vm._s("SPOTS :" + card.tue_spots))]
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "\n                  " +
-                                    _vm._s(
-                                      card.fri_duration.substr(0, 2) +
-                                        ":" +
-                                        card.fri_b_duration
-                                    ) +
-                                    " - " +
-                                    _vm._s(
-                                      card.fri_c_duration.substr(0, 2) +
-                                        ":" +
-                                        card.fri_d_duration +
-                                        "" +
-                                        card.fri_c_duration.substr(2, 3)
-                                    ) +
-                                    "\n                  "
-                                ),
-                                _c(
-                                  "span",
-                                  {
-                                    staticClass: "pull-right text-primary",
-                                    staticStyle: { "font-weight": "bolder" }
-                                  },
-                                  [_vm._v(_vm._s("SPOTS :" + card.fri_spots))]
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c(
-                                "td",
+                        _vm._l(_vm.view_rate_card, function(cards, rows) {
+                          return cards.wsec1_rate !== ""
+                            ? _c(
+                                "tr",
                                 {
                                   directives: [
                                     {
                                       name: "show",
                                       rawName: "v-show",
-                                      value: _vm.days_of_week.sec1 > 0,
-                                      expression: "days_of_week.sec1 > 0"
+                                      value: _vm.weekdays,
+                                      expression: "weekdays"
                                     }
-                                  ]
+                                  ],
+                                  key: rows,
+                                  staticClass: "animated fadeIn"
                                 },
-                                [_vm._v(_vm._s("GHS" + card.sec1_rate))]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "td",
-                                {
-                                  directives: [
+                                [
+                                  _c("th", { attrs: { scope: "row" } }, [
+                                    _vm._v(_vm._s(rows + 1))
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(
+                                      "\n                  " +
+                                        _vm._s(
+                                          cards.mon_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.mon_b_duration
+                                        ) +
+                                        " - " +
+                                        _vm._s(
+                                          cards.mon_c_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.mon_d_duration +
+                                            "" +
+                                            cards.mon_c_duration.substr(2, 3)
+                                        ) +
+                                        "\n                  "
+                                    ),
+                                    _c(
+                                      "span",
+                                      {
+                                        staticClass: "pull-right text-primary",
+                                        staticStyle: { "font-weight": "bolder" }
+                                      },
+                                      [
+                                        _vm._v(
+                                          _vm._s("SPOTS :" + cards.mon_spots)
+                                        )
+                                      ]
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(
+                                      "\n                  " +
+                                        _vm._s(
+                                          cards.tue_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.tue_b_duration
+                                        ) +
+                                        " - " +
+                                        _vm._s(
+                                          cards.tue_c_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.tue_d_duration +
+                                            "" +
+                                            cards.tue_c_duration.substr(2, 3)
+                                        ) +
+                                        "\n                  "
+                                    ),
+                                    _c(
+                                      "span",
+                                      {
+                                        staticClass: "pull-right text-primary",
+                                        staticStyle: { "font-weight": "bolder" }
+                                      },
+                                      [
+                                        _vm._v(
+                                          _vm._s("SPOTS :" + cards.tue_spots)
+                                        )
+                                      ]
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(
+                                      "\n                  " +
+                                        _vm._s(
+                                          cards.wed_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.wed_b_duration
+                                        ) +
+                                        " - " +
+                                        _vm._s(
+                                          cards.wed_c_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.wed_d_duration +
+                                            "" +
+                                            cards.wed_c_duration.substr(2, 3)
+                                        ) +
+                                        "\n                  "
+                                    ),
+                                    _c(
+                                      "span",
+                                      {
+                                        staticClass: "pull-right text-primary",
+                                        staticStyle: { "font-weight": "bolder" }
+                                      },
+                                      [
+                                        _vm._v(
+                                          _vm._s("SPOTS :" + cards.wed_spots)
+                                        )
+                                      ]
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(
+                                      "\n                  " +
+                                        _vm._s(
+                                          cards.thu_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.thu_b_duration
+                                        ) +
+                                        " - " +
+                                        _vm._s(
+                                          cards.thu_c_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.thu_d_duration +
+                                            "" +
+                                            cards.thu_c_duration.substr(2, 3)
+                                        ) +
+                                        "\n                  "
+                                    ),
+                                    _c(
+                                      "span",
+                                      {
+                                        staticClass: "pull-right text-primary",
+                                        staticStyle: { "font-weight": "bolder" }
+                                      },
+                                      [
+                                        _vm._v(
+                                          _vm._s("SPOTS :" + cards.tue_spots)
+                                        )
+                                      ]
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("td", [
+                                    _vm._v(
+                                      "\n                  " +
+                                        _vm._s(
+                                          cards.fri_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.fri_b_duration
+                                        ) +
+                                        " - " +
+                                        _vm._s(
+                                          cards.fri_c_duration.substr(0, 2) +
+                                            ":" +
+                                            cards.fri_d_duration +
+                                            "" +
+                                            cards.fri_c_duration.substr(2, 3)
+                                        ) +
+                                        "\n                  "
+                                    ),
+                                    _c(
+                                      "span",
+                                      {
+                                        staticClass: "pull-right text-primary",
+                                        staticStyle: { "font-weight": "bolder" }
+                                      },
+                                      [
+                                        _vm._v(
+                                          _vm._s("SPOTS :" + cards.fri_spots)
+                                        )
+                                      ]
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "td",
                                     {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: _vm.days_of_week.sec2 > 0,
-                                      expression: "days_of_week.sec2 > 0"
-                                    }
-                                  ]
-                                },
-                                [_vm._v(_vm._s("GHS" + card.sec2_rate))]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "td",
-                                {
-                                  directives: [
+                                      directives: [
+                                        {
+                                          name: "show",
+                                          rawName: "v-show",
+                                          value: _vm.days_of_week.sec1 > 0,
+                                          expression: "days_of_week.sec1 > 0"
+                                        }
+                                      ]
+                                    },
+                                    [_vm._v(_vm._s("GHS" + cards.sec1_rate))]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "td",
                                     {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: _vm.days_of_week.sec3 > 0,
-                                      expression: "days_of_week.sec3 > 0"
-                                    }
-                                  ]
-                                },
-                                [_vm._v(_vm._s("GHS" + card.sec3_rate))]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "td",
-                                {
-                                  directives: [
+                                      directives: [
+                                        {
+                                          name: "show",
+                                          rawName: "v-show",
+                                          value: _vm.days_of_week.sec2 > 0,
+                                          expression: "days_of_week.sec2 > 0"
+                                        }
+                                      ]
+                                    },
+                                    [_vm._v(_vm._s("GHS" + cards.sec2_rate))]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "td",
                                     {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: _vm.days_of_week.sec4 > 0,
-                                      expression: "days_of_week.sec4 > 0"
-                                    }
-                                  ]
-                                },
-                                [_vm._v(_vm._s("GHS" + card.sec4_rate))]
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "td",
-                                {
-                                  directives: [
+                                      directives: [
+                                        {
+                                          name: "show",
+                                          rawName: "v-show",
+                                          value: _vm.days_of_week.sec3 > 0,
+                                          expression: "days_of_week.sec3 > 0"
+                                        }
+                                      ]
+                                    },
+                                    [_vm._v(_vm._s("GHS" + cards.sec3_rate))]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "td",
                                     {
-                                      name: "show",
-                                      rawName: "v-show",
-                                      value: _vm.days_of_week.sec5 > 0,
-                                      expression: "days_of_week.sec5 > 0"
-                                    }
-                                  ]
-                                },
-                                [_vm._v(_vm._s("GHS" + card.sec5_rate))]
+                                      directives: [
+                                        {
+                                          name: "show",
+                                          rawName: "v-show",
+                                          value: _vm.days_of_week.sec4 > 0,
+                                          expression: "days_of_week.sec4 > 0"
+                                        }
+                                      ]
+                                    },
+                                    [_vm._v(_vm._s("GHS" + cards.sec4_rate))]
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "td",
+                                    {
+                                      directives: [
+                                        {
+                                          name: "show",
+                                          rawName: "v-show",
+                                          value: _vm.days_of_week.sec5 > 0,
+                                          expression: "days_of_week.sec5 > 0"
+                                        }
+                                      ]
+                                    },
+                                    [_vm._v(_vm._s("GHS" + cards.sec5_rate))]
+                                  )
+                                ]
                               )
-                            ]
-                          )
+                            : _vm._e()
                         }),
                         _vm._v(" "),
                         _vm._l(_vm.view_rate_card_w, function(card, index) {
@@ -57376,7 +57223,6 @@ var render = function() {
                                   expression: "weekends"
                                 }
                               ],
-                              key: index,
                               staticClass: "animated fadeIn"
                             },
                             [
@@ -57537,6 +57383,147 @@ if (false) {
     require("vue-hot-reload-api")      .rerender("data-v-fab86ada", module.exports)
   }
 }
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(76)
+}
+var normalizeComponent = __webpack_require__(2)
+/* script */
+var __vue_script__ = __webpack_require__(78)
+/* template */
+var __vue_template__ = __webpack_require__(79)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-bd7c2fae"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/test.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-bd7c2fae", Component.options)
+  } else {
+    hotAPI.reload("data-v-bd7c2fae", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(77);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(13)("66d8066c", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-bd7c2fae\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./test.vue", function() {
+     var newContent = require("!!../../../../node_modules/css-loader/index.js!../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-bd7c2fae\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./test.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(12)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 78 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    name: "test"
+});
+
+/***/ }),
+/* 79 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm._m(0)
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", [_c("h1", [_vm._v("Hello world")])])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-bd7c2fae", module.exports)
+  }
+}
+
+/***/ }),
+/* 80 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 /******/ ]);

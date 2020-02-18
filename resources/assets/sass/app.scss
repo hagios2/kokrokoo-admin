@@ -10,6 +10,7 @@
 @import "./css/bootstrap/dist/css/bootstrap.min.css";
 @import  "../js//vendors//font-awesome/css/font-awesome.min.css";
 //@import "~nprogress/nprogress.css";
+@import "../css//animate.min.css";
 @import "./css/iCheck/skins/flat/green.css";
 @import "./css/bootstrap_progressbar/bootstrap-progressbar-3.3.4.css";
 //@import "~jqvmap/dist/jqvmap.min.css";
@@ -19,6 +20,6 @@
 @import "./css/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css";
 @import "./css/datatables.net-responsive-bs/css/responsive.bootstrap.min.css";
 @import "./css/datatables.net-scroller-bs/css/scroller.bootstrap.min.css";
-//@import "/custom.css";
+@import "../css/custome.css";
 @import "./css/custome/custom.css";
 

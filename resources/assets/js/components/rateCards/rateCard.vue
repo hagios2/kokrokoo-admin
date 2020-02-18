@@ -16,15 +16,15 @@
             <div class="col-lg-8">
               <div class="page-header-title">
                 <h4 class="animated fadeIn">
-                  <strong class="text-danger" style="padding-left:20px;">{{rate_card_title}}</strong> Rate Card
-                  <span v-show="media != 'Print'">for {{day}}</span>
+                  <strong class="text-danger" style="padding-left:10px;">{{rate_card_title}}</strong> Rate Card
+                  <span  v-show="media != 'Print'">for {{day}}</span>
                 </h4>
               </div>
             </div>
           </div>
         </div>
         <!-- Page-header end -->
-        <div class="page-body" style="padding:20px;">
+        <div class="page-body" style="padding:10px;">
           <!-- Default Styling table start -->
 
           <div class="row">
@@ -85,59 +85,59 @@
                 <!--weekdays segments-->
                 <tr
                   class="animated fadeIn"
-                  v-for="(card,key) in view_rate_card"
+                  v-for="(cards,rows) in view_rate_card"
                   v-show="weekdays"
-                  :key="key"
+                  :key="rows"
+                  v-if="cards.wsec1_rate !== ''"
                 >
-                  <th scope="row">{{key + 1}}</th>
+                  <th scope="row">{{rows + 1}}</th>
                   <!--                                            <td>{{card.rate_card_id}}</td>-->
                   <td>
-                    {{card.mon_duration.substr(0,2) + ':' + card.mon_b_duration}} - {{ card.mon_c_duration.substr(0,2) + ':'+ card.mon_d_duration + '' + card.mon_c_duration.substr(2,3)}}
+                    {{cards.mon_duration.substr(0,2) + ':' + cards.mon_b_duration}} - {{ cards.mon_c_duration.substr(0,2) + ':'+ cards.mon_d_duration + '' + cards.mon_c_duration.substr(2,3)}}
                     <span
                       class="pull-right text-primary"
                       style="font-weight:bolder"
-                    >{{'SPOTS :' + card.mon_spots}}</span>
+                    >{{'SPOTS :' + cards.mon_spots}}</span>
                   </td>
                   <td>
-                    {{card.tue_duration.substr(0,2) + ':' + card.tue_b_duration}} - {{ card.tue_c_duration.substr(0,2) + ':'+ card.tue_d_duration + '' + card.tue_c_duration.substr(2,3)}}
+                    {{cards.tue_duration.substr(0,2) + ':' + cards.tue_b_duration}} - {{ cards.tue_c_duration.substr(0,2) + ':'+ cards.tue_d_duration + '' + cards.tue_c_duration.substr(2,3)}}
                     <span
                       class="pull-right text-primary"
                       style="font-weight:bolder"
-                    >{{'SPOTS :' + card.tue_spots}}</span>
+                    >{{'SPOTS :' + cards.tue_spots}}</span>
                   </td>
                   <td>
-                    {{card.wed_duration.substr(0,2) + ':' + card.wed_b_duration}} - {{ card.wed_c_duration.substr(0,2) + ':'+ card.wed_d_duration + '' + card.wed_c_duration.substr(2,3)}}
+                    {{cards.wed_duration.substr(0,2) + ':' + cards.wed_b_duration}} - {{ cards.wed_c_duration.substr(0,2) + ':'+ cards.wed_d_duration + '' + cards.wed_c_duration.substr(2,3)}}
                     <span
                       class="pull-right text-primary"
                       style="font-weight:bolder"
-                    >{{'SPOTS :' + card.wed_spots}}</span>
+                    >{{'SPOTS :' + cards.wed_spots}}</span>
                   </td>
                   <td>
-                    {{card.thu_duration.substr(0,2) + ':' + card.thu_b_duration}} - {{ card.thu_c_duration.substr(0,2) + ':'+ card.thu_d_duration + '' + card.thu_c_duration.substr(2,3)}}
+                    {{cards.thu_duration.substr(0,2) + ':' + cards.thu_b_duration}} - {{ cards.thu_c_duration.substr(0,2) + ':'+ cards.thu_d_duration + '' + cards.thu_c_duration.substr(2,3)}}
                     <span
                       class="pull-right text-primary"
                       style="font-weight:bolder"
-                    >{{'SPOTS :' + card.tue_spots}}</span>
+                    >{{'SPOTS :' + cards.tue_spots}}</span>
                   </td>
                   <td>
-                    {{card.fri_duration.substr(0,2) + ':' + card.fri_b_duration}} - {{ card.fri_c_duration.substr(0,2) + ':'+ card.fri_d_duration + '' + card.fri_c_duration.substr(2,3)}}
+                    {{cards.fri_duration.substr(0,2) + ':' + cards.fri_b_duration}} - {{ cards.fri_c_duration.substr(0,2) + ':'+ cards.fri_d_duration + '' + cards.fri_c_duration.substr(2,3)}}
                     <span
                       class="pull-right text-primary"
                       style="font-weight:bolder"
-                    >{{'SPOTS :' + card.fri_spots}}</span>
+                    >{{'SPOTS :' + cards.fri_spots}}</span>
                   </td>
-                  <td v-show="days_of_week.sec1 > 0">{{'GHS'+ card.sec1_rate}}</td>
-                  <td v-show="days_of_week.sec2 > 0">{{'GHS'+ card.sec2_rate}}</td>
-                  <td v-show="days_of_week.sec3 > 0">{{'GHS'+ card.sec3_rate}}</td>
-                  <td v-show="days_of_week.sec4 > 0">{{'GHS'+ card.sec4_rate}}</td>
-                  <td v-show="days_of_week.sec5 > 0">{{'GHS'+ card.sec5_rate}}</td>
+                  <td v-show="days_of_week.sec1 > 0">{{'GHS'+ cards.sec1_rate}}</td>
+                  <td v-show="days_of_week.sec2 > 0">{{'GHS'+ cards.sec2_rate}}</td>
+                  <td v-show="days_of_week.sec3 > 0">{{'GHS'+ cards.sec3_rate}}</td>
+                  <td v-show="days_of_week.sec4 > 0">{{'GHS'+ cards.sec4_rate}}</td>
+                  <td v-show="days_of_week.sec5 > 0">{{'GHS'+ cards.sec5_rate}}</td>
                 </tr>
 
                 <!--view weekends-->
                 <tr
                   class="animated fadeIn"
-                  v-for="(card,index) in view_rate_card_w"
-                  :key="index"
+                  v-for="(card,index)  in view_rate_card_w"
                   v-show="weekends"
                 >
                   <th scope="row">{{index + 1}}</th>
