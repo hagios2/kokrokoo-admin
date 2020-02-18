@@ -31,7 +31,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     Route::get('/view-subscription/{id}', 'SubscriptionController@show')->name('subs.show');
     Route::get('/view-ratecard-api/{id}/{media_type}', 'RateCardsController@show')->name('view.rate.card');
-   // Route::get('/view-print_ratecard-api/{id}/{media_type}', 'RateCardsController@show')->name('view.print.rate.card');
+    // Route::get('/view-print_ratecard-api/{id}/{media_type}', 'RateCardsController@show')->name('view.print.rate.card');
 
     Route::get('/subscriptions/view/file/{id}/{m_id}', 'SubscriptionController@download')->name('file.view');
     Route::get('/ratecards', 'RateCardsController@index')->name('rate.cards');
@@ -51,6 +51,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/admin-account/profile/edit', 'AdminProfileController@update')->name('profile.edit');
     Route::post('/admin-account/profile/password-reset', 'AdminProfileController@updatePassword')->name('password.reset');
     Route::get('download-sub/{id}', 'SubscriptionController@downloadFile')->name('download.sub');
+    Route::get('/password-change', 'ChangePasswordController@index')->name('admin.change.password');
+    Route::post('change-password', 'ChangePasswordController@store')->name('change.password');
+
 });
 
 Route::prefix('admin/auth')->group(function () {

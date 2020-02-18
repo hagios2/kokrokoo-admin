@@ -592,6 +592,14 @@ div.DTS{display:block !important}div.DTS tbody th,div.DTS tbody td{white-space:n
       width: 90%; 
    }
 }
+
+.errors{
+   border-color: #FD004B;
+}
+
+.error-text{
+    font-size: 11px;
+}
 html , body{
 	
  height:100%;

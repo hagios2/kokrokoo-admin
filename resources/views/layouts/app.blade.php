@@ -92,6 +92,13 @@
                                             <li><a href="{{route('audits')}}">Audit Trail</a></li>
                                         </ul>
                                     </li>
+                                     <li><a><i class="fa fa-cog"></i> Settings <span class="fa fa-chevron-down"></span></a>
+                                        <ul class="nav child_menu">
+                                            <li><a href="{{route('profile')}}">Profile</a></li>
+                                            <li><a href="{{route('admin.change.password')}}">Change Password</a></li>
+
+                                        </ul>
+                                    </li>
 
                                 </ul>
                             </div>
@@ -135,6 +142,13 @@
                                 </div>
                             @endif
 
+                              @if(session()->has('pass-success'))
+
+                                <div class="alert alert-success text-center animated fade-in" >
+                                    <p id="pass">{{session('pass-success')}}</p>
+                                </div>
+                            @endif
+
                             @if(session()->has('not_super_admin'))
 
                                 <div class="alert alert-danger text-center" >
@@ -169,6 +183,8 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-usermenu pull-right">
                                         <li><a href="{{route('profile')}}"> Profile</a></li>
+                                        <li><a href="{{route('admin.change.password')}}">Change password</a></li>
+
 
                                         <li><a href="{{ route('logout') }}"  onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                                     </ul>

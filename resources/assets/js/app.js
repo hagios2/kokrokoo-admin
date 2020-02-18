@@ -25,8 +25,9 @@ require("./vendors/jqvmap/dist/jquery.vmap.js");
 require("./vendors/jqvmap/dist/maps/jquery.vmap.world.js");
 require("./vendors/jqvmap/examples/js/jquery.vmap.sampledata.js");
 //require("./vendors/moment/min/moment.min.js");
-//require('sweetalert');
+require('sweetalert');
 require("./custome/custom");
+require('./alerts/alerts');
 //require("./custome_scripts/users");
 //require("./main");
 

@@ -3,3 +3,11 @@
       width: 90%; 
    }
 }
+
+.errors{
+   border-color: #FD004B;
+}
+
+.error-text{
+    font-size: 11px;
+}
