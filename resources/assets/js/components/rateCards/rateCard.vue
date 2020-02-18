@@ -17,7 +17,7 @@
               <div class="page-header-title">
                 <h4 class="animated fadeIn">
                   <strong class="text-danger" style="padding-left:10px;">{{rate_card_title}}</strong> Rate Card
-                  <span  v-show="media != 'Print'">for {{day}}</span>
+                  <span v-show="media != 'Print'">for {{day}}</span>
                 </h4>
               </div>
             </div>
@@ -242,7 +242,6 @@ export default {
           .get("view-ratecard-api/" + id + "/" + media_type)
           .then(function(res) {
             if (res.data) {
-              console.log(res.data.w_segments);
               self.view_rate_card = JSON.parse(res.data.segments);
               self.days_of_week = JSON.parse(res.data.days_of_week);
               self.days_of_weekend = JSON.parse(res.data.days_of_weekends);
@@ -280,7 +279,6 @@ export default {
           .get("view-ratecard-api/" + id + "/" + media_type)
           .then(function(res) {
             if (res.data) {
-              console.log(res.data.w_segments);
               self.view_rate_card = JSON.parse(res.data.segments);
               self.days_of_week = JSON.parse(res.data.days_of_week);
               self.days_of_weekend = JSON.parse(res.data.days_of_weekends);

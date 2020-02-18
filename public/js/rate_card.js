@@ -8,22 +8,23 @@ $(document).ready(function () {
             type: 'GET',
         },
         columns: [
-            {data: 'id', name: 'id', 'visible': false},
-            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'rate_card_id', name: 'rate_card_id'},
-            {data: 'media_house', name: 'media_house'},
-            {data: 'rate_card_title', name: 'rate_card_title'},
+            { data: 'id', name: 'id', 'visible': false },
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'rate_card_id', name: 'rate_card_id' },
+            { data: 'media_house', name: 'media_house' },
+            { data: 'rate_card_title', name: 'rate_card_title' },
             // {data: 'media_house_id', name: 'media_house_id'},
-            {data: 'created_at', name: 'created_at'},
-            {data: 'updated_at',adjust:true, name: 'updated_at'},
-            {data: 'action', name: 'action', orderable: false},
+            { data: 'created_at', name: 'created_at' },
+            { data: 'updated_at', adjust: true, name: 'updated_at' },
+            { data: 'action', name: 'action', orderable: false },
         ],
         order: [[0, 'desc']],
+        "processing": " <img src='/images/loading.gif' style='height: 20px; width: 20px;' />"
 
     });
 
 
-//hide datatable search box and label
+    //hide datatable search box and label
     $('input[type=search]').hide();
     $('#laravel_datatable_filter label').hide();
 
@@ -33,6 +34,6 @@ $(document).ready(function () {
         oTable.search($(this).val()).draw();
     });
 
-   //  $('#media_id').hide();
+    //  $('#media_id').hide();
 
 });
