@@ -94,7 +94,7 @@ class AdminController extends Controller
             $sendMessage->message($request->input('name'), $request->input('email'), $password, config('app.sms_username'), config('app.sms_password'), $request->input('phone'));
 
             SendAdminCredentialsJob::dispatch($admin, $password);
-            //  Notification::send($admin, new SendAdminCredentialsNotification($admin,$password));
+            Notification::send($admin, new SendAdminCredentialsNotification($admin, $password));
             return redirect()->back()->with('admin-created', 'Admin  successfully created');
         } else {
 
