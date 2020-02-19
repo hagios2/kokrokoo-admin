@@ -87,11 +87,11 @@
                                             <li><a href="{{route('transactions')}}">Transactions</a></li>
                                         </ul>
                                     </li>
-                                    <li><a><i class="fa fa-windows"></i> Audit Trail <span class="fa fa-chevron-down"></span></a>
+                                    {{-- <li><a><i class="fa fa-windows"></i> Audit Trail <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="{{route('audits')}}">Audit Trail</a></li>
                                         </ul>
-                                    </li>
+                                    </li> --}}
                                      <li><a><i class="fa fa-cog"></i> Settings <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="{{route('profile')}}">Profile</a></li>
@@ -102,7 +102,7 @@
 
                                 </ul>
                             </div>
-                            @auth()
+                            
                             @if(auth()->user()->role == 'Super_admin')
                             <div class="menu_section">
                                 <h3>Admin Management</h3>
@@ -113,15 +113,14 @@
                                             <li><a href="{{route('admin.index')}}">users</a></li>
                                         </ul>
                                     </li>
-{{--                                    <li><a><i class="fa fa-windows"></i> Audit Trail <span class="fa fa-chevron-down"></span></a>--}}
-{{--                                        <ul class="nav child_menu">--}}
-{{--                                            <li><a href="#">Audit Trail</a></li>--}}
-{{--                                        </ul>--}}
-{{--                                    </li>--}}
-                                </ul>
+                                     <li><a><i class="fa fa-windows"></i> Audit Trail <span class="fa fa-chevron-down"></span></a>
+                                        <ul class="nav child_menu">
+                                            <li><a href="{{route('audits')}}">Audit Trail</a></li>
+                                        </ul>
+                                    </li>
                             </div>
                                 @endif
-                                @endauth
+                                
 
                         </div>
                         <!-- /sidebar menu -->

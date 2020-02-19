@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
+use App\Classes\SendTextMessage;
+use SendTextMessage as GlobalSendTextMessage;
 
 class AdminController extends Controller
 {
@@ -21,13 +23,13 @@ class AdminController extends Controller
      */
     public function index()
     {
-        if(request()->ajax()) {
+        if (request()->ajax()) {
             $users  = User::all();
             return datatables()->of($users)
-                ->addColumn('action', function($row){
+                ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group btn-group-sm"> ';
-                    $btn =$btn.  '<button data-toggle="tooltip"   data-id="'.$row->admin_id.'" data-original-title="Edit" class="edit btn btn-success btn-sm unblock-admin" id="'.$row->status.'"><i class="fa fa-unlock"></i></button>';
-                    $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->admin_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-admin" id="'.$row->status.'"><i class="fa fa-lock"></i> </button>';
+                    $btn = $btn .  '<button data-toggle="tooltip"   data-id="' . $row->admin_id . '" data-original-title="Edit" class="edit btn btn-success btn-sm unblock-admin" id="' . $row->status . '"><i class="fa fa-unlock"></i></button>';
+                    $btn = $btn . ' <button data-toggle="tooltip"  data-id="' . $row->admin_id . '" data-original-title="Delete" class="btn btn-danger btn-sm block-admin" id="' . $row->status . '"><i class="fa fa-lock"></i> </button>';
                     $btn = $btn . '</div';
                     return $btn;
                 })
@@ -46,7 +48,6 @@ class AdminController extends Controller
     public function create()
     {
         return view('admin.create_users.create_admin');
-
     }
 
     /**
@@ -57,7 +58,14 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-      //  die($request->all());
+        $request->validate([
+            'name' => ['required'],
+            'title' => ['required'],
+            'phone' => ['required', 'unique:kokrokoo_admins'],
+            'email' => ['required', 'unique:kokrokoo_admins'],
+        ]);
+
+
 
         if (Auth::user()->status ==  'active'  && Auth::user()->role == 'Super_admin') {
             $unique_id = uniqid('K', true);
@@ -67,7 +75,7 @@ class AdminController extends Controller
 
             //generate password
             $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*_";
-             $password = substr( str_shuffle( $chars ), 0, 8 );
+            $password = substr(str_shuffle($chars), 0, 8);
             //$password =  '123456';
 
 
@@ -81,8 +89,12 @@ class AdminController extends Controller
                 'role' => $request->input('role'),
                 'password' => Hash::make($password),
             ]);
-             SendAdminCredentialsJob::dispatch($admin,$password);
-          //  Notification::send($admin, new SendAdminCredentialsNotification($admin,$password));
+            // send sms
+            $sendMessage = new SendTextMessage();
+            $sendMessage->message($request->input('name'), $request->input('email'), $password, config('app.sms_username'), config('app.sms_password'), $request->input('phone'));
+
+            SendAdminCredentialsJob::dispatch($admin, $password);
+            //  Notification::send($admin, new SendAdminCredentialsNotification($admin,$password));
             return redirect()->back()->with('admin-created', 'Admin  successfully created');
         } else {
 
