@@ -17,12 +17,12 @@ return [
     |
     */
     'credentials' => [
-        'key'    => env('AWS_ACCESS_KEY_ID', ''),
-        'secret' => env('AWS_SECRET_ACCESS_KEY', ''),
+        'key'    => env('SES_KEY', ''),
+        'secret' => env('SES_KEY_SECRET', ''),
     ],
-    'region' => env('AWS_REGION', 'us-east-1'),
-    'version' => 'latest',
-    'ua_append' => [
-        'L5MOD/' . AwsServiceProvider::VERSION,
-    ],
+    'region' => env('SES_REGION', 'us-east-1'),
+    // 'version' => 'latest',
+    // 'ua_append' => [
+    //     'L5MOD/' . AwsServiceProvider::VERSION,
+    // ],
 ];
