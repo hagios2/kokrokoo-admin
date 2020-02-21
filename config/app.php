@@ -162,8 +162,10 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Yajra\Datatables\DatatablesServiceProvider::class,
+        Yajra\DataTables\DataTablesServiceProvider::class,
         Reliese\Coders\CodersServiceProvider::class,
+        Aws\Laravel\AwsServiceProvider::class,
+
 
 
         /*

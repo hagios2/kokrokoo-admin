@@ -56511,6 +56511,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "rateCard",
@@ -56679,14 +56686,20 @@ var render = function() {
                       _c(
                         "strong",
                         {
-                          staticClass: "text-danger",
-                          staticStyle: { "padding-left": "10px" }
+                          staticStyle: {
+                            color: "#385192",
+                            "font-family": "OpenSans-Regular, serif",
+                            "font-size": "18px",
+                            "font-weight": "900",
+                            "line-height": "21px",
+                            "padding-left": "20px"
+                          }
                         },
                         [_vm._v(_vm._s(_vm.rate_card_title))]
                       ),
-                      _vm._v(" Rate Card\n                "),
+                      _vm._v(" "),
                       _c(
-                        "span",
+                        "small",
                         {
                           directives: [
                             {
@@ -56695,9 +56708,13 @@ var render = function() {
                               value: _vm.media != "Print",
                               expression: "media != 'Print'"
                             }
-                          ]
+                          ],
+                          staticStyle: {
+                            color: "#383658",
+                            "font-weight": "100"
+                          }
                         },
-                        [_vm._v("for " + _vm._s(_vm.day))]
+                        [_vm._v("(" + _vm._s(_vm.day) + ")")]
                       )
                     ])
                   ])

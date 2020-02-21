@@ -3,7 +3,7 @@
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h2>Create admin <small></small></h2>
+                <h4 class="page-header">Create admin <small></small></h4>
 
 
                 <div class="clearfix"></div>

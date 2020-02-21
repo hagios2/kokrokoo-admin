@@ -15,7 +15,9 @@
 
     <!-- Styles -->
     <link href="{{ asset('/css/app.css') }}" rel="stylesheet">
-    <link  href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+    {{-- <link  href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"> --}}
+     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+    {{-- <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet"> --}}
 </head>
 <body class="nav-md">
 
@@ -116,6 +118,11 @@
                                      <li><a><i class="fa fa-windows"></i> Audit Trail <span class="fa fa-chevron-down"></span></a>
                                         <ul class="nav child_menu">
                                             <li><a href="{{route('audits')}}">Audit Trail</a></li>
+                                        </ul>
+                                    </li>
+                                     <li><a><i class="fa fa-book"></i> Reports <span class="fa fa-chevron-down"></span></a>
+                                        <ul class="nav child_menu">
+                                            {{-- <li><a href="{{route('audits')}}">Audit Trail</a></li> --}}
                                         </ul>
                                     </li>
                             </div>
@@ -285,8 +292,9 @@
         @yield('scripts')
 
         <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        {{-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script> --}}
         <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 {{--        <script src="{{asset('/vendors/datatables.net-bs/js/dataTables.bootstrap.js')}}"></script>--}}
 {{--        <script src="{{asset('/vendors/datatables.net-buttons/js/dataTables.buttons.js')}}"></script>--}}
 {{--        <script src="{{asset('/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.js')}}"></script>--}}

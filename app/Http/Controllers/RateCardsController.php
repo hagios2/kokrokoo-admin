@@ -29,7 +29,7 @@ class RateCardsController extends Controller
                 ->addColumn('action', function ($row) {
 
                     $btn =  '<i  data-toggle="tooltip"   data-id="' . $row->rate_card_title_id . '"  data-media="' . $row->media . '"
-                    data-original-title="view" class="edit btn btn-primary fa fa-eye btn-sm view-sub viewRateCard"></i>';
+                    data-original-title="view" class="edit btn-primary fa fa-eye btn-sm view-sub viewRateCard"></i>';
                     return $btn;
                 })
                 ->rawColumns(['action'])

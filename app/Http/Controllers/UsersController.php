@@ -14,14 +14,14 @@ class UsersController extends Controller
      */
     public function index()
     {
-        if(request()->ajax()) {
+        if (request()->ajax()) {
             $users  = User::all();
             return datatables()->of($users)
-                ->addColumn('action', function($row){
+                ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group btn-group-sm"> ';
-                    $btn =$btn.  '<button data-toggle="tooltip"    data-id="'.$row->client_id.'" data-original-title="Edit" class="edit btn btn-success btn-sm accept-user" id="'.$row->isActive.'"><i class="fa fa-check"></i></button>';
-                    $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->client_id.'" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"  id="'.$row->isActive.'"><i class="fa fa-unlock"></i> </button>';
-                    $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->client_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"  id="'.$row->isActive.'"><i class="fa fa-lock"></i> </button>';
+                    $btn = $btn .  '<i data-toggle="tooltip"    data-id="' . $row->client_id . '" data-original-title="Edit" class="edit btn-success btn-sm accept-user fa fa-check" id="' . $row->isActive . '"></i>';
+                    $btn = $btn . ' <button data-toggle="tooltip"  data-id="' . $row->client_id . '" data-original-title="Delete" class="btn-primary btn-sm unblock-user fa fa-unlock"  id="' . $row->isActive . '"></i>';
+                    $btn = $btn . ' <button data-toggle="tooltip"  data-id="' . $row->client_id . '" data-original-title="Delete" class="btn-danger btn-sm block-user fa fa-lock"  id="' . $row->isActive . '"></i>';
                     $btn = $btn . '</div';
                     return $btn;
                 })
@@ -29,7 +29,7 @@ class UsersController extends Controller
                 ->addIndexColumn()
                 ->make(true);
         }
-       return  view('admin.users.users');
+        return  view('admin.users.users');
     }
 
     /**
@@ -37,18 +37,19 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function newUsers(){
+    public function newUsers()
+    {
 
-        if(request()->ajax()) {
-            $users  = User:: all('account_type')->where('account_type','=','personal')->get();
+        if (request()->ajax()) {
+            $users  = User::all('account_type')->where('account_type', '=', 'personal')->get();
             die($users);
 
             return datatables()->of($users)
-                ->addColumn('action', function($row){
+                ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group btn-group-sm"> ';
-                    $btn =$btn.  '<button data-toggle="tooltip"  data-id="'.$row->client_id.'" data-original-title="Edit" class="edit btn btn-success btn-sm accept-user" id="accept-users"><i class="fa fa-check"></i></button>';
-                    $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->client_id.'" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"><i class="fa fa-unlock"></i> </button>';
-                    $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->client_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
+                    $btn = $btn .  '<button data-toggle="tooltip"  data-id="' . $row->client_id . '" data-original-title="Edit" class="edit btn btn-success btn-sm accept-user" id="accept-users"><i class="fa fa-check"></i></button>';
+                    $btn = $btn . ' <button data-toggle="tooltip"  data-id="' . $row->client_id . '" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"><i class="fa fa-unlock"></i> </button>';
+                    $btn = $btn . ' <button data-toggle="tooltip"  data-id="' . $row->client_id . '" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
                     $btn = $btn . '</div';
                     return $btn;
                 })
@@ -65,7 +66,8 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function orgUsers(){
+    public function orgUsers()
+    {
         return view('admin.users.org_users');
     }
 
@@ -74,7 +76,8 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function personalUsers(){
+    public function personalUsers()
+    {
         return view('admin.users.personal_users');
     }
 
@@ -83,7 +86,8 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function mediaHouse(){
+    public function mediaHouse()
+    {
         return view('admin.users.media_house');
     }
 

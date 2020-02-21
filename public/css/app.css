@@ -600,6 +600,28 @@ div.DTS{display:block !important}div.DTS tbody th,div.DTS tbody td{white-space:n
 .error-text{
     font-size: 11px;
 }
+
+.page-header{
+   color:#385192;
+   font-family: OpenSans-Regular,
+    serif;font-size:18px;
+    font-weight:900;
+    line-height:21px;
+}
+
+.table-custome{
+   font-family:'Helvetica Neue', HelveticaNeue, Helvetica, Arial, sans-serif;
+   font-size:12px;
+   font-weight:200;
+   line-height:20.88px;
+   color:rgb(33, 37, 41);
+}
+.btn-group-xs > .btn, .btn-xs {
+  padding: .25rem .4rem;
+  font-size: .875rem;
+  line-height: .5;
+  border-radius: .2rem;
+}
 html , body{
 	
  height:100%;

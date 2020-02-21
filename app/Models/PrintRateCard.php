@@ -22,7 +22,7 @@ use Reliese\Database\Eloquent\Model as Eloquent;
  *
  * @package App\Models
  */
-class RateCard extends Eloquent
+class PrintRateCard extends Eloquent
 {
     protected $casts = [
         'rate_card_data' => 'json',

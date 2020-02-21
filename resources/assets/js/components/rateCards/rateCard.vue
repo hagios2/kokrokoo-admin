@@ -16,8 +16,11 @@
             <div class="col-lg-8">
               <div class="page-header-title">
                 <h4 class="animated fadeIn">
-                  <strong class="text-danger" style="padding-left:10px;">{{rate_card_title}}</strong> Rate Card
-                  <span v-show="media != 'Print'">for {{day}}</span>
+                  <strong
+                    class
+                    style="color:#385192;font-family: OpenSans-Regular, serif;font-size:18px;font-weight:900;line-height:21px;padding-left:20px"
+                  >{{rate_card_title}}</strong>
+                  <small v-show="media != 'Print'" style="color:#383658;font-weight:100">({{day}})</small>
                 </h4>
               </div>
             </div>
@@ -38,7 +41,11 @@
             <div class="col-md-5"></div>
           </div>
 
-         <view-print-rate-card v-show="media == 'Print'" :print_segments="print_segments" v-if="processing"></view-print-rate-card>
+          <view-print-rate-card
+            v-show="media == 'Print'"
+            :print_segments="print_segments"
+            v-if="processing"
+          ></view-print-rate-card>
           <div class v-show="media != 'Print'">
             <table class="table table-bordered">
               <thead>
