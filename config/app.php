@@ -164,7 +164,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
         Reliese\Coders\CodersServiceProvider::class,
-        Aws\Laravel\AwsServiceProvider::class,
+        //Aws\Laravel\AwsServiceProvider::class,
 
 
 

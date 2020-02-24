@@ -77,24 +77,25 @@ class AdminController extends Controller
             $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*_";
             $password = substr(str_shuffle($chars), 0, 8);
             //$password =  '123456';
+            $admin = User::find(5);
 
 
-            $admin =   User::create([
-                'admin_id' => $unique_id,
-                'name' => $request->input('name'),
-                'title' => $request->input('title'),
-                'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
-                'status' => 'active',
-                'role' => $request->input('role'),
-                'password' => Hash::make($password),
-            ]);
+            // $admin =   User::create([
+            //     'admin_id' => $unique_id,
+            //     'name' => $request->input('name'),
+            //     'title' => $request->input('title'),
+            //     'email' => $request->input('email'),
+            //     'phone' => $request->input('phone'),
+            //     'status' => 'active',
+            //     'role' => $request->input('role'),
+            //     'password' => Hash::make($password),
+            // ]);
             // send sms
             $sendMessage = new SendTextMessage();
             //$sendMessage->message($request->input('name'), $request->input('email'), $password, config('app.sms_username'), config('app.sms_password'), $request->input('phone'));
 
-            // SendAdminCredentialsJob::dispatch($admin, $password);
-            Notification::send($admin, new SendAdminCredentialsNotification($admin, $password));
+            SendAdminCredentialsJob::dispatch($admin, $password);
+            // Notification::send($admin, new SendAdminCredentialsNotification($admin, $password));
             return redirect()->back()->with('admin-created', 'Admin  successfully created');
         } else {
 
