@@ -45,7 +45,7 @@ class AcceptUserMailNotification extends Notification
             ->subject('User account activation')
             ->line($this->user->name)
             ->line('Your account is successfully activated.')
-            ->action('Kindly click this button to login', url('http://kokrokooad.com/login'))
+            ->action('Kindly click this button to login', url('http://kokrokooad.com/auth/login'))
             ->line('Thank you for using our application!');
     }
 
