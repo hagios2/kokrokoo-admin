@@ -11,6 +11,18 @@
 |
 */
 
+use App\Mail\OrderCreated;
+
+Route::get('/send-mail', function () {
+    Mail::to('jarthur@nalosolutions.com')->send(new OrderCreated());
+})->name('send.mail');
+
+Route::get('/send', function () {
+    return view('tests.mail-test');
+});
+
+
+
 Route::get('/', function () {
     return redirect('/admin/dashboard');
 })->middleware('auth')->name('welcome');
@@ -53,7 +65,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('download-sub/{id}', 'SubscriptionController@downloadFile')->name('download.sub');
     Route::get('/password-change', 'ChangePasswordController@index')->name('admin.change.password');
     Route::post('change-password', 'ChangePasswordController@store')->name('change.password');
-
 });
 
 Route::prefix('admin/auth')->group(function () {
