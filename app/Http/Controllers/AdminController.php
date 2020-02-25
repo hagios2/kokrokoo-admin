@@ -80,16 +80,16 @@ class AdminController extends Controller
             $admin = User::find(5);
 
 
-            // $admin =   User::create([
-            //     'admin_id' => $unique_id,
-            //     'name' => $request->input('name'),
-            //     'title' => $request->input('title'),
-            //     'email' => $request->input('email'),
-            //     'phone' => $request->input('phone'),
-            //     'status' => 'active',
-            //     'role' => $request->input('role'),
-            //     'password' => Hash::make($password),
-            // ]);
+            $admin =   User::create([
+                'admin_id' => $unique_id,
+                'name' => $request->input('name'),
+                'title' => $request->input('title'),
+                'email' => $request->input('email'),
+                'phone' => $request->input('phone'),
+                'status' => 'active',
+                'role' => $request->input('role'),
+                'password' => Hash::make($password),
+            ]);
             // send sms
             $sendMessage = new SendTextMessage();
             //$sendMessage->message($request->input('name'), $request->input('email'), $password, config('app.sms_username'), config('app.sms_password'), $request->input('phone'));
