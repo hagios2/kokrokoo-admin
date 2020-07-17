@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('title');
             $table->string('status');
             $table->string('role');
-            $table->timestamps('last_login');
+            $table->timestamp('last_login'); //set this to nullable
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
