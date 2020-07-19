@@ -18,11 +18,13 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('/', 'AdminProfileController@getAuthAdmin');
 
     Route::patch('/update-profile', 'AdminProfileController@update');
+
+    Route::post('/change-password', 'AdminProfileController@updatePassword');
     
 });
 
 
 Route::fallback(function(){
 
-    return response()->json(['message' => 'Route not found']);
+    return response()->json(['message' => 'Route not found'], 404);
 });
