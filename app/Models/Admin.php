@@ -3,10 +3,11 @@
 namespace App\Models;
 
 
-
+use Illuminate\Auth\Authenticatable as AuthenticableTrait;
 use SMartins\PassportMultiauth\HasMultiAuthApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
  
 
 class Admin extends Authenticatable
@@ -33,7 +34,7 @@ class Admin extends Authenticatable
 
 	public function findForPassport($username)
     {
-        $admin = $this->where([['email', $username], ['isActive', 'active']])->first();
+        $admin = $this->where([['email', $username], ['status', 'active']])->first();
 
         if($admin)
         {
