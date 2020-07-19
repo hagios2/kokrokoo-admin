@@ -19,7 +19,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
-       // \Barryvdh\Cors\HandleCors::class,
+        \Barryvdh\Cors\HandleCors::class,
     ];
 
     /**
@@ -60,7 +60,8 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'oauth.providers' => \SMartins\PassportMultiauth\Http\Middleware\AddCustomProvider::class,
-        'multiauth' => \SMartins\PassportMultiauth\Http\Middleware\MultiAuthenticate::class
+        'multiauth' => \SMartins\PassportMultiauth\Http\Middleware\MultiAuthenticate::class,
+        'append_auth' =>\App\Http\Middleware\AppendtoTokenResponse::class,
         
     ];
 }

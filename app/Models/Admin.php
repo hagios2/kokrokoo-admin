@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-
-use Illuminate\Auth\Authenticatable as AuthenticableTrait;
 use SMartins\PassportMultiauth\HasMultiAuthApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Model;
- 
+
 
 class Admin extends Authenticatable
 {

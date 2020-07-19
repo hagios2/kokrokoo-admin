@@ -28,9 +28,10 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Passport::routes();
-
-        // Middleware `oauth.providers` middleware defined on $routeMiddleware above
-        Route::group(['middleware' => 'oauth.providers'], function () {
+        
+        Passport::loadKeysFrom(storage_path('keys/'));
+        
+        Route::group(['middleware' => ['oauth.providers','append_auth']], function () {
             Passport::routes(function ($router) {
                 return $router->forAccessTokens();
             });
