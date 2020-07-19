@@ -3,25 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Http\Request;
 
 class AdminProfileController extends Controller
 {
-    public function update(Request $request)
+    
+    public function __construction()
     {
-        $admin=[
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'title'  => $request->input('title'),
-            'phone' => $request->input('phone')
-        ];
 
-        User::whereAdmin_id(Auth()->user()->admin_id)->update($admin);
-        $request->session()->flash('profile_edit', 'Admin profile successfully updated');
+        $this->middleware('auth:admin');
+    
+    }
+    
+    public function update(UpdateProfileRequest $request)
+    {
 
-        return  redirect()->back();
+        auth()->guard('admin')->user()->update($request->validated());
+
+        return response()->json(['status' => 'updated']);
 
     }
+
+
+    public function getAuthAdmin()
+    {
+
+       return auth()->guard('admin')->user();
+    }
+
 
     public function updatePassword(){
 

@@ -29,7 +29,6 @@ class AdminTableSeeder extends Seeder
 
             'password' => Hash::make('123456')
 
-
         ]);
     }
 }

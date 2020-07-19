@@ -13,6 +13,16 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/admin', function (Request $request) {
-    return $request->user();
+Route::group(['prefix' => 'admin'], function () {
+
+    Route::get('/', 'AdminProfileController@getAuthAdmin');
+
+    Route::patch('/update-profile', 'AdminProfileController@update');
+    
+});
+
+
+Route::fallback(function(){
+
+    return response()->json(['message' => 'Route not found']);
 });
