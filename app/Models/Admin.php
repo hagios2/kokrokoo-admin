@@ -14,22 +14,12 @@ class Admin extends Authenticatable
 
 	use Notifiable, HasMultiAuthApiTokens;
 
-
-	protected $casts = [
-		'status' => 'bool'
-	];
-
-	protected $dates = [
-		'last_login'
-	];
-
 	protected $hidden = [
 		'password',
 		'remember_token'
 	];
 
 	protected $fillable = [
-		'admin_id',
 		'name',
 		'email',
 		'phone',
@@ -37,22 +27,22 @@ class Admin extends Authenticatable
 		'title',
 		'last_login',
 		'password',
-		'logo',
 		'remember_token'
 	];
 
 
 	public function findForPassport($username)
     {
-        $user = $this->where([['email', $username], ['isActive', 'active']])->first();
+        $admin = $this->where([['email', $username], ['isActive', 'active']])->first();
 
-        if($user)
+        if($admin)
         {
-            $user->update(['last_login' => now()]);
+            $admin->update(['last_login' => now()]);
 
-            return $user;
+            return $admin;
         }
 
-        return $user;
+		return $admin;
+		
     }
 }

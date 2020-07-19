@@ -42,8 +42,9 @@ return [
         ],
 
         'admin' => [
-            'driver' => 'token',
+            'driver' => 'passport',
             'provider' => 'admins',
+            'hash' => false,
         ],
     ],
 
@@ -89,7 +90,7 @@ return [
 
     'passwords' => [
         'users' => [
-            'provider' => 'users',
+            'provider' => 'admins',
             'table' => 'password_resets',
             'expire' => 60,
         ],
