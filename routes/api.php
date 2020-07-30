@@ -20,8 +20,21 @@ Route::group(['prefix' => 'admin'], function () {
     Route::patch('/update-profile', 'AdminProfileController@update');
 
     Route::post('/change-password', 'AdminProfileController@updatePassword');
+
+    Route::get('fetch-new-registered-accounts', 'AdminAccountController@fetchNewAccounts');
+
+    Route::post('block/{client}/client-account', 'AdminAccountController@blockClientAccount');
+
+    Route::post('block/{user}/media-account', 'AdminAccountController@blockMediaAccount');
+
+    Route::post('unblock/{client}/client-account', 'AdminAccountController@unBlockClientAccount');
+
+    Route::post('unblock/{user}/media-account', 'AdminAccountController@unBlockMediaAccount');
     
 });
+
+
+
 
 
 Route::fallback(function(){
