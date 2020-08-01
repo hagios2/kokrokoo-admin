@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\AcceptUserEvent;
-use App\User;
-use App\Client;
+use App\Models\User;
+use App\Models\Client;
 use Illuminate\Http\Request;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\MediaAdminResource;
