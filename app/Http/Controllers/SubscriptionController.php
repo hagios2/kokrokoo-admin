@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\ScheduledAdResource;
+use App\Http\Resources\SubscriptionResource;
+
 
 class SubscriptionController extends Controller
 {
@@ -57,15 +59,9 @@ class SubscriptionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(ScheduledAd $scheduledAd)
     {
-//        $client  = ScheduledAd::select('file_name','file_path','file_type')->where('subscription_id','=',$id)->get();
-//        $file_name  = $client[0]->file_name;
-//        $ext = explode('.',$file_name);
-        $sub = ScheduledAd::select('subscription_id','file_name','file_path','file_size','file_type','status','client_id')->where('subscription_id',$id)->get();
-        return view('admin.subscriptions.viewSubDetails')->with('sub',$sub);
-
-      //  return view('admin.partials.view_sub_details')->with(['file_name'=>$file_name,'ext'=>$ext[1]]);
+        return SubscriptionResource::collection($scheduledAd->subscription);
     }
 
     public function download($id ,$m_id){
