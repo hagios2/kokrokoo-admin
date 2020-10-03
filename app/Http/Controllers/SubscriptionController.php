@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\ScheduledAdResource;
 
 class SubscriptionController extends Controller
 {
@@ -19,36 +20,10 @@ class SubscriptionController extends Controller
      */
     public function index()
     {
-        if(request()->ajax()) {
-            $schedAds  = DB::table('scheduled_ads')
-                ->join('users', 'scheduled_ads.media_house_id','=','users.client_id')
-                ->join('rate_card_titles', 'scheduled_ads.rate_card_id','=','rate_card_titles.rate_card_title_id')
-                ->select('scheduled_ads.*', 'users.media_house','users.id','users.client_id','users.name','rate_card_titles.rate_card_title_id','rate_card_titles.rate_card_title')
-                ->get();
+       $scheduledAd =  ScheduledAd::paginate(20);
 
-           //die($schedAds);
+        return new ScheduledAdResource($scheduledAd);
 
-            return datatables()->of($schedAds)
-                ->addColumn('action', function($row){
-//                    $btn = '<div class="btn-group btn-group-sm"> ';
-//                    $btn =$btn.  '<a href="/admin/subscriptions/'.$row->subscription_id.'" data-toggle="tooltip"     data-id="'.$row->subscription_id.'" data-original-title="view" class="edit btn btn-success btn-sm view-sub"><i class="fa fa-eye"></i></a>';
-//                    //$btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"><i class="fa fa-unlock"></i> </button>';
-//                   // $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
-//                    $btn = $btn . '</div';
-//                    return $btn;
-
-                    $btn = '<div class="btn-group btn-group-sm"> ';
-                    $btn =$btn.  '<a href="/admin/view-subscription/'.$row->subscription_id.'" data-toggle="tooltip" role="button"     data-id="'.$row->subscription_id.'" data-original-title="view" class="edit btn btn-success btn-sm "><i class="fa fa-eye"></i></a>';
-                    //$btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-primary btn-sm unblock-user"><i class="fa fa-unlock"></i> </button>';
-                    // $btn = $btn.' <button data-toggle="tooltip"  data-id="'.$row->subscription_id.'" data-original-title="Delete" class="btn btn-danger btn-sm block-user"><i class="fa fa-lock"></i> </button>';
-                    $btn = $btn . '</div';
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->addIndexColumn()
-                ->make(true);
-        }
-        return  view('admin.subscriptions.subscriptions');
     }
 
     /**

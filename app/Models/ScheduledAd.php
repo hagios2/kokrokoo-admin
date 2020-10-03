@@ -33,10 +33,7 @@ use Reliese\Database\Eloquent\Model as Eloquent;
  */
 class ScheduledAd extends Eloquent
 {
-	protected $casts = [
-		'created_ad_data' => 'json'
-	];
-
+	
 	protected $fillable = [
 		'subscription_id',
 		'client_id',
