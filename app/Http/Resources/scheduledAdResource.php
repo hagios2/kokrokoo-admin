@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class scheduledAdResource extends ResourceCollection
+class ScheduledAdResource extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
