@@ -35,7 +35,7 @@ Route::group(['prefix' => 'admin'], function () {
 
 Route::group(['prefix' => 'subscription'], function () {
 
-    Route::get('all-subscriptions', 'SubcriptionController@index');
+    Route::get('all-subscriptions', 'SubscriptionController@index');
 });
 
 
