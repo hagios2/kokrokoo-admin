@@ -13,4 +13,21 @@ class ScheduledAd extends Model
 {
 	
 	protected $guarded = ['id'];
+
+
+	public  function  client()
+    {
+        return  $this->belongsTo('App\Models\Client');
+	}
+	
+	// public function subscription()
+    // {
+    //     return $this->hasMany('App\Subscription');
+    // }
+
+    public function ratecardTitle()
+    {
+        return $this->belongsTo('App\Models\RateCardTitle', 'rate_card_title_id');
+    }
+
 }
