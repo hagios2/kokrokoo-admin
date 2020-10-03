@@ -15,9 +15,11 @@ use App\Http\Resources\SubscriptionResource;
 
 class SubscriptionController extends Controller
 {
-    public function __construct()
+    public function __construction()
     {
-        $this->middleware(['auth:admin']);
+
+        $this->middleware('auth:admin');
+    
     }
     /**
      * Display a listing of the resource.
