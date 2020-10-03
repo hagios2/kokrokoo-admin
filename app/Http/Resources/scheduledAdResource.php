@@ -20,7 +20,9 @@ class ScheduledAdResource extends ResourceCollection
 
                 'id' => $scheduledAd->id,
 
-                'client' => $scheduledAd->client->id,
+                'client_id' => $scheduledAd->client_id,
+
+                'company_id' => $scheduledAd->company_id,
 
                 'rate_Card_title_id' => $scheduledAd->rate_card_title_id,
 
