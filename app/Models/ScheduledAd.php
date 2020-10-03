@@ -9,7 +9,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ScheduledAd extends Eloquent
+class ScheduledAd extends Model
 {
 	
 	protected $guarded = ['id'];
