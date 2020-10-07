@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use App\Models\Admin;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,8 @@ class AdminTableSeeder extends Seeder
      */
     public function run()
     {
+        $role = Role::where('role', 'super_admin')->first();
+
         Admin::create([
 
             'name' => 'Nana Banyin Daniels',
@@ -25,7 +28,7 @@ class AdminTableSeeder extends Seeder
 
             'status' => 'active',
 
-            'role' => 'admin',
+            'role_id' => $role->id,
 
             'password' => Hash::make('123456')
 
