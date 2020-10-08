@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateAdmin;
 use App\Http\Resources\ActivatedClientResource;
+use App\Http\Resources\ClientDetailResource;
 use App\Jobs\SendAdminCredentialsJob;
 use App\Models\Client;
 use App\Models\Role;
 use App\Notifications\SendAdminCredentialsNotification;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -39,6 +40,12 @@ class AdminController extends Controller
         $client = User::where('isActive', 'active')->paginate(20);
 
         return new ActivatedClientResource($client);
+    }
+
+
+    public function viewClient(Client $client)
+    {
+        return new ClientDetailResource($client);
     }
 
     /**

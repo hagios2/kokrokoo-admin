@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\AcceptUserEvent;
 use App\Jobs\ClientActivationJob;
+use App\Jobs\MediaActivationJob;
 use App\Mail\ClientActivationMail;
 use App\Mail\MediaActivationMail;
 use App\Models\Role;
@@ -62,7 +63,7 @@ class AdminAccountController extends Controller
     {
         $user->update(['isActive' => 'active']);
 
-        MediaActivationJob::dispatch($user);
+        ///MediaActivationJob::dispatch($user);
 
         Mail::to($user)->send(new MediaActivationMail($user));
 
