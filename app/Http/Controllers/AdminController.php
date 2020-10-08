@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateAdmin;
+use App\Http\Resources\ActivatedClientResource;
 use App\Jobs\SendAdminCredentialsJob;
+use App\Models\Client;
+use App\Models\Role;
 use App\Notifications\SendAdminCredentialsNotification;
 use App\User;
 use Illuminate\Http\Request;
@@ -16,6 +19,20 @@ use SendTextMessage as GlobalSendTextMessage;
 
 class AdminController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('adminApiAuth');
+    }
+
+
+    public function activatedClient()
+    {
+        $client = Client::where('isActive', 'active')->get();
+
+        return ActivatedClientResource::collection($client);
+    }
+
     /**
      * Display a listing of the resource.
      *

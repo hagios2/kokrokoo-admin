@@ -63,6 +63,7 @@ class Kernel extends HttpKernel
         'multiauth' => \SMartins\PassportMultiauth\Http\Middleware\MultiAuthenticate::class,
         'append_auth' =>\App\Http\Middleware\AppendtoTokenResponse::class,
         'isSuperAdmin' => \App\Http\Middleware\SuperAdmin::class,
+        'adminApiAuth' => \App\Http\Middleware\ApiAuthenticate::class,
         
     ];
 }
