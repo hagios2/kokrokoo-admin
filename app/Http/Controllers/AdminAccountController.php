@@ -19,19 +19,30 @@ class AdminAccountController extends Controller
     }
 
 
-    public function fetchNewAccounts()
+    public function fetchNewClientAccounts()
     {
-
         #fetch new registered accounts to approve
 
         $role = Role::where('role', 'super_admin')->first();
 
         $client = Client::where([['role_id', $role->id], ['isActive', 'pending']])->get();
 
+        return ClientResource::collection($client);
+    }
+
+    public function fetchNewMediaAccounts()
+    {
+
+        #fetch new registered accounts to approve
+
+        $role = Role::where('role', 'super_admin')->first();
+
         $media_admin = User::where([['role_id', $role->id], ['isActive', 'pending']])->get();
 
-        return response()->json(['clients' => ClientResource::collection($client), 'media' => MediaAdminResource::collection($media_admin)]);
+        return MediaAdminResource::collection($media_admin);
     }
+
+
 
 
     public function blockClientAccount(Client $client)
