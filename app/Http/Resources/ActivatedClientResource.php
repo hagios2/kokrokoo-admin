@@ -19,13 +19,17 @@ class ActivatedClientResource extends ResourceCollection
 
             return [
 
+                'id' => $client->id,
+
                 'name' => $client->name,
 
                 'email' => $client->email,
 
-                'phone1' => $client->phone,
+                'phone1' => $client->phone1,
 
                 'industry' => $client->industry_type,
+
+                'isActive' => $client->isActive,
 
                 'company' => $client->company ?
 
@@ -40,7 +44,9 @@ class ActivatedClientResource extends ResourceCollection
                     'time' => Carbon::createFromFormat('Y-m-d H:i:s', $client->created_at)->format('H:i'),
 
                     'date' => Carbon::createFromFormat('Y-m-d H:i:s', $client->created_at)->format('Y-m-d')
-                ]
+                ],
+
+                'last_login' => $client->last_login
             ];
 
         });

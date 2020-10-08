@@ -35,6 +35,8 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::get('get-activated-client', 'AdminController@activatedClient');
 
+    Route::get('get-activated-media-admin', 'AdminController@activatedMedia');
+
     Route::post('activate-client/{client}/account', 'AdminAccountController@activateClient');
 
     Route::post('activate-user/{user}/account', 'AdminAccountController@activateMedia');

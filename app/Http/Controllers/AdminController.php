@@ -33,6 +33,14 @@ class AdminController extends Controller
         return new ActivatedClientResource($client);
     }
 
+
+    public function activatedMedia()
+    {
+        $client = User::where('isActive', 'active')->paginate(20);
+
+        return new ActivatedClientResource($client);
+    }
+
     /**
      * Display a listing of the resource.
      *
