@@ -12,13 +12,13 @@ use App\Http\Resources\MediaAdminResource;
 
 class AdminAccountController extends Controller
 {
-    
+
     public function __construct()
     {
         $this->middleware('auth:admin');
     }
 
-    
+
     public function fetchNewAccounts()
     {
 
