@@ -6,8 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
+    protected $guarded = ['id'];
+
+    public function user()
+    {
+        return $this->hasMany('App\User');
+    }
+
+    public function client()
+    {
+        return $this->hasMany('App\Client', 'user_id');
+    }
+
     public function mediaType()
     {
-        return $this->belongs('App\Models\MediaType');
+
+        return $this->belongsTo('App\Models\MediaType', 'media_type');
+    }
+
+    public function avatar()
+    {
+        return $this->hasOne('App\Models\Avatar');
     }
 }

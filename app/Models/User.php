@@ -15,5 +15,10 @@ class User extends Model
 		'remember_token'
 	];
 
-	protected $fillable = [];
+    protected  $guarded = ['id'];
+
+    public function company()
+    {
+        return $this->belongsTo('App\Models\Company');
+    }
 }

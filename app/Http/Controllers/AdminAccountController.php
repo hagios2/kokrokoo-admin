@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Events\AcceptUserEvent;
+use App\Jobs\ClientActivationJob;
+use App\Mail\ClientActivationMail;
+use App\Mail\MediaActivationMail;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\MediaAdminResource;
+use Illuminate\Support\Facades\Mail;
 
 class AdminAccountController extends Controller
 {
@@ -40,6 +44,36 @@ class AdminAccountController extends Controller
         $media_admin = User::where([['role_id', $role->id], ['isActive', 'pending']])->get();
 
         return MediaAdminResource::collection($media_admin);
+    }
+
+    public function activateClient(Client $client)
+    {
+        $client->update(['isActive' => 'active']);
+
+        //ClientActivationJob::dispatch($client);
+
+        if($client->company)
+        {
+            Mail::to($client->company->company_email)->send(new ClientActivationMail($client));
+        }else{
+
+            Mail::to($client)->send(new ClientActivationMail($client));
+        }
+
+
+        return response()->json(['status' => 'account activated']);
+    }
+
+
+    public function activateMedia(User $user)
+    {
+        $user->update(['isActive' => 'active']);
+
+        MediaActivationJob::dispatch($user);
+
+        Mail::to($user->company->company_email)->send(new MediaActivationMail($user));
+
+        return response()->json(['status' => 'account activated']);
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MediaAdminResource extends JsonResource
@@ -24,15 +25,14 @@ class MediaAdminResource extends JsonResource
 
             'phone1' => $this->phone,
 
-            'industry' => $this->industry_type,
+            'company' => [
 
-            'company' => $this->company ? 
-            
-            [ 
                 'id' => $this->company->id,
 
-                'name' => $this->company->company_name
-            ] : null,
+                'name' => $this->company->company_name,
+
+                'media_type' => $this->company->mediaType
+            ],
 
             'created_at' => [
 
