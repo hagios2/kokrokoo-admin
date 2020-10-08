@@ -28,9 +28,9 @@ class AdminController extends Controller
 
     public function activatedClient()
     {
-        $client = Client::where('isActive', 'active')->get();
+        $client = Client::where('isActive', 'active')->paginate(20);
 
-        return ActivatedClientResource::collection($client);
+        return new ActivatedClientResource($client);
     }
 
     /**

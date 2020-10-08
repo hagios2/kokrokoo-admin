@@ -3,9 +3,9 @@
 namespace App\Http\Resources;
 
 use Carbon\Carbon;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ActivatedClientResource extends JsonResource
+class ActivatedClientResource extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
@@ -15,30 +15,34 @@ class ActivatedClientResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        return  $this->collection->map(function($client) {
 
-            'name' => $this->name,
+            return [
 
-            'email' => $this->email,
+                'name' => $client->name,
 
-            'phone1' => $this->phone,
+                'email' => $client->email,
 
-            'industry' => $this->industry_type,
+                'phone1' => $client->phone,
 
-            'company' => $this->company ?
+                'industry' => $client->industry_type,
 
-                [
-                    'id' => $this->company->id,
+                'company' => $client->company ?
 
-                    'name' => $this->company->company_name
-                ] : null,
+                    [
+                        'id' => $client->company->id,
 
-            'created_at' => [
+                        'name' => $client->company->company_name
+                    ] : null,
 
-                'time' => Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at)->format('H:i'),
+                'created_at' => [
 
-                'date' => Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at)->format('Y-m-d')
-            ]
-        ];
+                    'time' => Carbon::createFromFormat('Y-m-d H:i:s', $client->created_at)->format('H:i'),
+
+                    'date' => Carbon::createFromFormat('Y-m-d H:i:s', $client->created_at)->format('Y-m-d')
+                ]
+            ];
+
+        });
     }
 }
