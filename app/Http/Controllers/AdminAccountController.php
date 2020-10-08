@@ -15,7 +15,7 @@ class AdminAccountController extends Controller
 
     public function __construct()
     {
-        $this->middleware('multiauth:admin');
+        $this->middleware('api:admin');
     }
 
 
