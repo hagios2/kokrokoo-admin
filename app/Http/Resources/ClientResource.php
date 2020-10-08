@@ -35,7 +35,7 @@ class ClientResource extends JsonResource
 
             'created_at' => [
 
-                'time' => Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at)->format('H:i:s'), 
+                'time' => Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at)->format('H:i'),
 
                 'date' => Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at)->format('Y-m-d')
             ]

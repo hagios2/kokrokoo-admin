@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\AcceptUserEvent;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Client;
 use Illuminate\Http\Request;
@@ -23,15 +24,28 @@ class AdminAccountController extends Controller
 
         #fetch new registered accounts to approve
 
-        $client = Client::where([['role', 'super_admin'], ['isActive', 'pending']])->get();
+        $role = Role::where('role', 'super_admin')->first();
 
-        $media_admin = User::where([['role', 'super_admin'], ['isActive', 'pending']])->get();
+        $client = Client::where([['role_id', $role->id], ['isActive', 'pending']])->get();
 
-        return response()->json(['clients' => ClientResource::collection($client), 'media' => MediaAdminResource::collection($media)]);
+        $media_admin = User::where([['role_id', $role->id], ['isActive', 'pending']])->get();
+
+        return response()->json(['clients' => ClientResource::collection($client), 'media' => MediaAdminResource::collection($media_admin)]);
     }
 
 
     public function blockClientAccount(Client $client)
+    {
+
+        $client->update(['isActive' => 'inactive']);
+
+        return response()->json(['status' => 'account deactivated']);
+
+    }
+
+
+
+    public function unBlockClientAccount(Client $client)
     {
 
         $client->update(['isActive' => 'active']);
@@ -41,22 +55,11 @@ class AdminAccountController extends Controller
     }
 
 
-
-    public function unBlockClientAccount(Client $client)
-    {
-
-        $client->update(['isActive' => 'inactive']);
-
-        return response()->json(['status' => 'account activated']);
-
-    }
-
-
     public function blockMediaAccount(User $user)
     {
-        $user->update(['isActive' => 'active']);
+        $user->update(['isActive' => 'inactive']);
 
-        return response()->json(['status' => 'account activated']);
+        return response()->json(['status' => 'account deactivated']);
     }
 
 
@@ -64,7 +67,7 @@ class AdminAccountController extends Controller
     public function unBlockMediaAccount(User $user)
     {
 
-        $user->update(['isActive' => 'inactive']);
+        $user->update(['isActive' => 'active']);
 
         return response()->json(['status' => 'account activated']);
     }
