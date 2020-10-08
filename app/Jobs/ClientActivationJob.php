@@ -34,14 +34,6 @@ class ClientActivationJob implements ShouldQueue
      */
     public function handle()
     {
-        if($this->client->company)
-        {
-            Mail::to($this->client->company->email)->queue(new ClientActivationMail($this->client));
-        }else{
-
-            Mail::to($this->client)->queue(new ClientActivationMail($this->client));
-        }
-
-
+        Mail::to($this->client)->queue(new ClientActivationMail($this->client));
     }
 }

@@ -3,7 +3,10 @@
 
 namespace App\Models;
 
-class MediaType extends Eloquent
+use Illuminate\Database\Eloquent\Model;
+
+
+class MediaType extends  Model
 {
 	protected $fillable = [
 		'mediaType'

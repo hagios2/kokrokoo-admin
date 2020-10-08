@@ -23,7 +23,7 @@ class ClientResource extends JsonResource
 
             'email' => $this->email,
 
-            'phone1' => $this->phone,
+            'phone1' => $this->phone1,
 
             'industry' => $this->industry_type,
 

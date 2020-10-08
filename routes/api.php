@@ -34,7 +34,12 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('unblock/{user}/media-account', 'AdminAccountController@unBlockMediaAccount');
 
     Route::get('get-activated-client', 'AdminController@activatedClient');
-    
+
+    Route::post('activate-client/{client}/aacount', 'AdminAccountController@activateClient');
+
+    Route::post('activate-user/{user}/aacount', 'AdminAccountController@activateMedia');
+
+
 });
 
 Route::group(['prefix' => 'subscription'], function () {

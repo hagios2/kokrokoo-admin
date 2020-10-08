@@ -50,16 +50,9 @@ class AdminAccountController extends Controller
     {
         $client->update(['isActive' => 'active']);
 
-        //ClientActivationJob::dispatch($client);
+        ClientActivationJob::dispatch($client);
 
-        if($client->company)
-        {
-            Mail::to($client->company->company_email)->send(new ClientActivationMail($client));
-        }else{
-
-            Mail::to($client)->send(new ClientActivationMail($client));
-        }
-
+        Mail::to($client)->send(new ClientActivationMail($client));
 
         return response()->json(['status' => 'account activated']);
     }
@@ -71,7 +64,7 @@ class AdminAccountController extends Controller
 
         MediaActivationJob::dispatch($user);
 
-        Mail::to($user->company->company_email)->send(new MediaActivationMail($user));
+        Mail::to($user)->send(new MediaActivationMail($user));
 
         return response()->json(['status' => 'account activated']);
     }
