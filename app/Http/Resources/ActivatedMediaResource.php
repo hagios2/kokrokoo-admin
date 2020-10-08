@@ -33,7 +33,9 @@ class ActivatedMediaResource extends JsonResource
 
                         'id' => $user->company->id,
 
-                        'name' => $user->company->company_name
+                        'name' => $user->company->company_name,
+
+                         'media_type' => $user->company->mediaType->mediaType,
                     ],
 
                 'created_at' => [

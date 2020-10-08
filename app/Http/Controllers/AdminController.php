@@ -48,6 +48,13 @@ class AdminController extends Controller
         return new ClientDetailResource($client);
     }
 
+
+
+    public function viewMedia(User $user)
+    {
+        return new ClientDetailResource($user);
+    }
+
     /**
      * Display a listing of the resource.
      *

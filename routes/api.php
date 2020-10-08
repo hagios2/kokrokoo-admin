@@ -41,6 +41,10 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::post('activate-user/{user}/account', 'AdminAccountController@activateMedia');
 
+    Route::get('client/{client}/view', 'AdminController@viewClient');
+
+    Route::get('user/{user}/view', 'AdminController@viewMedia');
+
 
 });
 
