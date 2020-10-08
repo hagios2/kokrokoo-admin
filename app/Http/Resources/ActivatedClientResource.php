@@ -15,7 +15,7 @@ class ActivatedClientResource extends ResourceCollection
      */
     public function toArray($request)
     {
-        return  $this->collection->map(function($client) {
+        return $this->collection->map(function($client) {
 
             return [
 
