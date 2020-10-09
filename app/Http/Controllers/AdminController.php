@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateAdmin;
 use App\Http\Resources\ActivatedClientResource;
+use App\Http\Resources\ActivatedMediaResource;
 use App\Http\Resources\ClientDetailResource;
 use App\Jobs\SendAdminCredentialsJob;
 use App\Models\Client;
@@ -39,7 +40,7 @@ class AdminController extends Controller
     {
         $client = User::where('isActive', 'active')->paginate(20);
 
-        return new ActivatedClientResource($client);
+        return new ActivatedMediaResource($client);
     }
 
 
