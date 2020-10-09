@@ -27,8 +27,6 @@ class ActivatedClientResource extends ResourceCollection
 
                 'phone1' => $client->phone1,
 
-                'industry' => $client->industry_type,
-
                 'isActive' => $client->isActive,
 
                 'company' => $client->company ?
