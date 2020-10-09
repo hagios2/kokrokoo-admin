@@ -3,9 +3,9 @@
 namespace App\Http\Resources;
 
 use Carbon\Carbon;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ActivatedMediaResource extends JsonResource
+class ActivatedMediaResource extends  ResourceCollection
 {
     /**
      * Transform the resource into an array.

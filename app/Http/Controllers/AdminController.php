@@ -30,7 +30,7 @@ class AdminController extends Controller
 
     public function activatedClient()
     {
-        $client = Client::where('isActive', 'active')->paginate(20);
+        $client = Client::where('isActive', '!=', 'pending')->paginate(20);
 
         return new ActivatedClientResource($client);
     }
@@ -38,7 +38,7 @@ class AdminController extends Controller
 
     public function activatedMedia()
     {
-        $client = User::where('isActive', 'active')->paginate(20);
+        $client = User::where('isActive', '!=', 'pending')->paginate(20);
 
         return new ActivatedMediaResource($client);
     }
