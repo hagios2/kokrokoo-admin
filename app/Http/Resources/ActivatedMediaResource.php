@@ -29,6 +29,7 @@ class ActivatedMediaResource extends JsonResource
 
                 'isActive' => $user->isActive,
 
+
                 'company' => [
 
                         'id' => $user->company->id,
