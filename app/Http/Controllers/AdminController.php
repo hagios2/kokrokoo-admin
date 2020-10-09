@@ -6,6 +6,7 @@ use App\Http\Requests\CreateAdmin;
 use App\Http\Resources\ActivatedClientResource;
 use App\Http\Resources\ActivatedMediaResource;
 use App\Http\Resources\ClientDetailResource;
+use App\Http\Resources\MediaDetailResource;
 use App\Jobs\SendAdminCredentialsJob;
 use App\Models\Client;
 use App\Models\Role;
@@ -53,7 +54,7 @@ class AdminController extends Controller
 
     public function viewMedia(User $user)
     {
-        return new ClientDetailResource($user);
+        return new MediaDetailResource($user);
     }
 
     /**
