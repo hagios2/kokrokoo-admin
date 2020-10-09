@@ -34,7 +34,7 @@ class ClientDetailResource extends JsonResource
 
                     'role' => $this->role,
 
-                    'isActive' => $this->isAcitve,
+                    'isActive' => $this->isActive,
 
                     'last_login' => $this->last_login
                 ],
@@ -61,7 +61,7 @@ class ClientDetailResource extends JsonResource
 
                     'role' => $this->role,
 
-                    'isActive' => $this->isAcitve,
+                    'isActive' => $this->isActive,
 
                     'last_login' => $this->last_login
 
