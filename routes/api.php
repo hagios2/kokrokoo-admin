@@ -48,6 +48,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('set/registration/amount', 'PaymentController@setAmount');
 
 
+
 });
 
 Route::group(['prefix' => 'subscription'], function () {
