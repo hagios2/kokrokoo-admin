@@ -45,6 +45,8 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::get('user/{user}/view', 'AdminController@viewMedia');
 
+    Route::post('set/registration/amount', 'PaymentController@setAmount');
+
 
 });
 
