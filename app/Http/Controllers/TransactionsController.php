@@ -16,7 +16,6 @@ class TransactionsController extends Controller
     }
 
 
-
     public function view()
     {
         return TransactionResource::collection(Transaction::all());

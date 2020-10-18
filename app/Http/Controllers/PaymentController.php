@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\VolumeDiscountRequest;
+use App\Http\Resources\VolumeDiscountResource;
 use App\Models\RegistrationPaymentAmount;
+use App\Models\VolumeDiscount;
+use App\VolumnDiscount;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -33,5 +37,21 @@ class PaymentController extends Controller
         }
 
     }
+
+
+    public function volumeDiscount()
+    {
+        return VolumeDiscountResource::collection(VolumeDiscount::all());
+    }
+
+
+    public function createVolumeDiscount(VolumeDiscountRequest $request)
+    {
+        VolumeDiscount::create($request->validated());
+
+
+        return response()->json(['status' => 'success']);
+    }
+
 
 }
