@@ -20,7 +20,7 @@ class AdminTableSeeder extends Seeder
 
             'name' => 'Nana Banyin Daniels',
 
-            'email' => 'nab.daniels@gmail.com',
+            'email' => 'nab.daniels2@gmail.com',
 
             'phone' => '0206535897',
 
