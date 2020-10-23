@@ -25,6 +25,8 @@ class MediaAdminResource extends JsonResource
 
             'phone1' => $this->phone1,
 
+            'isActive' => $this->isActive,
+
             'company' => [
 
                 'id' => $this->company->id,
