@@ -21,6 +21,8 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::post('/change-password', 'AdminProfileController@updatePassword');
 
+    Route::post('/logout', 'LogoutController@logout');
+
     Route::get('fetch-new-registered-media-accounts', 'AdminAccountController@fetchNewMediaAccounts');
 
     Route::get('fetch-new-registered-client-accounts', 'AdminAccountController@fetchNewClientAccounts');
