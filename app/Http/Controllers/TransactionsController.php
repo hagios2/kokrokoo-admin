@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Audit;
 use App\Http\Resources\TransactionResource;
+use App\Http\Resources\VolumeDiscountResource;
+use App\Models\Company;
 use App\Models\ScheduledAd;
 use App\Models\Transaction;
+use App\VolumeDiscount;
 use Illuminate\Http\Request;
 
 class TransactionsController extends Controller
@@ -20,6 +23,29 @@ class TransactionsController extends Controller
     {
         return TransactionResource::collection(Transaction::all());
     }
+
+    public function viewVolumeDiscount()
+    {
+        $company = auth()->guard('api')->id();
+
+        return VolumeDiscountResource::collection(VolumeDiscount::all());
+    }
+
+    public function addVolumeDiscount(Request $request, Company $company)
+    {
+        $discount =  $request->validate([
+            'amount_range' => 'required',
+            'discount_percentile' => 'required',
+        ]);
+
+        $discount['media_company_id'] = $company->id;
+
+        VolumeDiscount::create($discount);
+
+        return response()->json(['status' => 'success']);
+
+    }
+
 
 
 }
