@@ -25,7 +25,7 @@ class VolumeDiscountRequest extends FormRequest
     {
         return [
             'media_company_id' => 'required|integer',
-            'percentile' => 'required|numeric',
+            'discount_percentile' => 'required|numeric',
             'amount_range' => 'required'
         ];
     }
