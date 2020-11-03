@@ -53,8 +53,9 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::post('set/registration/amount', 'PaymentController@setAmount');
 
-    Route::post('set/company/volume-discount', 'PaymentController@volumeDiscount');
+    Route::get('set/company/volume-discount', 'PaymentController@volumeDiscount');
 
+    Route::post('set/company/volume-discount', 'PaymentController@createVolumeDiscount');
 
 });
 
