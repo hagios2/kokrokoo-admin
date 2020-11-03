@@ -10,7 +10,7 @@ class ResourceController extends Controller
 {
     public function mediaHouse(MediaType $mediaType)
     {
-        $company = Company::query()->where('mediaType', $mediaType->id)->get();
+        $company = Company::query()->where('media_type', $mediaType->id)->get();
 
         return $company;
     }
