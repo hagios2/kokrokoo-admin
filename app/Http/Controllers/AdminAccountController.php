@@ -6,7 +6,9 @@ use App\Events\AcceptUserEvent;
 use App\Jobs\ClientActivationJob;
 use App\Jobs\MediaActivationJob;
 use App\Mail\ClientActivationMail;
+use App\Mail\ClientRejectionMail;
 use App\Mail\MediaActivationMail;
+use App\Mail\MediaRejectionMail;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Client;
@@ -72,6 +74,12 @@ class AdminAccountController extends Controller
             $client->company->delete();
         }
 
+        $msg = "Hello {$client->name}, We are sorry your registration to Kokrokoo has been rejected. Kindly contact support@kokrokooad.com for further clarifications.";
+
+        $this->sendSms($client->name, $client->phone1, $msg);
+
+        Mail::to($client)->send(new ClientRejectionMail($client));
+
         $client->delete();
 
         return response()->json(['message' => 'client deleted']);
@@ -114,10 +122,14 @@ class AdminAccountController extends Controller
 
         }
 
+
+        $msg = "Hello {$user->name}, We are sorry your registration to Kokrokoo has been rejected. Kindly contact support@kokrokooad.com for further clarifications.";
+
+        $this->sendSms($user->name, $user->phone1, $msg);
+
+        Mail::to($user)->send(new MediaRejectionMail($user));
+
         $user->delete();
-
-        //Mail::to($user)->send(new );
-
 
         return response()->json(['message' => 'client deleted']);
     }
