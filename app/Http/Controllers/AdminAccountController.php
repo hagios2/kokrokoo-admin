@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\MediaAdminResource;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class AdminAccountController extends Controller
 {
@@ -58,6 +59,24 @@ class AdminAccountController extends Controller
         return response()->json(['status' => 'account activated']);
     }
 
+    public function rejectClient(client $client)
+    {
+        if($client->role->role == 'super_admin' && $client->company)
+        {
+            $avatar = $client->company->avatar;
+
+            $path = '/var/www/html/uploads/';
+
+            Storage::disk('local')->delete($path.$avatar->logo);
+
+            $client->company->delete();
+        }
+
+        $client->delete();
+
+        return response()->json(['message' => 'client deleted']);
+    }
+
 
     public function activateMedia(User $user)
     {
@@ -68,6 +87,39 @@ class AdminAccountController extends Controller
         Mail::to($user)->send(new MediaActivationMail($user));
 
         return response()->json(['status' => 'account activated']);
+    }
+
+    public function rejectMedia(User $user)
+    {
+        if($user->role->role == 'super_admin')
+        {
+            $company = $user->company;
+
+            $avatar = $company->avatar;
+
+            $path = '/var/www/html/uploads/';
+
+            Storage::disk('local')->delete($path.$avatar->logo);
+
+            $avatar->delete();
+
+            Storage::disk('local')->delete($path.$company->business_cert);
+
+            if($company)
+            {
+                Storage::disk('local')->delete($path.$company->operation_cert);
+            }
+
+            $company->delete();
+
+        }
+
+        $user->delete();
+
+        //Mail::to($user)->send(new );
+
+
+        return response()->json(['message' => 'client deleted']);
     }
 
 

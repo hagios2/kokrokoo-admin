@@ -29,9 +29,13 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::post('block/{client}/client-account', 'AdminAccountController@blockClientAccount');
 
+    Route::post('reject/{client}/client-account', 'AdminAccountController@blockClientAccount');
+
     Route::post('block/{user}/media-account', 'AdminAccountController@blockMediaAccount');
 
     Route::post('unblock/{client}/client-account', 'AdminAccountController@unBlockClientAccount');
+
+    Route::post('reject/{user}/media-account', 'AdminAccountController@unBlockMediaAccount');
 
     Route::post('unblock/{user}/media-account', 'AdminAccountController@unBlockMediaAccount');
 
@@ -53,6 +57,8 @@ Route::group(['prefix' => 'admin'], function () {
 
 
 });
+
+Route::get('get/{mediaType}/media-house', 'ResourceController@mediaHouse');
 
 Route::group(['prefix' => 'subscription'], function () {
 
