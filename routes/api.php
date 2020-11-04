@@ -57,6 +57,10 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::post('set/company/volume-discount', 'PaymentController@createVolumeDiscount');
 
+    Route::patch('edit/company/{volumeDiscount}/volume-discount', 'PaymentController@updateVolumeDiscount');
+
+    Route::delete('delete/company/{volumeDiscount}/volume-discount', 'PaymentController@deleteVolumeDiscount');
+
 });
 
 Route::get('get/{mediaType}/media-house', 'ResourceController@mediaHouse');

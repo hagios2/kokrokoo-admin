@@ -23,10 +23,20 @@ class VolumeDiscountRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'media_company_id' => 'required|integer',
-            'discount_percentile' => 'required|numeric',
-            'amount_range' => 'required'
-        ];
+        if(request()->method() == 'PATCH')
+        {
+            return [
+//                'media_company_id' => 'required|integer',
+                'discount_percentile' => 'required|numeric',
+                'amount_range' => 'required'
+            ];
+        }else{
+            return [
+                'media_company_id' => 'required|integer',
+                'discount_percentile' => 'required|numeric',
+                'amount_range' => 'required'
+            ];
+        }
+
     }
 }

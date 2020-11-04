@@ -55,5 +55,18 @@ class PaymentController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    public function updateVolumeDiscount(VolumeDiscount $volumeDiscount, VolumeDiscountRequest $request)
+    {
+        $volumeDiscount->update($request->validated());
+
+        return response()->json(['status' => 'updated succussfully']);
+    }
+
+    public function deleteVolumeDiscount(VolumeDiscount $volumeDiscount)
+    {
+        $volumeDiscount->delete();
+
+        return response()->json(['status' => 'deleted']);
+    }
 
 }
