@@ -16,6 +16,7 @@ class VolumeDiscountResource extends JsonResource
     {
         return [
 
+            'id' => $this->id,
             'amount_range' => $this->amount_range,
             'media_house' => $this->company->media_house,
             'discount_percentile' => $this->discount_percentile
