@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VolumeDiscountRequest;
 use App\Http\Resources\VolumeDiscountResource;
+use App\Models\Company;
 use App\Models\RegistrationPaymentAmount;
 use App\Models\VolumeDiscount;
 use App\VolumnDiscount;
@@ -38,10 +39,11 @@ class PaymentController extends Controller
 
     }
 
-
-    public function volumeDiscount()
+    public function volumeDiscount(Company $company)
     {
-        return VolumeDiscountResource::collection(VolumeDiscount::all());
+        $volume = VolumeDiscount::query()->where('media_company_id', $company->id)->get();
+
+        return VolumeDiscountResource::collection($volume);
     }
 
 

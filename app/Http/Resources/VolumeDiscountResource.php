@@ -18,7 +18,7 @@ class VolumeDiscountResource extends JsonResource
 
             'amount_range' => $this->amount_range,
             'media_house' => $this->company->media_house,
-            'percentile' => $this->percentile
+            'discount_percentile' => $this->discount_percentile
         ];
     }
 }
