@@ -61,6 +61,8 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::delete('delete/company/{volumeDiscount}/volume-discount', 'PaymentController@deleteVolumeDiscount');
 
+    //Route::get();
+
 });
 
 Route::get('get/{mediaType}/media-house', 'ResourceController@mediaHouse');

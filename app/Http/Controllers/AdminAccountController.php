@@ -12,6 +12,7 @@ use App\Mail\MediaRejectionMail;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Client;
+use App\Services\SendTextMessage;
 use Illuminate\Http\Request;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\MediaAdminResource;
@@ -73,6 +74,7 @@ class AdminAccountController extends Controller
 
             $client->company->delete();
         }
+        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
         $msg = "Hello {$client->name}, We are sorry your registration to Kokrokoo has been rejected. Kindly contact support@kokrokooad.com for further clarifications.";
 
@@ -121,7 +123,7 @@ class AdminAccountController extends Controller
             $company->delete();
 
         }
-
+        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
         $msg = "Hello {$user->name}, We are sorry your registration to Kokrokoo has been rejected. Kindly contact support@kokrokooad.com for further clarifications.";
 
