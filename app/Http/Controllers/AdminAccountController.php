@@ -55,7 +55,13 @@ class AdminAccountController extends Controller
     {
         $client->update(['isActive' => 'active']);
 
-        ClientActivationJob::dispatch($client);
+       // ClientActivationJob::dispatch($client);
+
+        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
+
+        $msg = "Hello {$client->name}, Congratulation on your successful registration to Kokrokoo. You may proceed to access your account!";
+
+        $sendMsg->sendSms($client->name, $client->phone1, $msg);
 
         Mail::to($client)->send(new ClientActivationMail($client));
 
@@ -78,7 +84,7 @@ class AdminAccountController extends Controller
 
         $msg = "Hello {$client->name}, We are sorry your registration to Kokrokoo has been rejected. Kindly contact support@kokrokooad.com for further clarifications.";
 
-        $this->sendSms($client->name, $client->phone1, $msg);
+        $sendMsg->sendSms($client->name, $client->phone1, $msg);
 
         Mail::to($client)->send(new ClientRejectionMail($client));
 
@@ -93,6 +99,13 @@ class AdminAccountController extends Controller
         $user->update(['isActive' => 'active']);
 
         ///MediaActivationJob::dispatch($user);
+
+        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
+
+        $msg = "Hello {$user->name}, Congratulation on your successful registration to Kokrokoo. You may proceed to access your account!";
+
+        $sendMsg->sendSms($user->name, $user->phone1, $msg);
+
 
         Mail::to($user)->send(new MediaActivationMail($user));
 
