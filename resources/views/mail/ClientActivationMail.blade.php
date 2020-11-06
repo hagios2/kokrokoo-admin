@@ -1,5 +1,5 @@
 @component('mail::message')
-# Hello {{$client->company ? $client->company->cmpany_name : $client->name}},
+# Hello {{$client->name}},
 
 <section>
     <article style="font-size:8px !important;">
