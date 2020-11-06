@@ -140,7 +140,7 @@ class AdminAccountController extends Controller
 
         $msg = "Hello {$user->name}, We are sorry your registration to Kokrokoo has been rejected. Kindly contact support@kokrokooad.com for further clarifications.";
 
-        $this->sendSms($user->name, $user->phone1, $msg);
+        $sendMsg->sendSms($user->name, $user->phone1, $msg);
 
         Mail::to($user)->send(new MediaRejectionMail($user));
 
