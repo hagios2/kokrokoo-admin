@@ -137,8 +137,6 @@ class AdminAccountController extends Controller
     }
 
 
-
-
     public function blockClientAccount(Client $client)
     {
 

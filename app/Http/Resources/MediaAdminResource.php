@@ -33,7 +33,7 @@ class MediaAdminResource extends JsonResource
 
                 'name' => $this->company->company_name,
 
-                'media_type' => $this->company->mediaType->mediaType
+                'media_type' => $this->company->mediaType->media_type
             ],
 
             'created_at' => [
