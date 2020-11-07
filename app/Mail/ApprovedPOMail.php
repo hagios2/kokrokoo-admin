@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -10,15 +11,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class ApprovedPOMail extends Mailable
 {
     use Queueable, SerializesModels;
+    public $company;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Company $company)
     {
-        //
+        $this->company = $company;
     }
 
     /**
@@ -28,6 +30,7 @@ class ApprovedPOMail extends Mailable
      */
     public function build()
     {
-        return $this->markdown('mail.ApprovedPOMail');
+        return $this->markdown('mail.ApprovedPOMail')
+            ->subject('Purchase Order Rejected');
     }
 }
