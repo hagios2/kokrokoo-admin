@@ -9,6 +9,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static where(string $string, $id)
+ */
 class ScheduledAd extends Model
 {
 	
@@ -19,6 +22,11 @@ class ScheduledAd extends Model
     {
         return  $this->belongsTo('App\Models\Client');
 	}
+
+    public  function cart()
+    {
+        return  $this->belongsTo('App\Models\Cart');
+    }
 	
 	// public function subscription()
     // {

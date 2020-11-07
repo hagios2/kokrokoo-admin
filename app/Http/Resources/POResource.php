@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Cart;
+use App\Models\ScheduledAd;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
@@ -26,11 +28,10 @@ class POResource extends ResourceCollection
 
                 'status' => $po->status,
 
-                'created_at' => Carbon::parse($po->create)->format('F dS Y')
+                'created_at' => Carbon::parse($po->create_at)->format('F dS Y')
 
             ];
 
         });
-
     }
 }

@@ -78,6 +78,8 @@ Route::get('get/{mediaType}/media-house', 'ResourceController@mediaHouse');
 Route::group(['prefix' => 'subscription'], function () {
 
     Route::get('all-subscriptions', 'SubscriptionController@index');
+
+    Route::get('{cart}/transaction', 'PaymentController@fetchInvoice');
 });
 
 

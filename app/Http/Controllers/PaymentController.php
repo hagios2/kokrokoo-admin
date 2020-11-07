@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VolumeDiscountRequest;
 use App\Http\Resources\POResource;
+use App\Http\Resources\SubscriptionTransactionResource;
 use App\Http\Resources\VolumeDiscountResource;
 use App\Mail\RejectedPOMail;
+use App\Models\Cart;
 use App\Models\Company;
 use App\Models\POPayment;
 use App\Models\RegistrationPaymentAmount;
+use App\Models\ScheduledAd;
 use App\Models\VolumeDiscount;
 use App\VolumnDiscount;
 use Illuminate\Http\Request;
@@ -119,6 +122,13 @@ class PaymentController extends Controller
 
         return response()->json(['message' => 'rejected']);
 
+    }
+
+    public function fetchInvoice(Cart $cart)
+    {
+       $scheduledAds = ScheduledAd::where('cart_id', $cart->id)->latest()->paginate(15);//0244663165
+
+        return new SubscriptionTransactionResource($scheduledAds);
     }
 
 }
