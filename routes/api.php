@@ -61,7 +61,15 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::delete('delete/company/{volumeDiscount}/volume-discount', 'PaymentController@deleteVolumeDiscount');
 
-    //Route::get();
+    Route::get('fetch/pending/pos', 'PaymentController@viewPendingPO');
+
+    Route::get('fetch/approved/pos', 'PaymentController@viewApprovedPO');
+
+    Route::get('fetch/rejected/pos', 'PaymentController@viewRejectPO');
+
+    Route::post('approve/{po}/pos', 'PaymentController@approvePO');
+
+    Route::post('reject/{po}/pos', 'PaymentController@rejectPO');
 
 });
 

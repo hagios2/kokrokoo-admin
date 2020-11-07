@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VolumeDiscountRequest;
+use App\Http\Resources\POResource;
 use App\Http\Resources\VolumeDiscountResource;
+use App\Mail\RejectedPOMail;
 use App\Models\Company;
+use App\Models\POPayment;
 use App\Models\RegistrationPaymentAmount;
 use App\Models\VolumeDiscount;
 use App\VolumnDiscount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -69,4 +73,53 @@ class PaymentController extends Controller
         return response()->json(['status' => 'deleted']);
     }
 
+    public function downloadPO()
+    {
+        return response()->download();
+    }
+
+
+    public function viewPendingPO()
+    {
+        return $this->fetchPO('pending');
+    }
+
+
+    public function viewApprovedPO()
+    {
+        return $this->fetchPO('approved');
+    }
+
+    public function viewRejectPO()
+    {
+        return $this->fetchPO('rejected');
+    }
+
+    public function fetchPO($status)
+    {
+        $po = POPayment::query()->where('status', $status)->latest()->get();
+
+        return POResource::collection($po);
+    }
+
+    public function approvePO(POPayment $po)
+    {
+        $po->update(['status' => 'approved']);
+
+        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company->company_name));
+
+        return response()->json(['message' => 'approved']);
+    }
+
+    public function rejectPO(POPayment $po)
+    {
+        $po->update(['status' => 'rejected']);
+
+        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company->company_name));
+
+        return response()->json(['message' => 'rejected']);
+
+    }
+
 }
+#
