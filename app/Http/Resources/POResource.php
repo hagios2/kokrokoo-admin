@@ -3,9 +3,9 @@
 namespace App\Http\Resources;
 
 use Carbon\Carbon;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class POResource extends JsonResource
+class POResource extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
@@ -15,15 +15,20 @@ class POResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id' => $this->id,
+        return $this->collection->map(function ($po){
 
-            'file_path' => $this->file_path,
+            return [
+                'id' => $po->id,
 
-            'company' => $this->company,
+                'file_path' => $po->file_path,
 
-            'created_at' => Carbon::parse($this->create)->format('F dS Y')
+                'company' => $po->company,
 
-        ];
+                'created_at' => Carbon::parse($po->create)->format('F dS Y')
+
+            ];
+
+        });
+
     }
 }

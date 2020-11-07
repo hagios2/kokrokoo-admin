@@ -99,7 +99,7 @@ class PaymentController extends Controller
     {
         $po = POPayment::query()->where('status', $status)->latest()->get();
 
-        return POResource::collection($po);
+        return new POResource($po);
     }
 
     public function approvePO(POPayment $po)
