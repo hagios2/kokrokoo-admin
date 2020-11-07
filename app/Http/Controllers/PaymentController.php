@@ -97,7 +97,7 @@ class PaymentController extends Controller
 
     public function fetchPO($status)
     {
-        $po = POPayment::query()->where('status', $status)->latest()->get();
+        $po = POPayment::query()->where('status', $status)->latest()->paginate(15);
 
         return new POResource($po);
     }
