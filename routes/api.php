@@ -67,9 +67,9 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::get('fetch/rejected/pos', 'PaymentController@viewRejectPO');
 
-    Route::post('approve/{po}/pos', 'PaymentController@approvePO');
+    Route::post('approve/{po}/po', 'PaymentController@approvePO');
 
-    Route::post('reject/{po}/pos', 'PaymentController@rejectPO');
+    Route::post('reject/{po}/po', 'PaymentController@rejectPO');
 
 });
 
