@@ -14,4 +14,9 @@ class RateCardTitle extends Model
     {
         return $this->belongsTo(Company::class);
     }
+
+    public function subscription()
+    {
+        return $this->hasMany('App\Models\Subscription');
+    }
 }
