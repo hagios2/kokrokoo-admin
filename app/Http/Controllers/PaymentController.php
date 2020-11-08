@@ -126,7 +126,7 @@ class PaymentController extends Controller
 
     public function fetchInvoice(Cart $cart)
     {
-       $scheduledAds = ScheduledAd::where('cart_id', $cart->id)->latest()->paginate(15);//0244663165
+       $scheduledAds = ScheduledAd::where('cart_id', $cart->id)->latest()->paginate(15);
 
         return new SubscriptionTransactionResource($scheduledAds);
     }

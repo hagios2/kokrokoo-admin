@@ -26,6 +26,8 @@ class POResource extends ResourceCollection
 
                 'company' => $po->company,
 
+                'cart_id' => $po->cart_id,
+
                 'status' => $po->status,
 
                 'created_at' => Carbon::parse($po->create_at)->format('F dS Y')
