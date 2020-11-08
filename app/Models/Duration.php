@@ -8,7 +8,7 @@ class Duration extends Model
 {
     public function unit()
     {
-        return $this->belongsTo('App\Unit', 'unit_id');
+        return $this->belongsTo('App\Models\Unit', 'unit_id');
     }
 
 }

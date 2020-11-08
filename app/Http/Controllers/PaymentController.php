@@ -110,6 +110,8 @@ class PaymentController extends Controller
     {
         $po->update(['status' => 'approved']);
 
+        $po->cart->update(['payment_Status' => 'paid']);
+
         Mail::to($po->company->company_email)->send(new  ApprovedPOMail($po->company));
 
         return response()->json(['message' => 'approved']);

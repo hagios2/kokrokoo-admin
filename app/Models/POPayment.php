@@ -13,4 +13,9 @@ class POPayment extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function cart()
+    {
+        return $this->belongsTo(Cart::class);
+    }
+
 }

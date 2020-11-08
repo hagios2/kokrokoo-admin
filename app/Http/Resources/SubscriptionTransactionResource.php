@@ -102,8 +102,7 @@ class SubscriptionTransactionResource extends ResourceCollection
 
             }
 
-            $subscription_payable_amount_list->push($total_amount_with_rollover
-            );
+            $subscription_payable_amount_list->push($total_amount_with_rollover);
 
         });
 
