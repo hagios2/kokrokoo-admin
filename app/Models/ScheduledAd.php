@@ -28,10 +28,10 @@ class ScheduledAd extends Model
         return  $this->belongsTo('App\Models\Cart');
     }
 	
-	// public function subscription()
-    // {
-    //     return $this->hasMany('App\Subscription');
-    // }
+	 public function subscription()
+     {
+         return $this->hasMany('App\Models\Subscription');
+     }
 
     public function ratecardTitle()
     {
