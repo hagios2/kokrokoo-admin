@@ -2,13 +2,13 @@
 
 namespace App\Http\Resources;
 
-use App\Ad;
+use App\Models\Ad;
 use App\Models\ScheduledAd;
 
 use Carbon\Carbon;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class SubscriptionTransactionResource extends JsonResource
+class SubscriptionTransactionResource extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
