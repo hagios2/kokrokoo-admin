@@ -6,6 +6,7 @@ use App\Http\Requests\VolumeDiscountRequest;
 use App\Http\Resources\POResource;
 use App\Http\Resources\SubscriptionTransactionResource;
 use App\Http\Resources\VolumeDiscountResource;
+use App\Mail\ApprovedPOMail;
 use App\Mail\RejectedPOMail;
 use App\Models\Cart;
 use App\Models\Company;
@@ -109,7 +110,7 @@ class PaymentController extends Controller
     {
         $po->update(['status' => 'approved']);
 
-        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company));
+        Mail::to($po->company->company_email)->send(new  ApprovedPOMail($po->company));
 
         return response()->json(['message' => 'approved']);
     }

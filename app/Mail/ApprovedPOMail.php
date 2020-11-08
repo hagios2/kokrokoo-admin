@@ -31,6 +31,6 @@ class ApprovedPOMail extends Mailable
     public function build()
     {
         return $this->markdown('mail.ApprovedPOMail')
-            ->subject('Purchase Order Rejected');
+            ->subject('Purchase Order Accepted');
     }
 }
