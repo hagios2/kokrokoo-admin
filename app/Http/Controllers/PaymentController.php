@@ -109,7 +109,7 @@ class PaymentController extends Controller
     {
         $po->update(['status' => 'approved']);
 
-        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company->company_name));
+        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company));
 
         return response()->json(['message' => 'approved']);
     }
@@ -118,7 +118,7 @@ class PaymentController extends Controller
     {
         $po->update(['status' => 'rejected']);
 
-        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company->company_name));
+        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company));
 
         return response()->json(['message' => 'rejected']);
 
