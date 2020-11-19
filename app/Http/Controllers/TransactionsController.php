@@ -8,7 +8,7 @@ use App\Http\Resources\VolumeDiscountResource;
 use App\Models\Company;
 use App\Models\ScheduledAd;
 use App\Models\Transaction;
-use App\VolumeDiscount;
+use App\Models\VolumeDiscount;
 use Illuminate\Http\Request;
 
 class TransactionsController extends Controller
@@ -45,7 +45,6 @@ class TransactionsController extends Controller
         return response()->json(['status' => 'success']);
 
     }
-
 
 
 }

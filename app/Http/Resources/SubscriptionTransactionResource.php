@@ -131,5 +131,3 @@ class SubscriptionTransactionResource extends ResourceCollection
     }
 
 }
-
-
