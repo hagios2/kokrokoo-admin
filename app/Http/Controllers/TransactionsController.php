@@ -18,7 +18,6 @@ class TransactionsController extends Controller
         $this->middleware('auth:admin');
     }
 
-
     public function view()
     {
         return TransactionResource::collection(Transaction::all());
@@ -26,8 +25,6 @@ class TransactionsController extends Controller
 
     public function viewVolumeDiscount()
     {
-        $company = auth()->guard('api')->id();
-
         return VolumeDiscountResource::collection(VolumeDiscount::all());
     }
 

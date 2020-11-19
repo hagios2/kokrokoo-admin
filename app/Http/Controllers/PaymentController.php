@@ -121,6 +121,8 @@ class PaymentController extends Controller
     {
         $po->update(['status' => 'rejected']);
 
+        $po->cart->update(['payment_status' => 'in cart']);
+
         Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company));
 
         return response()->json(['message' => 'rejected']);
