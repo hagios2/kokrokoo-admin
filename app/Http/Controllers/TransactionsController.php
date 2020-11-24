@@ -6,7 +6,6 @@ use App\Audit;
 use App\Http\Resources\TransactionResource;
 use App\Http\Resources\VolumeDiscountResource;
 use App\Models\Company;
-use App\Models\ScheduledAd;
 use App\Models\Transaction;
 use App\Models\VolumeDiscount;
 use Illuminate\Http\Request;

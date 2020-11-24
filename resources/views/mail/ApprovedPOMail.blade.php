@@ -1,12 +1,15 @@
 @component('mail::message')
-# Introduction
+# Hello {{$company->company_name}}
 
-The body of your message.
+<section>
+    <article>
+        <p>
+            {{--                Your PO for Transaction ID:[TRANSACTION ID] has been denied.--}}
+            Your PO has been approved. Thanks for doing business with us!
+        </p>
+    </article>
+</section>
 
-@component('mail::button', ['url' => ''])
-Button Text
-@endcomponent
-
-Thanks,<br>
-{{ config('app.name') }}
+Sincerely,<br>
+THE KOKROKOO TEAM
 @endcomponent
