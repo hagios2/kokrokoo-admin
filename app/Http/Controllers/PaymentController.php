@@ -135,7 +135,7 @@ class PaymentController extends Controller
     {
         $po->update(['status' => 'rejected']);
 
-        $po->cart->update(['payment_status' => 'in cart']);
+        $po->cart->update(['payment_status' => 'unpaid']);
 
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
