@@ -120,7 +120,7 @@ class PaymentController extends Controller
 
         $role = Role::query()->where('role', 'super_admin')->first();
 
-        return $user = Client::where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
+        $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
 
         $msg = "Hello {$user->name}, Your PO has been approved. Thanks for doing business with us!";
 
@@ -141,7 +141,7 @@ class PaymentController extends Controller
 
         $role = Role::query()->where('role', 'super_admin')->first();
 
-        $user = User::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
+        $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
 
         $msg = "Hello {$user->name}, Your PO has been denied. For further information please mail us via support@kokrokooad.com or contact us for further information on your transaction.!";
 
