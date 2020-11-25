@@ -119,7 +119,10 @@ class PaymentController extends Controller
 
         $role = Role::query()->where('role', 'super_admin')->first();
 
-        return $po->company;
+//        return $po->company;
+
+        return User::all();
+
 
         return $user = User::where('company_id', $po->company->id)->get();
 
