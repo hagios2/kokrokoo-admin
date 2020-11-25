@@ -9,6 +9,7 @@ use App\Http\Resources\VolumeDiscountResource;
 use App\Mail\ApprovedPOMail;
 use App\Mail\RejectedPOMail;
 use App\Models\Cart;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\POPayment;
 use App\Models\RegistrationPaymentAmount;
@@ -119,14 +120,7 @@ class PaymentController extends Controller
 
         $role = Role::query()->where('role', 'super_admin')->first();
 
-//        return $po->company;
-
-        return User::all();
-
-
-        return $user = User::where('company_id', $po->company->id)->get();
-
-        return $user = User::where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
+        return $user = Client::where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
 
         $msg = "Hello {$user->name}, Your PO has been approved. Thanks for doing business with us!";
 
