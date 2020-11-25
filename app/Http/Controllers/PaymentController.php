@@ -117,7 +117,7 @@ class PaymentController extends Controller
 
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
-        $role = Role::query()->where('role', 'super_admin')->first();
+        return $role = Role::query()->where('role', 'super_admin')->first();
 
         $user = User::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
 
@@ -125,7 +125,7 @@ class PaymentController extends Controller
 
         $sendMsg->sendSms($user->name, $user->phone1, $msg);
 
-        Mail::to($po->company->company_email)->send(new  ApprovedPOMail($po->company));
+        Mail::to($po->company->company_email)->send(new ApprovedPOMail($po->company));
 
         return response()->json(['message' => 'approved']);
     }
