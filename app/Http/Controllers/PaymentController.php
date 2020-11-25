@@ -117,9 +117,9 @@ class PaymentController extends Controller
 
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
-        return $role = Role::query()->where('role', 'super_admin')->first();
+        $role = Role::query()->where('role', 'super_admin')->first();
 
-        $user = User::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
+        return $user = User::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
 
         $msg = "Hello {$user->name}, Your PO has been approved. Thanks for doing business with us!";
 
