@@ -32,6 +32,7 @@ class ClientActivationMail extends Mailable
     public function build()
     {
         return $this->markdown('mail.ClientActivationMail')
+            ->attach(asset('KOKROKOO_BROCHURE.pdf'))
             ->subject('Kokrokoo Account Activated');
     }
 }
