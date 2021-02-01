@@ -32,7 +32,7 @@ class MediaActivationMail extends Mailable
     public function build()
     {
         return $this->markdown('mail.MediaActivationMail')
-            ->attach(asset('KOKROKOO_BROCHURE.pdf'))
+            ->attach(public_path('KOKROKOO_BROCHURE.pdf'))
             ->subject('Account Activated');
     }
 }
