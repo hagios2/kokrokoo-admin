@@ -59,7 +59,7 @@ class AdminAccountController extends Controller
 
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
-        $msg = "Hello {$client->name}, Congratulation on your successful registration to Kokrokoo. You may proceed to access your account!";
+        $msg = "Hello {$client->name}, Congratulations on your successful registration to Kokrokoo. You may proceed to access your account!";
 
         $sendMsg->sendSms($client->name, $client->phone1, $msg);
 
@@ -102,7 +102,7 @@ class AdminAccountController extends Controller
 
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
-        $msg = "Hello {$user->name}, Congratulation on your successful registration to Kokrokoo. You may proceed to access your account!";
+        $msg = "Hello {$user->name}, Congratulations on your successful registration to Kokrokoo. You may proceed to access your account!";
 
         $sendMsg->sendSms($user->name, $user->phone1, $msg);
 
