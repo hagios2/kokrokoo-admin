@@ -41,9 +41,9 @@ class ActivatedMediaResource extends  ResourceCollection
 
                 'created_at' => [
 
-                    'time' => Carbon::createFromFormat('Y-m-d H:i:s', $user->created_at)->format('H:i'),
+                    'time' => Carbon::parse($user->created_at)->format('g:i A'),
 
-                    'date' => Carbon::createFromFormat('Y-m-d H:i:s', $user->created_at)->format('Y-m-d')
+                    'date' => Carbon::parse($user->created_at)->format('D, d F Y')
                 ],
 
                 'last_login' => $user->last_login

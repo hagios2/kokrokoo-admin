@@ -39,7 +39,7 @@ class AdminController extends Controller
 
     public function activatedMedia()
     {
-        $client = User::where('isActive', '!=', 'pending')->paginate(20);
+        $client = User::where('isActive', '!=', 'pending')->with('company')->paginate(20);
 
         return new ActivatedMediaResource($client);
     }
