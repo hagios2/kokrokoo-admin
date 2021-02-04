@@ -32,11 +32,11 @@ class ActivatedMediaResource extends  ResourceCollection
 
                 'company' => [
 
-                        'id' => $user->company->id,
+                        'id' => $user->company->id ?? 'N\A',
 
-                        'name' => $user->company->company_name,
+                        'name' => $user->company->company_name ?? 'N\A',
 
-                         'media_type' => $user->company->mediaType->mediaType,
+                         'media_type' => $user->company->mediaType->mediaType ?? 'N\A',
                     ],
 
                 'created_at' => [
