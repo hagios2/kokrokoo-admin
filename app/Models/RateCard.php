@@ -7,23 +7,9 @@
 
 namespace App\Models;
 
-use Reliese\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Model;
 
-/**
- * Class RateCard
- * 
- * @property int $id
- * @property string $rate_card_id
- * @property string $media_house_id
- * @property string $rate_card_title_id
- * @property array $segments
- * @property array $weekend_segments
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- *
- * @package App\Models
- */
-class RateCard extends Eloquent
+class RateCard extends Model
 {
 	protected $casts = [
 		'segments' => 'json',
