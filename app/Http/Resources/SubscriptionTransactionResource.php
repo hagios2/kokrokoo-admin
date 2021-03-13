@@ -77,16 +77,16 @@ class SubscriptionTransactionResource extends ResourceCollection
         $subscriptions->map(function($subscription) use
         ($subscription_payable_amount_list) {
 
+            $amountList = collect();
+
             if($subscription->isAPrintSubscription)
             {
+                $subscription->subscriptionDetail->map(function($subscription_detail) use ($amountList) {
 
-                $total_amount_without_rollover = $subscription->ratecard->cost;
-
-                $total_amount_with_rollover = ($total_amount_without_rollover * (1 + $subscription->no_of_weeks));
+                    $amountList->push((double) $subscription_detail->ratecard->cost);
+                });
 
             }else{
-
-                $amountList = collect();
 
                 $subscription->subscriptionDetail->map(function($subscription_detail) use ($amountList) {
 
@@ -95,12 +95,11 @@ class SubscriptionTransactionResource extends ResourceCollection
                     $amountList->push($amount);
 
                 });
-
-                $total_amount_without_rollover = $amountList->sum();
-
-                $total_amount_with_rollover = ($total_amount_without_rollover * (1 + $subscription->no_of_weeks));
-
             }
+
+            $total_amount_without_rollover = $amountList->sum();
+
+            $total_amount_with_rollover = (double) ($total_amount_without_rollover * (1 + $subscription->no_of_weeks));
 
             $subscription_payable_amount_list->push($total_amount_with_rollover);
 
