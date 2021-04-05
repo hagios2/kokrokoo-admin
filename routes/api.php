@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +71,10 @@ Route::group(['prefix' => 'admin'], function () {
     Route::post('approve/{po}/po', 'PaymentController@approvePO');
 
     Route::post('reject/{po}/po', 'PaymentController@rejectPO');
+
+    Route::post('unpublish/{company}/media-company', 'AdminAccountController@unPublishCompany');
+
+    Route::post('publish/{company}/media-company', 'AdminAccountController@publishCompany');
 
 });
 
