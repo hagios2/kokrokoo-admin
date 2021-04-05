@@ -192,7 +192,7 @@ class AdminAccountController extends Controller
     public function publishCompany(Company $company)
     {
 
-        if($company->isPublished)
+        if($company->isPublished == 1)
         {
             return response()->json(['status' => 'Company is live already']);
         }
@@ -206,7 +206,7 @@ class AdminAccountController extends Controller
     public function unPublishCompany(Company $company)
     {
 
-        if($company->isPublished)
+        if($company->isPublished == 1)
         {
             $company->update(['isPublished' => false ]);
 
