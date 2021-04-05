@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static create($discount)
+ */
 class VolumeDiscount extends Model
 {
     protected $guarded = ['id'];

@@ -6,6 +6,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 
 
+/**
+ * @method static where(array $array)
+ */
 class User extends Model
 {
     use Notifiable;

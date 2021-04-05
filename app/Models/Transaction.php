@@ -29,6 +29,8 @@ use Reliese\Database\Eloquent\Model as Eloquent;
  * @property \Carbon\Carbon $updated_at
  *
  * @package App\Models
+ * @method static all()
+ * @method static query()
  */
 class Transaction extends Eloquent
 {

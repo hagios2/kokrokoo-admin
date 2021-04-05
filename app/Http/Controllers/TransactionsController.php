@@ -19,7 +19,7 @@ class TransactionsController extends Controller
 
     public function view()
     {
-        return TransactionResource::collection(Transaction::all());
+        return new TransactionResource(Transaction::query()->latest()->paginate(10));
     }
 
     public function viewVolumeDiscount()

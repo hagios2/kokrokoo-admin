@@ -15,6 +15,7 @@ use App\Models\POPayment;
 use App\Models\RegistrationPaymentAmount;
 use App\Models\Role;
 use App\Models\ScheduledAd;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\VolumeDiscount;
 use App\Services\SendTextMessage;
@@ -116,6 +117,13 @@ class PaymentController extends Controller
 
         $po->cart->update(['payment_status' => 'paid']);
 
+        $transaction = Transaction::query()->where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
+
+        if($transaction)
+        {
+            $transaction->update(['transaction_status' => 'successful']);
+        }
+
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
         $role = Role::query()->where('role', 'super_admin')->first();
@@ -150,7 +158,6 @@ class PaymentController extends Controller
         Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company));
 
         return response()->json(['message' => 'rejected']);
-
     }
 
     public function fetchInvoice(Cart $cart)

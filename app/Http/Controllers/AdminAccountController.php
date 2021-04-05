@@ -9,6 +9,7 @@ use App\Mail\ClientActivationMail;
 use App\Mail\ClientRejectionMail;
 use App\Mail\MediaActivationMail;
 use App\Mail\MediaRejectionMail;
+use App\Models\Company;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Client;
@@ -188,25 +189,54 @@ class AdminAccountController extends Controller
         return response()->json(['status' => 'account activated']);
     }
 
+    public function publishCompany(Company $company)
+    {
 
-  /*   public function blockUser(Request $request){
-        $user  = User::all()->where('admin_id','=',$request->input('id'))->first();
+        if($company->isPublished)
+        {
+            return response()->json(['status' => 'Company is live already']);
+        }
 
-        $user->status = 'inactive';
-        $user->save();
-        $request->session()->flash('admin-status', 'Admin  successfully  blocked');
+        $company->update(['isPublished' => true ]);
 
-        return response()->json('success');
+        return response()->json(['status' => 'Turned services on']);
+
     }
 
-    public function unblockUser(Request $request){
-        $user  = User::all()->where('admin_id','=',$request->input('id'))->first();
-        $user->status = 'active';
-        $user->save();
-        $request->session()->flash('admin-status', 'Admin  successfully  unblocked');
+    public function unPublishCompany(Company $company)
+    {
 
-        return response()->json('success');
-    } */
+        if($company->isPublished)
+        {
+            $company->update(['isPublished' => false ]);
+
+            return response()->json(['status' => 'Turned services off']);
+        }
+
+        return response()->json(['status' => 'Services are already off']);
+
+    }
+
+
+
+    /*   public function blockUser(Request $request){
+          $user  = User::all()->where('admin_id','=',$request->input('id'))->first();
+
+          $user->status = 'inactive';
+          $user->save();
+          $request->session()->flash('admin-status', 'Admin  successfully  blocked');
+
+          return response()->json('success');
+      }
+
+      public function unblockUser(Request $request){
+          $user  = User::all()->where('admin_id','=',$request->input('id'))->first();
+          $user->status = 'active';
+          $user->save();
+          $request->session()->flash('admin-status', 'Admin  successfully  unblocked');
+
+          return response()->json('success');
+      } */
 
 
 }
