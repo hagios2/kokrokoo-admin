@@ -12,5 +12,5 @@
 </section>
 
 Sincerely,,<br>
-THE KOKROKOO TEAM
+KOKROKOO TEAM
 @endcomponent

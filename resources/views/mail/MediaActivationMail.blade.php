@@ -19,6 +19,6 @@ Login
 or you may copy and paste the link below into your browser to login
 <p>https://demo.media.kokrokooad.com/</p>
 
-Cheers,,<br>
-THE KOKROKOO TEAM
+Cheers,<br>
+KOKROKOO TEAM
 @endcomponent
