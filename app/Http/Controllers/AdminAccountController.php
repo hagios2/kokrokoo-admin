@@ -108,7 +108,7 @@ class AdminAccountController extends Controller
         $sendMsg->sendSms($user->name, $user->phone1, $msg);
 
 
-        Mail::to($user)->send(new MediaActivationMail($user));
+        Mail::to($user->email)->send(new MediaActivationMail($user));
 
         return response()->json(['status' => 'account activated']);
     }
@@ -143,7 +143,7 @@ class AdminAccountController extends Controller
 
         $sendMsg->sendSms($user->name, $user->phone1, $msg);
 
-        Mail::to($user)->send(new MediaRejectionMail($user));
+        Mail::to($user->email)->send(new MediaRejectionMail($user));
 
         $user->delete();
 
