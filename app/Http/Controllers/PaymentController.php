@@ -117,12 +117,12 @@ class PaymentController extends Controller
 
         $po->cart->update(['payment_status' => 'paid']);
 
-        $transaction = Transaction::query()->where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
+        $transaction = Transaction::where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
 
-        if($transaction)
-        {
+//        if($transaction)
+//        {
             $transaction->update(['transaction_status' => 'successful']);
-        }
+//        }
 
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
@@ -130,11 +130,17 @@ class PaymentController extends Controller
 
         $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
 
-        $msg = "Hello {$user->name}, Your PO has been approved. Thanks for doing business with us!";
+        if($user)
+        {
+            $msg = "Hello {$user->name}, Your Purchase Order for transaction {$transaction->generated_id} been approved. Thanks for doing business with us!";
 
-        $sendMsg->sendSms($user->name, $user->phone1, $msg);
+            $sendMsg->sendSms($user->name, $user->phone1, $msg);
 
-        Mail::to($po->company->company_email)->send(new ApprovedPOMail($po->company));
+            Mail::to($user->email)->send(new ApprovedPOMail($po->company, $transaction));
+
+        }
+
+        Mail::to($po->company->company_email)->send(new ApprovedPOMail($po->company, $transaction));
 
         return response()->json(['message' => 'approved']);
     }
@@ -145,17 +151,30 @@ class PaymentController extends Controller
 
         $po->cart->update(['payment_status' => 'unpaid']);
 
+        $transaction = Transaction::where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
+
+//        if($transaction)
+//        {
+        $transaction->update(['transaction_status' => 'failed']);
+//        }
+
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
 
         $role = Role::query()->where('role', 'super_admin')->first();
 
         $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
 
-        $msg = "Hello {$user->name}, Your PO has been denied. For further information please mail us via support@kokrokooad.com or contact us for further information on your transaction.!";
+        if($user)
+        {
+            $msg = "Hello {$user->name}, Your Purchase Order for transaction {$transaction->generated_id} has been rejected. For further information please mail us via support@kokrokooad.com or contact us for further information on your transaction.!";
 
-        $sendMsg->sendSms($user->name, $user->phone1, $msg);
+            $sendMsg->sendSms($user->name, $user->phone1, $msg);
 
-        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company));
+            Mail::to($user->email)->send(new  RejectedPOMail($po->company, $transaction));
+        }
+
+        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company, $transaction));
+
 
         return response()->json(['message' => 'rejected']);
     }

@@ -5,7 +5,7 @@
     <article>
         <p>
 {{--                Your PO for Transaction ID:[TRANSACTION ID] has been denied.--}}
-            Your PO has been denied. For further information please mail us via support@kokrokooad.com or contact us for further information on your transaction.
+            Your Purchase Order for transaction {{$transaction->generated_id}} has been denied. For further clarifications, kindly mail us via support@kokrokooad.com or give us a call.
         </p>
     </article>
 </section>

@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Company;
+use App\Models\Transaction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -14,14 +15,18 @@ class RejectedPOMail extends Mailable
 
     public $company;
 
+    public $transaction;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Company $company)
+    public function __construct(Company $company, Transaction $transaction)
     {
         $this->company = $company;
+
+        $this->transaction = $transaction;
     }
 
     /**
