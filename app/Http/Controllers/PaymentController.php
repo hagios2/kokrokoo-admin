@@ -113,6 +113,11 @@ class PaymentController extends Controller
 
     public function approvePO(POPayment $po)
     {
+        if($po->status == 'approved')
+        {
+            return response()->json(['message' => 'PO has already been rejected']);
+        }
+
         $po->update(['status' => 'approved']);
 
         $po->cart->update(['payment_status' => 'paid']);
