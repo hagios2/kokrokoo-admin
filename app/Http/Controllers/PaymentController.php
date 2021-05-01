@@ -7,6 +7,7 @@ use App\Http\Resources\POResource;
 use App\Http\Resources\SubscriptionTransactionResource;
 use App\Http\Resources\VolumeDiscountResource;
 use App\Mail\ApprovedPOMail;
+use App\Mail\MediaPaymentNotification;
 use App\Mail\RejectedPOMail;
 use App\Models\Cart;
 use App\Models\Client;
@@ -21,6 +22,7 @@ use App\Models\VolumeDiscount;
 use App\Services\SendTextMessage;
 use App\VolumnDiscount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
@@ -115,7 +117,7 @@ class PaymentController extends Controller
     {
         if($po->status == 'approved')
         {
-            return response()->json(['message' => 'PO has already been rejected']);
+            return response()->json(['message' => 'PO has already been approved']);
         }
 
         $po->update(['status' => 'approved']);
@@ -130,6 +132,41 @@ class PaymentController extends Controller
 //        }
 
         $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
+
+        $media_house = collect();
+
+        $campaigns = $po->cart->scheduledAd;
+
+        $campaigns->map(function ($campaign) use ($media_house){
+
+            if($campaign->ratecardTitle)
+            {
+                if($campaign->ratecardTitle->company)
+                {
+                    $media_house->push($campaign->ratecardTitle->company);
+                }
+            }
+        });
+
+        foreach ($media_house->unique('id') as $media)
+        {
+            $role = Role::where('role', 'super_admin')->first();
+
+            Log::info('role | '. $role);
+
+            $user = User::where([['role_id', $role->id], ['company_id', $media->id]])->first();
+
+            Log::info('user | '. $user);
+
+            $msg = "Dear {$user->name} a pending campaign awaits your response. Thank you!";
+
+            $phone = $user->phone1;
+
+            $sendMsg->sendSms($user->name, $phone, $msg);
+
+            Mail::to($media->company_email)->send(new MediaPaymentNotification($media));
+        }
+
 
         $role = Role::query()->where('role', 'super_admin')->first();
 
