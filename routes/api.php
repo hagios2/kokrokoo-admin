@@ -76,6 +76,46 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::post('publish/{company}/media-company', 'AdminAccountController@publishCompany');
 
+    #===================================== Ratecard routes ============================================
+
+    Route::group(['prefix' => 'ratecard'], function () {
+
+        Route::post('/new-title', 'RateCardsController@storeRateCardTitle');
+
+        Route::delete('/detail/{ratecard}/delete', 'RateCardsController@deleteSingleRateCard');
+
+        Route::patch('/{ratecard}/update', 'RateCardsController@updateSingleRateCard');
+
+        Route::get('/{ratecard_title}/preview', 'RateCardsController@getAllRateCardDetails');
+
+        Route::post('{ratecard_title}/add-details', 'RateCardsController@storeRateCardDetails');
+
+        Route::post('/{rateCardTitle}/create-from-existing', 'RateCardsController@storeFromExistingRateCard');
+
+        Route::get('/company-ratecards', 'RateCardsController@getCompanyRateCards');
+
+        Route::post('{ratecard}/add-durations', 'RateCardsController@addMoreDuration');
+
+        Route::delete('{duration}/delete-duration', 'RateCardsController@deleteDuration');
+
+        Route::get('/{ratecard_title}/details', 'RateCardsController@RateCardDetails');
+
+        Route::delete('/{ratecard_title}/delete', 'RateCardsController@deleteRateCard');
+
+        Route::get('/{company}/get-existing-titles', 'RateCardsController@existingTitles');
+
+        Route::post('/{ratecard_title}/activate', 'RateCardsController@activateRateCard');
+
+        Route::post('/{ratecard_title}/deactivate', 'RateCardsController@deactivateRateCard');
+
+        Route::patch('/{ratecard_title}/update-title', 'RateCardsController@updateRateCardTitle');
+
+        Route::post('/{ratecard_title}/complete/create', 'RateCardsController@completeRateCardCreate');
+
+    });
+
+#===================================== End Ratecard routes ======================================
+
 });
 
 Route::get('get/{mediaType}/media-house', 'ResourceController@mediaHouse');
@@ -86,6 +126,8 @@ Route::group(['prefix' => 'subscription'], function () {
 
     Route::get('{cart}/transaction', 'PaymentController@fetchInvoice');
 });
+
+
 
 
 

@@ -14,9 +14,11 @@
         "guzzlehttp/guzzle": "^6.5",
         "laravel/framework": "^5.8.0",
         "laravel/tinker": "~1.0",
-        "yajra/laravel-datatables-oracle": "^9.8",
         "smartins/passport-multiauth": "^3.0",
-        "barryvdh/laravel-cors": "^0.11.4"
+        "barryvdh/laravel-cors": "^0.11.4",
+        "ext-json": "*",
+        "ext-curl": "*",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "composer/composer": "^1.9",

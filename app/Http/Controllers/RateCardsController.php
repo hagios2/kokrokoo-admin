@@ -2,172 +2,600 @@
 
 namespace App\Http\Controllers;
 
+use App\Day;
+use App\Duration;
+use App\Http\Requests\DurationRequest;
+use App\Http\Requests\RateCardRequest;
+use App\Http\Requests\RateCardTitleRequest;
+use App\Http\Resources\AllRatecardDetailResource;
+use App\Http\Resources\RateCardResource;
+use App\Http\Resources\RateCardTitleResource;
+use App\Models\Company;
 use App\Models\RateCard;
 use App\Models\RateCardTitle;
-use App\Models\ScheduledAd;
-use App\Models\PrintRateCard;
-use App\Models\User;
+use App\Unit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class RateCardsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function getDaysAndUnits()
     {
-        if (request()->ajax()) {
-            $rate_cards  =  DB::table('rate_cards')
-                ->join('rate_card_titles', 'rate_cards.rate_card_title_id', '=', 'rate_card_titles.rate_card_title_id')
-                ->join('users', 'rate_cards.media_house_id', '=', 'users.client_id')
-                ->select('rate_cards.*', 'rate_card_titles.rate_card_title', 'users.media_house', 'users.media')
-                ->get();
-            return datatables()->of($rate_cards)
-                ->addColumn('action', function ($row) {
+        $days = Day::all();
 
-                    $btn =  '<i  data-toggle="tooltip"   data-id="' . $row->rate_card_title_id . '"  data-media="' . $row->media . '"
-                    data-original-title="view" class="edit btn-primary fa fa-eye btn-sm view-sub viewRateCard"></i>';
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->addIndexColumn()
-                ->make(true);
+        $units = Unit::all();
+
+        return response()->json(['days' => $days, 'units' => $units]);
+
+    }
+
+
+    public function storeRateCardTitle(RateCardTitleRequest $request)
+    {
+        $title = $request->except(['file_types']);
+
+        $title['file_types'] = json_encode($request->file_types) ?? null;
+
+        $company = Company::find($request->company);
+
+        $ratecard_title = $company->addRateCardTitle($title);
+
+//        auth()->user()->addAudit([
+//
+//            'action' => 'Create new ratecard title',
+//
+//            'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//            'activities' => 'Created ratecard titled: '.$ratecard_title->rate_card_title,
+//
+//        ]);
+
+        return response()->json(['status' => 'success',
+            'media_type' => $company->mediaType,
+            'ratecard_title' => [
+                'id' => $ratecard_title->id,
+                'title' => $ratecard_title->rate_card_title
+            ]]);
+    }
+
+    public function storeRateCardDetails(RateCardTitle $ratecard_title, RateCardRequest $request)
+    {
+
+        if($ratecard_title->rate_card_title != $request->rate_card_title)
+        {
+            $ratecard_title->update(['rate_card_title' => $request->rate_card_title]);
         }
-        return  view('admin.rateCards.rate_cards');
-    }
 
-    // display print rate cards
+        if($ratecard_title->company->mediaType->mediaType == 'Print')
+        {
+            foreach ($request->details as $ratecard_detail)
+            {
+                $ratecard_title->addRateCardDetails([
 
-    public function printRateCards()
-    {
-        if (request()->ajax()) {
-            $rate_cards  =  DB::table('print_rate_cards')
-                ->join('rate_card_titles', 'print_rate_cards.rate_card_title_id', '=', 'rate_card_titles.rate_card_title_id')
-                ->join('users', 'print_rate_cards.media_house_id', '=', 'users.client_id')
-                ->select('print_rate_cards.*', 'rate_card_titles.rate_card_title', 'users.media_house', 'users.media')
-                ->get();
-            return datatables()->of($rate_cards)
-                ->addColumn('action', function ($row) {
+                    'isAPrintCard' => true,
 
-                    $btn =  '<i  data-toggle="tooltip"   data-id="' . $row->rate_card_title_id . '"  data-media="' . $row->media . '"
-                    data-original-title="view" class="edit btn btn-primary fa fa-eye btn-sm view-sub viewRateCard"></i>';
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->addIndexColumn()
-                ->make(true);
-        }
-        return  view('admin.rateCards.print_rate_card');
-    }
+                    'day_id' => $request->day_id,
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+                    'cost' => $ratecard_detail['cost'],
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+                    'size' => $ratecard_detail['size'],
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id, $media_type)
-    {
+                    'page_section' => $ratecard_detail['page_section'],
 
-        if ($media_type != 'Print') {
-            $rate_cards  = DB::table('rate_card_titles')
-                ->join('rate_cards', 'rate_card_titles.rate_card_title_id', '=', 'rate_cards.rate_card_title_id')
-                ->select('rate_card_titles.rate_card_title', 'rate_cards.*')
-                ->where('rate_card_titles.rate_card_title_id', '=', $id)->get();
-            if (!empty($rate_cards)) {
-                $segments = $rate_cards[0]->segments;
-                $w_segments = json_decode($rate_cards[0]->weekend_segments);
-                $days_of_week = json_decode($rate_cards[0]->days_of_week);
-                $days_of_weekends = $rate_cards[0]->days_of_weekend;
-
-                return response()->json(['rate_card' => $rate_cards, 'rate_card_title' => $rate_cards[0]->rate_card_title, 'segments' => $segments, 'days_of_week' => $days_of_week, 'days_of_weekends' => $days_of_weekends, 'w_segments' => $w_segments]);
-            } else {
-
-                return response()->json(['response' => 'no records']);
+                ]);
             }
-        } else {
 
-            // $rate_cards = PrintRateCard::whereMedia_house_id(auth()->user()->client_id)->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
-            // $rate_cards_title = RateCardTitles::select('rate_card_title')->whereRate_card_title_id(Input::get('rateCardTitleId'))->get();
+            if($request->has('other_days')) {
+                foreach ($request->other_days as $day_id) {
 
-            $rate_cards  = DB::table('rate_card_titles')
-                ->join('print_rate_cards', 'rate_card_titles.rate_card_title_id', '=', 'print_rate_cards.rate_card_title_id')
-                ->select('rate_card_titles.rate_card_title', 'print_rate_cards.*')
-                ->where('rate_card_titles.rate_card_title_id', '=', $id)->get();
-            if (!empty($rate_cards)) {
-                $print_segments = json_decode($rate_cards[0]->rate_card_data);
+                    foreach ($request->details as $ratecard_detail)
+                    {
+                        $ratecard_title->addRateCardDetails([
 
-                return response()->json(['rate_card' => $print_segments, 'rate_card_title' => $rate_cards[0]->rate_card_title]);
-            } else {
+                            'isAPrintCard' => true,
 
-                return response()->json(['response' => 'no records']);
+                            'day_id' => $day_id,
+
+                            'cost' => $ratecard_detail['cost'],
+
+                            'size' => $ratecard_detail['size'],
+
+                            'page_section' => $ratecard_detail['page_section'],
+
+                        ]);
+                    }
+                }
+            }
+
+
+//            auth()->guard('api')->user()->addAudit([
+//
+//                'action' => 'Added ratecard details',
+//
+//                'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//                'activities' => 'Admin added ratecard details to : '.$ratecard_title->rate_card_title,
+//
+//            ]);
+
+            return response()->json(['status' => 'saved', 'rate_card_title' => $ratecard_title->rate_card_title]);
+
+        }else{
+
+            $ratecard_detail = $ratecard_title->addRateCardDetails($request->only(['start_time', 'end_time', 'day_id', 'no_of_spots']));
+
+            $this->saveDuration($ratecard_detail, $request->durations);
+
+            if($request->has('other_days')) {
+                foreach ($request->other_days as $day_id) {
+
+                    $ratecard_detail_to_store = $request->only(['start_time', 'end_time', 'no_of_spots']);
+
+                    $ratecard_detail_to_store['day_id'] = $day_id;
+
+                    $ratecard_detail = $ratecard_title->addRateCardDetails($ratecard_detail_to_store);
+
+                    $this->saveDuration($ratecard_detail, $request->durations);
+                }
+            }
+
+//            auth()->guard('api')->user()->addAudit([
+//
+//                'action' => 'Added ratecard details',
+//
+//                'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//                'activities' => 'Admin added ratecard details to : '.$ratecard_title->rate_card_title,
+//            ]);
+
+            return response()->json(['status' => 'success', 'segments' =>
+
+                RateCardResource::collection($ratecard_title->ratecard->where('day_id', $request->day_id))
+
+            ]);
+
+        }
+
+    }
+
+
+    public function getAllRateCardDetails(RateCardTitle $ratecard_title)
+    {
+        $cardDetailsList = collect();
+
+        $days = Day::all();
+
+        if($ratecard_title->company->mediaType->mediaType == 'Print')
+        {
+
+            foreach ($days as $day)
+            {
+                $details = RateCard::where([['rate_card_title_id', $ratecard_title->id],['day_id', $day->id], ['isAPrintCard', true]])->get();
+
+                if($details->isNotEmpty())
+                {
+                    $cardDetailsList->push([
+
+                        'day' => $day,
+
+                        AllRatecardDetailResource::collection($details)
+                    ]);
+                }
+
+            }
+
+            return response()->json([
+
+                'rate_card_title_id' => $ratecard_title->id,
+
+                'rate_card_title' => $ratecard_title->rate_card_title,
+
+                'details' => $cardDetailsList
+            ]);
+
+        }else{
+
+            foreach ($days as $day)
+            {
+
+                $details = RateCard::where([['rate_card_title_id', $ratecard_title->id],['day_id', $day->id], ['isAPrintCard', false]])->get();
+
+                if($details->isNotEmpty())
+                {
+                    $cardDetailsList->push(
+
+                        AllRatecardDetailResource::collection($details)
+                    );
+                }
+
+            }
+
+            return response()->json([
+
+                'rate_card_title_id' => $ratecard_title->id,
+
+                'rate_card_title' => $ratecard_title->rate_card_title,
+
+                'details' => $cardDetailsList
+            ]);
+
+        }
+
+    }
+
+//    public function updateRateCard(RateCard $ratecard, Request $request)
+//    {
+//
+//       /*  if($ratecard_title->rate_card_title != $request->rate_card_title)
+//        {
+//            $ratecard_title->update(['rate_card_title' => $request->rate_card_title]);
+//        } */
+//
+//
+//        if(auth()->guard('api')->user()->company->mediaType->mediaType == 'Print')
+//        {
+//
+//            foreach ($request->details as $ratecard_detail)
+//            {
+//                $ratecard_title->addRateCardDetails([
+//
+//                    'isAPrintCard' => true,
+//
+//                    'day_id' => $request->day_id,
+//
+//                    'cost' => $ratecard_detail['cost'],
+//
+//                    'size' => $ratecard_detail['size'],
+//
+//                    'page_section' => $ratecard_detail['page_section'],
+//
+//                ]);
+//            }
+//
+//
+//            auth()->guard('api')->user()->addAudit([
+//
+//                'action' => 'Added ratecard details',
+//
+//                'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//                'activities' => 'Admin added ratecard details to : '.$ratecard_title->rate_card_title,
+//
+//            ]);
+//
+//            return response()->json(['status' => 'saved', 'rate_card_title' => $ratecard_title->rate_card_title]);
+//
+//        }else{
+//
+//            $ratecard_detail = $ratecard->update($request->only(['start_time', 'end_time', 'day_id', 'no_of_spots']));
+//
+//
+//
+//            //$this->saveDuration($ratecard_detail, $request->durations);
+//
+//            auth()->guard('api')->user()->addAudit([
+//
+//                'action' => 'Added ratecard details',
+//
+//                'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//                'activities' => 'Admin added ratecard details to : '.$ratecard_title->rate_card_title,
+//
+//            ]);
+//
+//            return response()->json(['status' => 'success', 'segments' =>
+//
+//                RateCardResource::collection($ratecard_title->ratecard->where('day_id', $request->day_id))
+//
+//            ]);
+//
+//
+//
+//        $ratecard->update([
+//
+//            'title' => $request->title,
+//
+//            'card_details' => json_encode($request->card_details)
+//        ]);
+//
+//        auth()->guard('api')->user()->addAudit([
+//
+//            'action' => 'Updated ratecard',
+//
+//            'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//            'activities' => 'Admin updated ratecard'.$ratecard->title,
+//
+//        ]);
+//
+//    }
+//
+//
+//        return response()->json(['status' => 'ratecard updated']);
+//
+//    }
+
+    public function saveDuration(RateCard $ratecard, $durations)
+    {
+
+
+        foreach($durations as $duration)
+        {
+            $ratecard->addDuration([
+                "unit_id"=> $duration['unit_id'],
+                "rate" => $duration['rate'],
+                "duration" => $duration['duration']
+            ]);
+        }
+
+
+    }
+
+    public function addMoreDuration(RateCard $ratecard, DurationRequest $request)
+    {
+        $this->saveDuration($ratecard, $request->validated());
+
+
+        return response()->json(['status' => 'saved']);
+    }
+
+    public function deleteSingleRateCard(RateCard $ratecard)
+    {
+
+        if(!$ratecard->isAPrintCard)
+        {
+
+            if($ratecard->duration)
+            {
+                $ratecard->duration->map(function($duration){
+
+                    $duration->delete();
+                });
             }
         }
+
+        $ratecard->delete();
+
+        return response()->json(['status' => 'deleted']);
     }
 
 
-
-
-
-
-
-
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function updateSingleRateCard(RateCard $ratecard, Request $request)
     {
-        //
+        if($ratecard->isAPrintCard)
+        {
+            $ratecard->update([
+                'size' => $request->size,
+                'cost' => $request->cost,
+                'page_section' => $request->page_section,
+            ]);
+
+        }else{
+
+            $ratecard->update([
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'day_id' => $request->day_id,
+                'no_of_spots' => $request->no_of_spots
+            ]);
+
+            foreach($request->durations as $duration)
+            {
+                if(substr($duration['id'], 0, 1) == '#')
+                {
+                    $ratecard->addDuration([
+                        "unit_id"=> $duration['unit']['id'],
+                        "rate" => $duration['rate'],
+                        "duration" => $duration['duration']
+                    ]);
+
+                }else{
+
+                    $fetch_duration = Duration::find($duration['id']);
+
+                    $fetch_duration->update([
+                        "unit_id"=> $duration['unit']['id'],
+                        "rate" => $duration['rate'],
+                        "duration" => $duration['duration']
+                    ]);
+                }
+            }
+        }
+
+        return response(['status' => 'saved']);
+
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+
+    public function deleteDuration(Duration $duration)
     {
-        //
+        $duration->delete();
+
+        return response()->json(['status' => 'deleted']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function storeFromExistingRateCard(RateCardTitle $rateCardTitle, RateCardTitleRequest $request)
     {
-        //
+        $title = $request->except('file_types');
+
+        $title['file_types'] = json_encode($request->file_types) ?? null;
+
+        $new_ratecard_title = auth()->guard('api')->user()->company->addRateCardTitle($title);
+
+        $rateCardTitle->rateCard->map(function ($ratecard_detail) use ($new_ratecard_title){
+
+            if(auth()->guard('api')->user()->company->mediaType->mediaType == 'Print')
+            {
+                $new_ratecard_title->addRateCardDetails([
+                    'day_id' => $ratecard_detail->day_id,
+                    'isAPrintCard' => true,
+                    'size'=> $ratecard_detail->size,
+                    'cost' => $ratecard_detail->cost,
+                    'page_section' => $ratecard_detail->page_section
+                ]);
+            }else{
+
+                $new_ratecard_detail = $new_ratecard_title->addRateCardDetails([
+                    'start_time' => $ratecard_detail->start_time,
+                    'end_time' => $ratecard_detail->end_time,
+                    'day_id' => $ratecard_detail->day_id,
+                    'no_of_spots' => $ratecard_detail->no_of_spots,
+                ]);
+
+                $ratecard_detail->duration->map(function($duration) use ($new_ratecard_detail) {
+
+                    $new_ratecard_detail->addDuration([
+                        "unit_id"=> $duration->unit_id,
+                        "rate" => $duration->rate,
+                        "duration" => $duration->duration
+                    ]);
+
+                });
+            }
+        });
+
+//        auth()->guard('api')->user()->addAudit([
+//
+//            'action' => 'Create new ratecard title',
+//
+//            'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//            'activities' => 'Created ratecard titled: '. $new_ratecard_title->rate_card_title,
+//        ]);
+
+        return response()->json([
+
+            'status' => 'succes',
+
+            'rate_card_title_id' => $new_ratecard_title->id,
+
+            'media' => auth()->guard('api')->user()->company->mediaType
+
+        ]);
     }
+
+    //view  selected rate card by login media
+    public function getCompanyRateCards()
+    {
+        $ratecard_titles = RateCardTitle::where('company_id', auth()->guard('api')->user()->company_id)->get();
+
+        return RateCardTitleResource::collection($ratecard_titles);
+
+    }
+
+
+    public function RateCardDetails(RateCardtitle $ratecard_title)
+    {
+
+        return RateCardResource::collection($ratecard_title->rateCard);
+
+    }
+
+    //view  selected rate card by login media
+    public function  deleteRateCard(RateCardTitle $ratecard_title)
+    {
+
+        if($ratecard_title->rateCard)
+        {
+            $ratecard_title->rateCard->map(function($ratecard_detail){
+
+                $ratecard_detail->delete();
+            });
+        }
+
+        $ratecard_title->delete();
+
+//        auth()->guard('api')->user()->addAudit([
+//
+//            'action' => 'Deleted ratecard',
+//
+//            'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//            'activities' => 'Admin deleted ratecard: '.$ratecard_title->rate_card_title,
+//
+//        ]);
+
+        return response()->json(['status' => 'Ratecard deleted']);
+    }
+
+
+    public function existingTitles(Company $company)
+    {
+        $existing_ratecard = $company->ratecardTitle;
+
+        if($existing_ratecard)
+        {
+            $titles = $existing_ratecard->map(function($card){
+
+                return ['id' => $card->id, 'title' => $card->rate_card_title];
+            });
+
+            return response()->json(['status' => 'success', 'existing_titles' => $titles ]);
+
+        }else{
+
+            return response()->json(['status' => 'No ratecard found']);
+
+        }
+
+    }
+
+    public function activateRateCard(RateCardTitle $ratecard_title)
+    {
+        return $this->toggleRatecard($ratecard_title, true);
+
+    }
+
+    public function deactivateRateCard(RateCardTitle $ratecard_title)
+    {
+        return $this->toggleRatecard($ratecard_title, false);
+
+    }
+
+
+    public function toggleRatecard(RateCardTitle $ratecard_title, $toggle)
+    {
+
+        if($ratecard_title)
+        {
+            $ratecard_title->update(['isLive' => $toggle]);
+
+            return response()->json(['status' => $toggle ? 'Activated' : 'Deactivated']);
+
+        }
+
+        return response()->json(['status' => 'Ratecard does not exist']);
+
+    }
+
+
+    public function updateRateCardTitle(RateCardTitle $ratecard_title, RateCardTitleRequest $request)
+    {
+
+        $title = $request->except('file_types');
+
+        $title['file_types'] = json_encode($request->file_types) ?? null;
+
+        $ratecard_title->update($title);
+
+        auth()->guard('api')->user()->addAudit([
+
+            'action' => 'Updated ratecard title',
+
+            'request_ip' => $_SERVER['REMOTE_ADDR'],
+
+            'activities' => 'Updated Ratecar titled: '.$ratecard_title->rate_card_title,
+
+        ]);
+
+        return response()->json(['status', 'saved']);
+
+    }
+
+    public function completeRateCardCreate(RateCardTitle $ratecard_title)
+    {
+        $ratecard_title->update(['isLive' => true]);
+
+        return response()->json(['status', 'saved']);
+    }
+
 }
