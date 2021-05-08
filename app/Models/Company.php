@@ -32,7 +32,7 @@ class Company extends Model
     public function rateCardTitle()
     {
 
-        return $this->hasMany('App\RateCardTitle');
+        return $this->hasMany(RateCardTitle::class);
 
     }
 
