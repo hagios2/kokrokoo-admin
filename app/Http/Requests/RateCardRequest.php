@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\RateCardTitle;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RateCardRequest extends FormRequest
@@ -21,9 +22,9 @@ class RateCardRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(RateCardTitle $ratecard_title)
     {
-        if(auth()->guard('api')->user()->company->mediaType->mediaType == 'Print')
+        if($ratecard_title->company->mediaType->mediaType == 'Print')
         {
             return [
 
