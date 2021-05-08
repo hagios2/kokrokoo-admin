@@ -35,7 +35,7 @@ class RateCardsController extends Controller
 
         $title['file_types'] = json_encode($request->file_types) ?? null;
 
-        $company = Company::find($request->company);
+        $company = Company::find($request->company_id);
 
         $ratecard_title = $company->addRateCardTitle($title);
 
