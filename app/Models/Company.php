@@ -28,4 +28,18 @@ class Company extends Model
     {
         return $this->hasOne('App\Models\Avatar');
     }
+
+    public function rateCardTitle()
+    {
+
+        return $this->hasMany('App\RateCardTitle');
+
+    }
+
+    public function addRateCardTitle($title)
+    {
+        return $this->rateCardTitle()->create($title);
+    }
+
+
 }
