@@ -22,7 +22,7 @@ class RateCardTitle extends Model
 
     public function rateCard()
     {
-        return $this->hasMany('App\RateCard');
+        return $this->hasMany(RateCard::class);
     }
 
     public function addRateCardDetails($card_detail)
