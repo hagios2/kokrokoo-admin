@@ -40,4 +40,9 @@ class Company extends Model
     {
         return $this->rateCardTitle()->create($title);
     }
+
+    public function bank()
+    {
+        return $this->hasOne(BankDetail::class);
+    }
 }

@@ -43,6 +43,8 @@ class MediaDetailResource extends JsonResource
 
                 'company_name' => $this->company->company_name,
 
+                'company_email' => $this->company->company_email,
+
                 'media_house' => $this->company->media_house,
 
                 'media_type' => $this->company->mediaType->mediaType,
