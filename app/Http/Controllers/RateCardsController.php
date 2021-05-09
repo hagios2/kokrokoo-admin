@@ -470,7 +470,7 @@ class RateCardsController extends Controller
 
             'rate_card_title_id' => $new_ratecard_title->id,
 
-            'media' => auth()->guard('api')->user()->company->mediaType
+            'media' => $company->mediaType
 
         ]);
     }
