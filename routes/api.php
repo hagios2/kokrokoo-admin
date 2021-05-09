@@ -92,7 +92,7 @@ Route::group(['prefix' => 'admin'], function () {
 
         Route::post('/{rateCardTitle}/create-from-existing', 'RateCardsController@storeFromExistingRateCard');
 
-        Route::get('/company-ratecards', 'RateCardsController@getCompanyRateCards');
+        Route::get('/company/{company}/ratecards', 'RateCardsController@getCompanyRateCards');
 
         Route::post('{ratecard}/add-durations', 'RateCardsController@addMoreDuration');
 

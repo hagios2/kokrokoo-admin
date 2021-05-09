@@ -473,9 +473,9 @@ class RateCardsController extends Controller
     }
 
     //view  selected rate card by login media
-    public function getCompanyRateCards()
+    public function getCompanyRateCards(Company $company)
     {
-        $ratecard_titles = RateCardTitle::where('company_id', auth()->guard('api')->user()->company_id)->get();
+        $ratecard_titles = RateCardTitle::where('company_id', $company->id)->get();
 
         return RateCardTitleResource::collection($ratecard_titles);
 

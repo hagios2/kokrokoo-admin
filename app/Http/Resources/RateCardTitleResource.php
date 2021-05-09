@@ -14,6 +14,17 @@ class RateCardTitleResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+
+            'id' => $this->id,
+
+            'rate_card_title' => $this->rate_card_title,
+
+            'status' => $this->isLive,
+
+            'service_description' => $this->service_description,
+
+            'file_types' => json_decode($this->file_types)
+        ];
     }
 }
