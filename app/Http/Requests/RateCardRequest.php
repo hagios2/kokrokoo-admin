@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Company;
 use App\Models\RateCardTitle;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +25,7 @@ class RateCardRequest extends FormRequest
      */
     public function rules()
     {
-        dd(request()->route()->parameters());
+        $ratecard_title = RateCardTitle::find(request()->ratecard_title_id);
 
         if($ratecard_title->company->mediaType->mediaType == 'Print')
         {
