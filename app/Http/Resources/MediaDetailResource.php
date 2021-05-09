@@ -61,7 +61,9 @@ class MediaDetailResource extends JsonResource
 
                 'isPublished' => $this->company->isPublished,
 
-                'hasBankDetails' => $this->company->bank ? true : false
+                'hasBankDetails' => $this->company->bank ? true : false,
+
+                'bank_details' => $this->company->bank
             ]
         ];
     }
