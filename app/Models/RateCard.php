@@ -16,11 +16,21 @@ class RateCard extends Model
 		'weekend_segments' => 'json'
 	];
 
-	protected $fillable = [
-		'rate_card_id',
-		'media_house_id',
-		'rate_card_title_id',
-		'segments',
-		'weekend_segments'
-	];
+	protected $guarded = ['id'];
+
+    public function day()
+    {
+        return $this->belongsTo('App\Day', 'day_id');
+    }
+
+    public function duration()
+    {
+        return $this->hasMany('App\Duration');
+    }
+
+
+    public function addDuration($duration)
+    {
+        $this->duration()->create($duration);
+    }
 }
