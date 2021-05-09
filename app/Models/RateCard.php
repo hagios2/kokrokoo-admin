@@ -7,6 +7,7 @@
 
 namespace App\Models;
 
+use App\Duration;
 use Illuminate\Database\Eloquent\Model;
 
 class RateCard extends Model
@@ -20,12 +21,12 @@ class RateCard extends Model
 
     public function day()
     {
-        return $this->belongsTo('App\Day', 'day_id');
+        return $this->belongsTo(Day::class, 'day_id');
     }
 
     public function duration()
     {
-        return $this->hasMany('App\Duration');
+        return $this->hasMany(Duration::class);
     }
 
 
