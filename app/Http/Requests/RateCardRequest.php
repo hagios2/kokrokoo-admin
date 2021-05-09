@@ -24,7 +24,7 @@ class RateCardRequest extends FormRequest
      */
     public function rules()
     {
-        dd(request()->route()->parameter('company'));
+        dd(request()->route()->parameters());
 
         if($ratecard_title->company->mediaType->mediaType == 'Print')
         {
