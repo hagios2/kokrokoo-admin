@@ -9,6 +9,7 @@ use App\Http\Resources\ClientDetailResource;
 use App\Http\Resources\MediaDetailResource;
 use App\Jobs\SendAdminCredentialsJob;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Role;
 use App\Notifications\SendAdminCredentialsNotification;
 use App\Models\User;
@@ -57,5 +58,9 @@ class AdminController extends Controller
         return new MediaDetailResource($user);
     }
 
+    public function fetchBankDetail(Company $company)
+    {
+
+    }
 
 }

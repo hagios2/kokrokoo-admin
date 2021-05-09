@@ -40,6 +40,4 @@ class Company extends Model
     {
         return $this->rateCardTitle()->create($title);
     }
-
-
 }

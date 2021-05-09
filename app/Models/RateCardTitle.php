@@ -19,4 +19,15 @@ class RateCardTitle extends Model
     {
         return $this->hasMany('App\Models\Subscription');
     }
+
+    public function rateCard()
+    {
+        return $this->hasMany('App\RateCard');
+    }
+
+    public function addRateCardDetails($card_detail)
+    {
+        return $this->rateCard()->create($card_detail);
+    }
+
 }
