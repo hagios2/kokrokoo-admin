@@ -10,6 +10,7 @@ use App\Http\Resources\RateCardResource;
 use App\Http\Resources\RateCardTitleResource;
 use App\Models\Company;
 use App\Models\Day;
+use App\Models\Duration;
 use App\Models\RateCard;
 use App\Models\RateCardTitle;
 use App\Models\Unit;
@@ -418,11 +419,13 @@ class RateCardsController extends Controller
 
         $title['file_types'] = json_encode($request->file_types) ?? null;
 
-        $new_ratecard_title = auth()->guard('api')->user()->company->addRateCardTitle($title);
+        $company = Company::find($request->company_id);
 
-        $rateCardTitle->rateCard->map(function ($ratecard_detail) use ($new_ratecard_title){
+        $new_ratecard_title = $company->addRateCardTitle($title);
 
-            if(auth()->guard('api')->user()->company->mediaType->mediaType == 'Print')
+        $rateCardTitle->rateCard->map(function ($ratecard_detail) use ($new_ratecard_title, $company){
+
+            if($company->mediaType->mediaType == 'Print')
             {
                 $new_ratecard_title->addRateCardDetails([
                     'day_id' => $ratecard_detail->day_id,
