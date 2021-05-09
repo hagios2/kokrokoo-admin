@@ -18,6 +18,11 @@ class RateCard extends Model
         return $this->hasMany(Duration::class);
     }
 
+    public function rateCardTitle()
+    {
+        return $this->belongsTo(RateCardTitle::class, 'rate_card_title_id');
+    }
+
 
     public function addDuration($duration)
     {

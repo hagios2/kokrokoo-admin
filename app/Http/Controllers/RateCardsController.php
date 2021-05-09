@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Day;
-use App\Duration;
 use App\Http\Requests\DurationRequest;
 use App\Http\Requests\RateCardRequest;
 use App\Http\Requests\RateCardTitleRequest;
@@ -11,9 +9,10 @@ use App\Http\Resources\AllRatecardDetailResource;
 use App\Http\Resources\RateCardResource;
 use App\Http\Resources\RateCardTitleResource;
 use App\Models\Company;
+use App\Models\Day;
 use App\Models\RateCard;
 use App\Models\RateCardTitle;
-use App\Unit;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 
 class RateCardsController extends Controller
