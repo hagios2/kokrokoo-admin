@@ -22,7 +22,7 @@ class RateCardRequest extends FormRequest
      *
      * @return array
      */
-    public function rules(RateCardTitle $ratecard_title)
+    public function rules()
     {
         dd(request()->route()->parameter('company'));
 
