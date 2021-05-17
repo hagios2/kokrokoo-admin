@@ -579,15 +579,15 @@ class RateCardsController extends Controller
 
         $ratecard_title->update($title);
 
-        auth()->guard('api')->user()->addAudit([
-
-            'action' => 'Updated ratecard title',
-
-            'request_ip' => $_SERVER['REMOTE_ADDR'],
-
-            'activities' => 'Updated Ratecar titled: '.$ratecard_title->rate_card_title,
-
-        ]);
+//        auth()->guard('api')->user()->addAudit([
+//
+//            'action' => 'Updated ratecard title',
+//
+//            'request_ip' => $_SERVER['REMOTE_ADDR'],
+//
+//            'activities' => 'Updated Ratecar titled: '.$ratecard_title->rate_card_title,
+//
+//        ]);
 
         return response()->json(['status', 'saved']);
 
