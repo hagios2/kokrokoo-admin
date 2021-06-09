@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MediaHouseResource;
 use App\Models\Company;
 use App\Models\MediaType;
 use Illuminate\Http\Request;
@@ -12,6 +13,6 @@ class ResourceController extends Controller
     {
         $company = Company::query()->where('media_type', $mediaType->id)->get();
 
-        return $company;
+        return MediaHouseResource::collection($company);
     }
 }

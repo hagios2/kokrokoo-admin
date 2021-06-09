@@ -148,6 +148,8 @@ class PaymentController extends Controller
             }
         });
 
+        Log::info(json_encode($media_house->unique('id')));
+
         foreach ($media_house->unique('id') as $media)
         {
             $role = Role::where('role', 'super_admin')->first();
