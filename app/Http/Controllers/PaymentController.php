@@ -148,7 +148,7 @@ class PaymentController extends Controller
             }
         });
 
-        Log::info(json_encode($media_house->unique('id')));
+        Log::info('media_house |'.json_encode($media_house->unique('id')));
 
         foreach ($media_house->unique('id') as $media)
         {
