@@ -47,7 +47,7 @@ class NewMediaGroupResource extends ResourceCollection
 
                 'bank_details' => $company->bank,
 
-                'reviewed' => $company->reviewed,
+                'reviewed' => $company->reviewed ? true : false,
 
                 'created_at' => Carbon::parse($company->created)->format('D, d F Y')
             ];
