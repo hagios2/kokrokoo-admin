@@ -4,14 +4,15 @@ namespace App\Http\Resources;
 
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class NewMediaGroupResource extends JsonResource
+class NewMediaGroupResource extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public function toArray($request)
     {
