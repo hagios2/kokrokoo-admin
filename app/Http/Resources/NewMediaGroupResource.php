@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class NewMediaGroupResource extends ResourceCollection
@@ -44,7 +45,11 @@ class NewMediaGroupResource extends ResourceCollection
 
                 'hasBankDetails' => $company->bank ? true : false,
 
-                'bank_details' => $company->bank
+                'bank_details' => $company->bank,
+
+                'reviewed' => $company->reviewed,
+
+                'created_at' => Carbon::parse($company->created)->format('D, d F Y')
             ];
 
         });
