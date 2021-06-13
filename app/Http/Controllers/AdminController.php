@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\Role;
 use App\Models\User;
 use \App\Services\SendTextMessage;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -57,7 +58,15 @@ class AdminController extends Controller
 
     public function newMediaGroup()
     {
-        $companies = Company::query()->where([['company_type', 'media_company'], ['reviewed', 'false']])->paginate(10);
+        $companies = Company::query()->where([['company_type', 'media_company'], ['reviewed', false]])->paginate(10);
+
+        return new NewMediaGroupResource($companies);
+    }
+
+
+    public function approvedMediaGroup()
+    {
+        $companies = Company::query()->where([['company_type', 'media_company'], ['reviewed', true]])->paginate(10);
 
         return new NewMediaGroupResource($companies);
     }

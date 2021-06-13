@@ -54,6 +54,8 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::get('new/media/houses', 'AdminController@newMediaGroup');
 
+    Route::get('approved/media/houses', 'AdminController@approvedMediaGroup');
+
     Route::post('reject/{company}/new/media/houses', 'AdminController@rejectNewMediaHouse');
 
     Route::post('accept/{company}/new/media/houses', 'AdminController@acceptNewMediaHouse');
