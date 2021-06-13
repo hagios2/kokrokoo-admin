@@ -57,7 +57,7 @@ class AdminController extends Controller
 
     public function newMediaGroup()
     {
-        $companies = Company::query()->where([['account' => 'media'], ['reviewed' => 'false']])->paginate(10);
+        $companies = Company::query()->where([['company_type', 'media_company'], ['reviewed', 'false']])->paginate(10);
 
         return new NewMediaGroupResource($companies);
     }
