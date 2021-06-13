@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class MediaPaymentNotification extends Mailable
+class NewMediaHouseMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -31,8 +31,7 @@ class MediaPaymentNotification extends Mailable
      */
     public function build()
     {
-        return $this->markdown('mail.MediaPaymentNotification')
-//            ->bcc('kokrokoos08@gmail.com')
-            ->subject('New Campaign');
+        return $this->markdown('mail.NewMediaHouseMail')
+            ->subject('Media House Registration Approval');
     }
 }

@@ -11,6 +11,6 @@
     </article>
 </section>
 
-Sincerely,,<br>
+Sincerely,<br>
 KOKROKOO TEAM
 @endcomponent

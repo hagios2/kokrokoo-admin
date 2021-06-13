@@ -2,26 +2,23 @@
 
 namespace App\Mail;
 
-use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class MediaPaymentNotification extends Mailable
+class NewMediaHouseRejectionMail extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $company;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Company $company)
+    public function __construct()
     {
-        $this->company = $company;
+        //
     }
 
     /**
@@ -31,8 +28,6 @@ class MediaPaymentNotification extends Mailable
      */
     public function build()
     {
-        return $this->markdown('mail.MediaPaymentNotification')
-//            ->bcc('kokrokoos08@gmail.com')
-            ->subject('New Campaign');
+        return $this->markdown('mail.NewMediaHouseRejectionMail');
     }
 }

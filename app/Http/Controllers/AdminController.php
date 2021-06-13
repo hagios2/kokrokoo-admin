@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateAdmin;
 use App\Http\Resources\ActivatedClientResource;
 use App\Http\Resources\ActivatedMediaResource;
 use App\Http\Resources\ClientDetailResource;
 use App\Http\Resources\MediaDetailResource;
-use App\Jobs\SendAdminCredentialsJob;
+use App\Http\Resources\NewMediaGroupResource;
+use App\Mail\ClientActivationMail;
+use App\Mail\NewMediaHouseMail;
+use App\Mail\NewMediaHouseRejectionMail;
+use App\MediaGroup;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Role;
-use App\Notifications\SendAdminCredentialsNotification;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Validator;
-use App\Classes\SendTextMessage;
-use SendTextMessage as GlobalSendTextMessage;
+use \App\Services\SendTextMessage;
+use Illuminate\Support\Facades\Mail;
+
 
 class AdminController extends Controller
 {
@@ -52,10 +50,58 @@ class AdminController extends Controller
     }
 
 
-
     public function viewMedia(User $user)
     {
         return new MediaDetailResource($user);
+    }
+
+    public function newMediaGroup()
+    {
+        $companies = Company::query()->where([['account' => 'media'], ['reviewed' => 'false']])->paginate(10);
+
+        return new NewMediaGroupResource($companies);
+    }
+
+    public function acceptNewMediaHouse(Company $company)
+    {
+        $company->update(['reviewed' => true]);
+
+        $media_group = MediaGroup::query()->where('company_id', $company->id)->first();
+
+        $user = User::find($media_group->user_id);
+
+        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
+
+        $msg = "Hello {$user->name}, Congratulations on your successful registration to Kokrokoo. You may proceed to access your account!";
+
+        $sendMsg->sendSms($user->name, $user->phone1, $msg);
+
+        Mail::to($user)->send(new NewMediaHouseMail($company));
+
+        Mail::to($company->company_email)->send(new NewMediaHouseMail($company));
+
+        return response()->json(['message' => 'account has been accepted']);
+    }
+
+    public function rejectNewMediaHouse(Company $company)
+    {
+        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
+
+        $media_group = MediaGroup::query()->where('company_id', $company->id)->first();
+
+        $user = User::find($media_group->user_id);
+
+        $msg = "Hello {$user->name}, Your registration has been rejected and you have been unsuccessfully in adding a New Media House to your account. Kindly contact us via support@kokrokooad.com for further clarifications.Thank you!";
+
+        $sendMsg->sendSms($user->name, $user->phone1, $msg);
+
+        Mail::to($user)->send(new NewMediaHouseRejectionMail($company));
+
+        Mail::to($company->company_email)->send(new NewMediaHouseRejectionMail($company));
+
+        $company->delete();
+
+        return response()->json(['message' => 'account has been accepted']);
     }
 
     public function fetchBankDetail(Company $company)

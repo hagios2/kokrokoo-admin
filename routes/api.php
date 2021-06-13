@@ -52,6 +52,12 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::get('user/{user}/view', 'AdminController@viewMedia');
 
+    Route::get('new/media/houses', 'AdminController@newMediaGroup');
+
+    Route::post('reject/{company}/new/media/houses', 'AdminController@rejectNewMediaHouse');
+
+    Route::post('accept/{company}/new/media/houses', 'AdminController@acceptNewMediaHouse');
+
     Route::post('set/registration/amount', 'PaymentController@setAmount');
 
     Route::get('get/company/{company}/volume-discount', 'PaymentController@volumeDiscount');

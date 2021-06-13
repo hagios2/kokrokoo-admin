@@ -11,7 +11,7 @@ class ActivatedMediaResource extends  ResourceCollection
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public function toArray($request)
     {
