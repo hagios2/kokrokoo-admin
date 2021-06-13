@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class NewMediaGroupResource extends ResourceCollection
@@ -46,7 +44,7 @@ class NewMediaGroupResource extends ResourceCollection
 
                 'hasBankDetails' => $company->bank ? true : false,
 
-                'bank_details' => $this->company->bank
+                'bank_details' => $company->bank
             ];
 
         });

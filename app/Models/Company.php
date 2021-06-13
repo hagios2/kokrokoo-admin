@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static where(\string[][] $array)
+ */
 class Company extends Model
 {
     protected $guarded = ['id'];
