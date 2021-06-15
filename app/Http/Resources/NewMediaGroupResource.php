@@ -43,6 +43,8 @@ class NewMediaGroupResource extends ResourceCollection
 
                 'isPublished' => $company->isPublished,
 
+                'region' => json_decode($company->region),
+
                 'hasBankDetails' => $company->bank ? true : false,
 
                 'bank_details' => $company->bank,
