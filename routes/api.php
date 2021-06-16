@@ -137,8 +137,9 @@ Route::group(['prefix' => 'subscription'], function () {
 
 
 
+Route::get('payment/transactions', 'TransactionsController@index');
 
-
+Route::get('fetch/transaction/{transaction}/detail', 'TransactionsController@fetchTransactionDetails');
 
 
 Route::fallback(function(){

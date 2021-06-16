@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Audit;
+use App\Http\Resources\TransactionCampaignResource;
 use App\Http\Resources\TransactionResource;
 use App\Http\Resources\VolumeDiscountResource;
 use App\Models\Company;
 use App\Models\Transaction;
 use App\Models\VolumeDiscount;
+use App\TransactionCampaign;
 use Illuminate\Http\Request;
 
 class TransactionsController extends Controller
@@ -17,10 +18,18 @@ class TransactionsController extends Controller
         $this->middleware('auth:admin');
     }
 
-    public function view()
+    public function index()
     {
-        return new TransactionResource(Transaction::query()->latest()->paginate(10));
+        return new TransactionResource(Transaction::query()->latest()->paginate(15));
     }
+
+    public function fetchTransactionDetails(Transaction $transaction)
+    {
+        $transaction_campaign = TransactionCampaign::query()->where('transaction_id', $transaction->id)->get();
+
+        return TransactionCampaignResource::collection($transaction_campaign);
+    }
+
 
     public function viewVolumeDiscount()
     {

@@ -24,36 +24,18 @@ class SubscriptionController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return ScheduledAdResource
      */
     public function index()
     {
-       $scheduledAd =  ScheduledAd::paginate(20);
+        $scheduledAd = ScheduledAd::where('status', '!=', 'pending')->paginate(20);
 
         return new ScheduledAdResource($scheduledAd);
 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+
 
     /**
      * Display the specified resource.

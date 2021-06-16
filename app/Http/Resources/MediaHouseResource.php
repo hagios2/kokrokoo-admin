@@ -37,7 +37,7 @@ class MediaHouseResource extends JsonResource
 
             'business_cert' => $this->business_cert,
 
-            'logo' => $this->avatar->logo,
+            'logo' => $this->avatar ? $this->avatar->logo : null,
 
             'isPublished' => $this->isPublished,
 
