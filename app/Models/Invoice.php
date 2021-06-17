@@ -7,6 +7,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Reliese\Database\Eloquent\Model as Eloquent;
 
 /**
@@ -22,12 +23,7 @@ use Reliese\Database\Eloquent\Model as Eloquent;
  *
  * @package App\Models
  */
-class Invoice extends Eloquent
+class Invoice extends Model
 {
-	protected $fillable = [
-		'client_id',
-		'subscription_id',
-		'media_house_id',
-		'invoice_id'
-	];
+	protected $guarded = ['id'];
 }
