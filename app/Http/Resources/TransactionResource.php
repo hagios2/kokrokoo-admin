@@ -2,38 +2,42 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class TransactionResource extends JsonResource
+class TransactionResource extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public function toArray($request)
     {
-        return [
+        return $this->collection->map(function ($transaction){
 
-            'id' => $this->id,
+            return [
 
-            'client_id' => $this->client_id,
+                'id' => $transaction->id,
 
-            'client_company_id' => $this->client_company_id,
+                'client_id' => $transaction->client_id,
 
-            'invoice_id' => $this->invoice->generated_invoice_id,
+                'client_company_id' => $transaction->client_company_id,
 
-            'currency' => $this->currency,
+                'invoice_id' => $transaction->invoice->generated_invoice_id,
 
-            'transaction_status' => $this->transaction_status,
+                'currency' => $transaction->currency,
 
-            'total_amount_without_charges' => $this->total_amount_without_charges,
+                'transaction_status' => $transaction->transaction_status,
 
-            'grand_total_amount' => $this->grand_total_amount,
+                'total_amount_without_charges' => $transaction->total_amount_without_charges,
 
-            'transaction_reference' => $this->txRef,
+                'grand_total_amount' => $transaction->grand_total_amount,
 
-        ];
+                'transaction_reference' => $transaction->txRef,
+
+            ];
+
+        });
     }
 }
