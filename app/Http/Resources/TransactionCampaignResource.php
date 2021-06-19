@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\ScheduledAd;
-use App\Services\PaymentCalculation;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,9 +15,8 @@ class TransactionCampaignResource extends JsonResource
      */
     public function toArray($request)
     {
-        $payment_calculation = (new PaymentCalculation);
 
-        $scheduledAd_discount = $this->scheduledAdDiscount ?? $payment_calculation->calculateInvoiceCampaignPayment(ScheduledAd::find($this->scheduledAd->id));
+        $scheduledAd_discount = $this->scheduledAd->scheduledAdDiscount;
 
         return [
 

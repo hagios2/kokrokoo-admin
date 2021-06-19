@@ -7,6 +7,7 @@
 
 namespace App\Models;
 
+use App\ScheduledAdDiscount;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -37,6 +38,11 @@ class ScheduledAd extends Model
     public function ratecardTitle()
     {
         return $this->belongsTo('App\Models\RateCardTitle', 'rate_card_title_id');
+    }
+
+    public function scheduledAdDiscount()
+    {
+        return $this->hasOne(ScheduledAdDiscount::class);
     }
 
 }

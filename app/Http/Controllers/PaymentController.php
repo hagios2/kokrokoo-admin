@@ -22,6 +22,7 @@ use App\Models\VolumeDiscount;
 use App\Services\SendTextMessage;
 use App\VolumnDiscount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -120,107 +121,129 @@ class PaymentController extends Controller
             return response()->json(['message' => 'PO has already been approved']);
         }
 
-        $po->update(['status' => 'approved']);
+        DB::beginTransaction();
 
-        $po->cart->update(['payment_status' => 'paid']);
+        try {
 
-        $transaction = Transaction::where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
+            $transaction = Transaction::where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
 
-//        if($transaction)
-//        {
-            $transaction->update(['transaction_status' => 'successful']);
-//        }
-
-        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
-
-        $media_house = collect();
-
-        $campaigns = $po->cart->scheduledAd;
-
-        $campaigns->map(function ($campaign) use ($media_house){
-
-            if($campaign->ratecardTitle)
+            if($transaction)
             {
-                if($campaign->ratecardTitle->company)
-                {
-                    $media_house->push($campaign->ratecardTitle->company);
+                $transaction->update(['transaction_status' => 'successful']);
+
+                $po->update(['status' => 'approved']);
+
+                $po->cart->update(['payment_status' => 'paid']);
+
+                $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
+
+                $media_house = collect();
+
+                $campaigns = $po->cart->scheduledAd;
+
+                $campaigns->map(function ($campaign) use ($media_house) {
+
+                    if ($campaign->ratecardTitle) {
+                        if ($campaign->ratecardTitle->company) {
+                            $media_house->push($campaign->ratecardTitle->company);
+                        }
+                    }
+                });
+
+                Log::info('media_house |' . json_encode($media_house->unique('id')));
+
+                foreach ($media_house->unique('id') as $media) {
+
+                    $role = Role::where('role', 'super_admin')->first();
+
+                    Log::info('role | ' . $role);
+
+                    $user = User::where([['role_id', $role->id], ['company_id', $media->id]])->first();
+
+                    Log::info('user | ' . $user);
+
+                    $msg = "Dear {$user->name} a pending campaign awaits your response. Thank you!";
+
+                    $phone = $user->phone1;
+
+                    $sendMsg->sendSms($user->name, $phone, $msg);
+
+                    Mail::to($media->company_email)->send(new MediaPaymentNotification($media));
                 }
+
+                $role = Role::query()->where('role', 'super_admin')->first();
+
+                $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
+
+                if ($user)
+                {
+                    $msg = "Hello {$user->name}, Your Purchase Order for transaction {$transaction->generated_id} been approved. Thanks for doing business with us!";
+
+                    $sendMsg->sendSms($user->name, $user->phone1, $msg);
+
+                    Mail::to($user->email)->send(new ApprovedPOMail($po->company, $transaction));
+
+                }
+
+                Mail::to($po->company->company_email)->send(new ApprovedPOMail($po->company, $transaction));
+
             }
-        });
 
-        Log::info('media_house |'.json_encode($media_house->unique('id')));
+            DB::commit();
 
-        foreach ($media_house->unique('id') as $media)
+            return response()->json(['message' => 'approved']);
+
+        }catch (\Exception $exception)
         {
-            $role = Role::where('role', 'super_admin')->first();
-
-            Log::info('role | '. $role);
-
-            $user = User::where([['role_id', $role->id], ['company_id', $media->id]])->first();
-
-            Log::info('user | '. $user);
-
-            $msg = "Dear {$user->name} a pending campaign awaits your response. Thank you!";
-
-            $phone = $user->phone1;
-
-            $sendMsg->sendSms($user->name, $phone, $msg);
-
-            Mail::to($media->company_email)->send(new MediaPaymentNotification($media));
+            DB::rollback();
         }
 
-
-        $role = Role::query()->where('role', 'super_admin')->first();
-
-        $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
-
-        if($user)
-        {
-            $msg = "Hello {$user->name}, Your Purchase Order for transaction {$transaction->generated_id} been approved. Thanks for doing business with us!";
-
-            $sendMsg->sendSms($user->name, $user->phone1, $msg);
-
-            Mail::to($user->email)->send(new ApprovedPOMail($po->company, $transaction));
-
-        }
-
-        Mail::to($po->company->company_email)->send(new ApprovedPOMail($po->company, $transaction));
-
-        return response()->json(['message' => 'approved']);
     }
 
     public function rejectPO(POPayment $po)
     {
-        $po->update(['status' => 'rejected']);
-
-        $po->cart->update(['payment_status' => 'unpaid']);
-
-        $transaction = Transaction::where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
-
-//        if($transaction)
-//        {
-        $transaction->update(['transaction_status' => 'failed']);
-//        }
-
-        $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
-
-        $role = Role::query()->where('role', 'super_admin')->first();
-
-        $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
-
-        if($user)
+        if($po->status == 'rejected')
         {
-            $msg = "Hello {$user->name}, Your Purchase Order for transaction {$transaction->generated_id} has been rejected. For further information please mail us via support@kokrokooad.com or contact us for further information on your transaction.!";
-
-            $sendMsg->sendSms($user->name, $user->phone1, $msg);
-
-            Mail::to($user->email)->send(new  RejectedPOMail($po->company, $transaction));
+            return response()->json(['message' => 'PO has already been rejected']);
         }
 
-        Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company, $transaction));
+        DB::beginTransaction();
 
+        try {
 
-        return response()->json(['message' => 'rejected']);
+            $po->update(['status' => 'rejected']);
+
+            $po->cart->update(['payment_status' => 'unpaid']);
+
+            $transaction = Transaction::where([['email', $po->company->company_email] , ['transaction_status', 'pending']])->latest()->first();
+
+            $transaction->update(['transaction_status' => 'failed']);
+
+            $sendMsg = new SendTextMessage(env("SMS_USERNAME"), env("SMS_PASSWORD"));
+
+            $role = Role::query()->where('role', 'super_admin')->first();
+
+            $user = Client::query()->where([['role_id', $role->id], ['company_id', $po->company->id]])->first();
+
+            if($user)
+            {
+                $msg = "Hello {$user->name}, Your Purchase Order for transaction {$transaction->generated_id} has been rejected. For further information please mail us via support@kokrokooad.com or contact us for further information on your transaction.!";
+
+                $sendMsg->sendSms($user->name, $user->phone1, $msg);
+
+                Mail::to($user->email)->send(new  RejectedPOMail($po->company, $transaction));
+            }
+
+            Mail::to($po->company->company_email)->send(new  RejectedPOMail($po->company, $transaction));
+
+            DB::commit();
+
+            return response()->json(['message' => 'rejected']);
+
+        }catch (\Exception $exception)
+        {
+            DB::rollback();
+        }
     }
 
     public function fetchInvoice(Cart $cart)
