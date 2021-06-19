@@ -41,7 +41,7 @@ class SubscriptionController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function show(ScheduledAd $scheduledAd)
     {

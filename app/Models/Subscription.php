@@ -10,7 +10,16 @@ class Subscription extends Model
 
     public function subscriptionDetail()
     {
-        return $this->hasMany('App\Models\SubscriptionDetail');
+        return $this->hasMany(SubscriptionDetail::class);
     }
 
+    public function scheduledAd()
+    {
+        return $this->belongsTo(ScheduledAd::class);
+    }
+
+    public function day()
+    {
+        return $this->belongsTo(Day::class);
+    }
 }
